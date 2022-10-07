@@ -17,8 +17,8 @@ const (
 	DAEMON_REMOTE_DEFAULT_B  = "derostats.io:10102"
 	DAEMON_MAINNET_DEFAULT   = "127.0.0.1:10102"
 	DAEMON_SIMULATOR_DEFAULT = "127.0.0.1:20000"
-	P_SC_ID                  = "9af71c91a2569a03c91a6a20ba2d4970a06ab83b4caddbf9e4e33b47731169bf"
-	S_SC_ID                  = "ab4e5ec853e22bf5b4eec44988c6e7fa6285cd109b50c222ed911f337e483fdb"
+	P_SC_ID                  = "ef6f4caa31afdefb5ee6498c8b2345ca827b95cdf3c8a1c487543036b6011c92"
+	S_SC_ID                  = "f2a129d210b8d8b6836cab6f8873c11d8bb6d5c8fa6fe89fafdbd51e8f0c60bb"
 )
 
 var daemonConnectBool bool

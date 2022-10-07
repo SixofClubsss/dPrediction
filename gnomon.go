@@ -67,13 +67,9 @@ func ifPlaying() {
 		check := Graviton_backend.GetAllSCIDInvokeDetailsByEntrypoint(P_SC_ID, "Predict")
 		for i := range check {
 			str := "u_" + check[i].Sc_args.Value("name", rpc.DataString).(string)
-			fmt.Println(str)
 			key, _ := defaultIndexer.GetSCIDKeysByValue(s, P_SC_ID, str, defaultIndexer.ChainHeight)
 			signer := check[i].Sender
 			if key != nil && signer == wallet {
-				fmt.Println(key)
-				fmt.Println(signer)
-				fmt.Println(wallet)
 				nameInput.SetText(check[i].Sc_args.Value("name", rpc.DataString).(string))
 			}
 
@@ -91,6 +87,7 @@ func getBook() {
 	init := convertString_Int(initValue[0])
 	played := convertString_Int(playedValue[0])
 
+	game_select.SetText("")
 	s_sc_displayT.SetText("SC ID: \n" + S_SC_ID + "\n\nGames Completed: " + playedValue[0] + "\nCurrent Games:\n")
 	go func() {
 		for {
@@ -121,9 +118,15 @@ func getBook() {
 
 				s_Results(gameValue[0], iv, leagueValue[0], s_amtValue[0], eA, s_nValue[0], team_a, team_b, s_taValue[0], s_tbValue[0], s_totalValue[0])
 
+				if walletConnectBool {
+					enableSports(true)
+				}
+
+			} else {
+				enableSports(false)
 			}
 
-			if played > init {
+			if played >= init {
 				break
 			}
 
@@ -134,7 +137,6 @@ func getBook() {
 
 func getSportsAmt(n string) int {
 	amt, _ := Graviton_backend.GetSCIDValuesByKey(S_SC_ID, "s_amount_"+n, defaultIndexer.ChainHeight, true)
-	fmt.Println("amt", amt)
 	if amt != nil {
 		return convertString_Int(amt[0])
 	} else {
@@ -144,8 +146,8 @@ func getSportsAmt(n string) int {
 }
 
 func makeLeaderBoard() {
+	leadersTotal = nil
 	go func() {
-		leadersTotal = nil
 		findLeaders := Graviton_backend.GetAllSCIDInvokeDetailsByEntrypoint(P_SC_ID, "Predict")
 
 		for i := range findLeaders {

@@ -44,8 +44,9 @@ func main() {
 
 	sports_content := container.NewVBox(s_scDisplayTop())
 	sports_scroll := container.NewVScroll(sports_content)
-	sports_scroll.SetMinSize(fyne.NewSize(160, 660))
-	sports_buttons := container.NewVBox(gameOptions(), teamA(), teamB())
+	sports_scroll.SetMinSize(fyne.NewSize(160, 600))
+	sports_muli := container.NewCenter(multiplyer())
+	sports_buttons := container.NewVBox(sports_muli, gameOptions(), teamA(), teamB())
 	s_sc := container.NewVBox(sports_scroll, layout.NewSpacer(), sports_buttons)
 
 	predict_content_a := container.NewVBox(higher(), lower())
@@ -66,8 +67,15 @@ func main() {
 		container.NewTabItem("Leaderboard", leaders_contnet),
 	)
 	tabs.OnSelected = func(ti *container.TabItem) {
-		getBook()
-		makeLeaderBoard()
+		switch tabs.SelectedIndex() {
+		case 1:
+			getBook()
+			s_multi.SetSelected("")
+		case 3:
+			makeLeaderBoard()
+		default:
+		}
+
 	}
 	/// start process loop, set content and start main app
 	fetchLoop()

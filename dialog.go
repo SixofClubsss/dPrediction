@@ -246,19 +246,47 @@ func confirmPopUp(i int) { /// action confirmation pop up
 	var confirm_display = widget.NewLabel("")
 	confirm_display.Wrapping = fyne.TextWrapWord
 
-	float := float64(amount)
-	amt := float / 10000
-	a := fmt.Sprintf("%f", amt)
-
 	switch i {
 	case 1:
+		float := float64(amount)
+		amt := float / 100000
+		a := fmt.Sprintf("%f", amt)
+
 		confirm_display.SetText("Lower prediction of " + a + " Dero\n\nConfirm")
 	case 2:
+		float := float64(amount)
+		amt := float / 100000
+		a := fmt.Sprintf("%f", amt)
+
 		confirm_display.SetText("Higer prediction of " + a + " Dero\n\nConfirm")
 	case 3:
-		confirm_display.SetText("Betting on Team " + "A" + "for" + " Dero\n\nConfirm")
+		game := game_select.Text
+		val := float64(getSportsAmt(game))
+		var x string
+
+		switch s_multi.Selected {
+		case "3x":
+			x = fmt.Sprint(val * 3 / 100000)
+		case "5x":
+			x = fmt.Sprint(val * 5 / 100000)
+		default:
+			x = fmt.Sprint(val / 100000)
+		}
+		confirm_display.SetText("Betting on Game#: " + game + "\nTeam " + "A" + " for " + x + " Dero\n\nConfirm")
 	case 4:
-		confirm_display.SetText("Betting on Team " + "B" + "for" + " Dero\n\nConfirm")
+		game := game_select.Text
+		val := float64(getSportsAmt(game))
+		var x string
+
+		switch s_multi.Selected {
+		case "3x":
+			x = fmt.Sprint(val * 3 / 100000)
+		case "5x":
+			x = fmt.Sprint(val * 5 / 100000)
+		default:
+			x = fmt.Sprint(val / 100000)
+		}
+		confirm_display.SetText("Betting on Game#: " + game + "\nTeam " + "B" + " for " + x + " Dero\n\nConfirm")
 	default:
 		log.Println("No Confirm Input")
 		confirm_display.SetText("Error")
@@ -383,7 +411,7 @@ func ownerConfirmPopUp(i int) { /// owner action confirmation
 		case 3:
 			endSports(payout_nInput.Text, teamReturn(s_pay_team))
 		case 4:
-			postPrediction(convertString_Int(p_pay_price))
+			postPrediction(convertString_Int(p_post_price))
 		case 5:
 			endPredition(convertString_Int(p_pay_price))
 		default:
@@ -455,6 +483,8 @@ func p_initResults(p, amt, eA, c, t, u, d, r, f, m string, post bool) { /// pred
 func p_no_initResults(fr, tx, r, m string) { /// prediction info label, not initialized
 	p_sc_displayT.SetText("SC ID: \n" + P_SC_ID + "\n" + "\nNot Accepting Predictions\n\nLast Round Mark: " + m +
 		"\nLast Round Results: " + fr + "\nLast Round TXID: " + tx + "\n\nTotal Rounds Played: " + r)
+
+	p_sc_displayB.SetText("")
 }
 
 func printLeaders() { /// make leaderboard
