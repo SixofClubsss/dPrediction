@@ -239,20 +239,41 @@ func pickTeam(pick int) error { /// pick sports team
 			"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(rpcLoginInput.Text)),
 		},
 	})
+	var amt uint64
 	n := game_select.Text
-	a := uint64(getSportsAmt(n))
+
+	switch s_multi.Selected {
+	case "1x":
+		amt = uint64(getSportsAmt(n))
+	case "3x":
+		amt = uint64(getSportsAmt(n) * 3)
+	case "5x":
+		amt = uint64(getSportsAmt(n) * 5)
+	default:
+		amt = uint64(getSportsAmt(n))
+	}
+
 	arg1 := rpc.Argument{Name: "entrypoint", DataType: "S", Value: "Book"}
 	arg2 := rpc.Argument{Name: "n", DataType: "S", Value: n}
 	arg3 := rpc.Argument{Name: "pre", DataType: "U", Value: pick}
 	args := rpc.Arguments{arg1, arg2, arg3}
 	txid := rpc.Transfer_Result{}
-	p := &rpc.SC_Invoke_Params{
-		SC_ID:           S_SC_ID,
-		SC_RPC:          args,
-		SC_DERO_Deposit: a,
-		Ringsize:        2,
+
+	t := rpc.Transfer{
+		Destination: "deto1qyvyeyzrcm2fzf6kyq7egkes2ufgny5xn77y6typhfx9s7w3mvyd5qqynr5hx",
+		Amount:      0,
+		Burn:        amt,
 	}
-	err := rpcClientW.CallFor(ctx, &txid, "scinvoke", p)
+
+	params := &rpc.Transfer_Params{
+		Transfers: []rpc.Transfer{t},
+		SC_ID:     S_SC_ID,
+		SC_RPC:    args,
+		Ringsize:  2,
+		Fees:      300,
+	}
+
+	err := rpcClientW.CallFor(ctx, &txid, "transfer", params)
 
 	if err != nil {
 		fmt.Println(err)
@@ -346,7 +367,7 @@ func postPrediction(price int) error {
 	p := &rpc.SC_Invoke_Params{
 		SC_ID:           P_SC_ID,
 		SC_RPC:          args,
-		SC_DERO_Deposit: 0,
+		SC_DERO_Deposit: 0, /// TODO add inital deposit
 		Ringsize:        2,
 	}
 	err := rpcClientW.CallFor(ctx, &txid, "scinvoke", p)
@@ -376,12 +397,10 @@ func endSports(num, team string) error {
 	txid := rpc.Transfer_Result{}
 	params := &rpc.Transfer_Params{
 		Transfers: []rpc.Transfer{},
-		SC_Value:  0,
 		SC_ID:     S_SC_ID,
 		SC_RPC:    args,
 		Ringsize:  2,
 		Fees:      400,
-		Signer:    "",
 	}
 	err := rpcClientW.CallFor(ctx, &txid, "transfer", params)
 
@@ -410,13 +429,11 @@ func endPredition(price int) error {
 
 	params := &rpc.Transfer_Params{
 		Transfers: []rpc.Transfer{},
-		//SC_Code:   "",
-		SC_Value: 0,
-		SC_ID:    P_SC_ID,
-		SC_RPC:   args,
-		Ringsize: 2,
-		Fees:     400,
-		//Signer:   "",
+		SC_Value:  0,
+		SC_ID:     P_SC_ID,
+		SC_RPC:    args,
+		Ringsize:  2,
+		Fees:      400,
 	}
 	err := rpcClientW.CallFor(ctx, &txid, "transfer", params)
 

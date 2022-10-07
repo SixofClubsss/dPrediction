@@ -76,7 +76,6 @@ func isWalletConnected() { /// check if wallet is connected
 		}
 		GetBalance()
 		enablePrediction(p_initialized)
-		enableSports(true)
 		removeButton.Enable()
 	} else {
 		log.Println("Wallet Not Connected")
@@ -182,11 +181,13 @@ func enableSports(init bool) {
 		a_button.Enable()
 		b_button.Enable()
 		game_select.Enable()
+		s_multi.Enable()
 
 	} else {
 		a_button.Disable()
 		b_button.Disable()
 		game_select.Disable()
+		s_multi.Disable()
 	}
 }
 

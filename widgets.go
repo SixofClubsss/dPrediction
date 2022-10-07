@@ -124,6 +124,11 @@ func ownerButton() fyne.Widget {
 var s_sc_displayT = widget.NewLabel("")
 var game_select = widget.NewEntry()
 
+var multi_options = []string{"1x", "3x", "5x"}
+var s_multi = widget.NewRadioGroup(multi_options, func(s string) {
+
+})
+
 var a_button = widget.NewButton("TEAM A", func() {
 	log.Println("TEAM A Pressed")
 	confirmPopUp(3)
@@ -133,6 +138,13 @@ var b_button = widget.NewButton("TEAM B", func() {
 	log.Println("TEAM B Pressed")
 	confirmPopUp(4)
 })
+
+func multiplyer() fyne.Widget { /// sports multiplier
+	s_multi.Horizontal = true
+	s_multi.Disable()
+
+	return s_multi
+}
 
 func teamA() fyne.Widget { /// team A button
 	a_button.Disable()
@@ -252,7 +264,7 @@ func leadersDisplay() fyne.Widget { /// leaderboard display
 
 var removeButton = widget.NewButton("Remove", func() {
 	log.Println("Remove Pressed")
-	namePopUp(1)
+	namePopUp(2)
 })
 
 func remove() fyne.Widget { /// remove address button

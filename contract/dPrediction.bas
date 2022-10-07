@@ -148,8 +148,9 @@ End Function
 
 
 Function P_end(price Uint64) Uint64
-    10 IF LOAD("owner") == SIGNER() THEN GOTO 20 ELSE GOTO 30
-    20 IF BLOCK_TIMESTAMP() >= LOAD("p_end_at")+LOAD("time_c") && BLOCK_TIMESTAMP() <= LOAD("p_end_at")+LOAD("time_c")+LOAD("time_b") THEN GOTO 40 ELSE GOTO 600
+    10 IF LOAD("owner") == SIGNER() THEN GOTO 15 ELSE GOTO 30
+    15 IF BLOCK_TIMESTAMP() >= LOAD("p_end_at")+LOAD("time_c") THEN GOTO 20 ELSE GOTO 30
+    20 IF BLOCK_TIMESTAMP() <= LOAD("p_end_at")+LOAD("time_c")+LOAD("time_b") THEN GOTO 40 ELSE GOTO 600
     30 RETURN 1
     40 DIM i, p as Uint64
     50 IF price < LOAD("mark") THEN GOTO 100

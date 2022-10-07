@@ -123,8 +123,9 @@ End Function
 
 
 Function S_end(n String, team String) Uint64
-    10 IF LOAD("owner") == SIGNER() THEN GOTO 20 ELSE GOTO 30
-    20 IF BLOCK_TIMESTAMP() >= LOAD("s_end_at_"+n)+LOAD("time_a") && BLOCK_TIMESTAMP() <= LOAD("s_end_at_"+n)+LOAD("time_b") THEN GOTO 40 ELSE GOTO 600
+    10 IF LOAD("owner") == SIGNER() THEN GOTO 15 ELSE GOTO 30
+    15 IF BLOCK_TIMESTAMP() >= LOAD("s_end_at_"+n)+LOAD("time_a") THEN GOTO 20 ELSE GOTO 30
+    20 IF BLOCK_TIMESTAMP() <= LOAD("s_end_at_"+n)+LOAD("time_b") THEN GOTO 40 ELSE GOTO 600
     30 RETURN 1
     40 DIM i, p as Uint64
     50 IF team == "team_a" THEN GOTO 100
