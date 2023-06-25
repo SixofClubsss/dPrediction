@@ -10,6 +10,75 @@ import (
 	"github.com/dReam-dApps/dReams/rpc"
 )
 
+func DreamsMenuIntro() (entries map[string][]string) {
+	entries = map[string][]string{
+		"Predictions": {
+			"Prediction contracts are for binary based predictions, (higher/lower, yes/no)",
+			"How predictions works",
+			"Current Markets",
+			"dReams Client aggregated price feed",
+			"View active prediction contracts in predictions tab or launch your own prediction contract in the owned tab"},
+
+		"How predictions works": {
+			"P2P predictions",
+			"Variable time limits allowing for different prediction set ups, each contract runs one prediction at a time",
+			"Click a contract from the list to view it",
+			"Closes at, is when the contract will stop accepting predictions",
+			"Mark (price or value you are predicting on) can be set on prediction initialization or it can given live",
+			"Posted with in, is the acceptable time frame to post the live Mark",
+			"If Mark is not posted, prediction is voided and you will be refunded",
+			"Payout after, is when the Final price is posted and compared to the mark to determine winners",
+			"If the final price is not posted with in refund time frame, prediction is void and you will be refunded"},
+
+		"Current Markets": {
+			"DERO-BTC",
+			"XMR-BTC",
+			"BTC-USDT",
+			"DERO-USDT",
+			"XMR-USDT",
+			"DERO-Difficulty",
+			"DERO-Block Time",
+			"DERO-Block Number"},
+
+		"Sports": {
+			"Sports contracts are for sports wagers",
+			"How sports works",
+			"Current Leagues",
+			"Live game scores, and game schedules",
+			"View active sports contracts in sports tab or launch your own sports contract in the owned tab"},
+
+		"How sports works": {
+			"P2P betting",
+			"Variable time limits, one contract can run multiple games at the same time",
+			"Click a contract from the list to view it",
+			"Any active games on the contract will populate, you can pick which game you'd like to play from the drop down",
+			"Closes at, is when the contracts stops accepting picks",
+			"Default payout time after close is 4hr, this is when winner will be posted from client feed",
+			"Default refund time is 8hr after close, meaning if winner is not provided past that time you will be refunded",
+			"A Tie refunds pot to all all participants"},
+
+		"Current Leagues": {
+			"EPL",
+			"MLS",
+			"FIFA",
+			"NBA",
+			"NFL",
+			"NHL",
+			"MLB",
+			"Bellator",
+			"UFC"},
+
+		"dService": {
+			"dService is unlocked for all betting contract owners",
+			"Full automation of contract posts and payouts",
+			"Integrated address service allows bets to be placed through a Dero transaction to sent to service",
+			"Multiple owners can be added to contracts and multiple service wallets can be ran on one contract",
+			"Stand alone cli app available for streamlined use"},
+	}
+
+	return
+}
+
 // Do this when first connected
 func OnConnected() {
 	Predict.Settings.Contract_entry.CursorColumn = 1
@@ -19,7 +88,7 @@ func OnConnected() {
 }
 
 // Main process for dSports and dPrediction
-func fetch(p, s *dreams.DreamsItems, d dreams.DreamsObject) {
+func fetch(d dreams.DreamsObject) {
 	var offset int
 	SetPrintColors(d.OS)
 	time.Sleep(3 * time.Second)
@@ -29,8 +98,8 @@ func fetch(p, s *dreams.DreamsItems, d dreams.DreamsObject) {
 			if !rpc.Wallet.IsConnected() || !rpc.Daemon.IsConnected() {
 				disableActions()
 				Owner.Synced = false
-				s.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
-				p.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+				S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 				d.WorkDone()
 				continue
 			}
@@ -52,7 +121,7 @@ func fetch(p, s *dreams.DreamsItems, d dreams.DreamsObject) {
 					go SetSportsInfo(Sports.Contract)
 				}
 			}
-			s.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+			S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
 			//dPrediction
 			if d.OnTab("Predict") {
@@ -64,7 +133,7 @@ func fetch(p, s *dreams.DreamsItems, d dreams.DreamsObject) {
 					go SetPredictionPrices(rpc.Daemon.Connect)
 				}
 
-				p.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
 				if CheckActivePrediction(Predict.Contract) {
 					go ShowPredictionControls()

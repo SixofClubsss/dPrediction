@@ -4,6 +4,7 @@ import (
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
+	"github.com/dReam-dApps/dReams/rpc"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -11,8 +12,18 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var P dreams.DreamsItems
+
 // dPrediction tab layout
-func LayoutPredictItems(p *dreams.DreamsItems, d dreams.DreamsObject) *fyne.Container {
+func LayoutPredictItems(d dreams.DreamsObject) *fyne.Container {
+	P.LeftLabel = widget.NewLabel("")
+	P.RightLabel = widget.NewLabel("")
+	P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+
+	Predict.Info = widget.NewLabel("SCID:\n\n" + Predict.Contract + "\n")
+	Predict.Info.Wrapping = fyne.TextWrapWord
+	Predict.Prices = widget.NewLabel("")
+
 	predict_info := container.NewVBox(Predict.Info, Predict.Prices)
 	predict_scroll := container.NewScroll(predict_info)
 	predict_scroll.SetMinSize(fyne.NewSize(540, 500))
@@ -96,12 +107,12 @@ func LayoutPredictItems(p *dreams.DreamsItems, d dreams.DreamsObject) *fyne.Cont
 		max.Objects[1].Refresh()
 	}
 
-	predict_label := container.NewHBox(p.LeftLabel, layout.NewSpacer(), p.RightLabel)
+	predict_label := container.NewHBox(P.LeftLabel, layout.NewSpacer(), P.RightLabel)
 	predict_box := container.NewHSplit(predict_content, max)
 
-	p.DApp = container.NewVBox(
+	P.DApp = container.NewVBox(
 		dwidget.LabelColor(predict_label),
 		predict_box)
 
-	return p.DApp
+	return P.DApp
 }
