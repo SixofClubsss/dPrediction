@@ -17,7 +17,7 @@ import (
 var S dreams.DreamsItems
 
 // dSports tab layout
-func LayoutSportsItems(d dreams.DreamsObject) *fyne.Container {
+func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
 	S.LeftLabel = widget.NewLabel("")
 	S.RightLabel = widget.NewLabel("")
 	S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)

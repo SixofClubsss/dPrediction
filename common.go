@@ -88,9 +88,9 @@ func OnConnected() {
 }
 
 // Main process for dSports and dPrediction
-func fetch(d dreams.DreamsObject) {
+func fetch(d *dreams.DreamsObject) {
 	var offset int
-	SetPrintColors(d.OS)
+	SetPrintColors(d.OS())
 	time.Sleep(3 * time.Second)
 	for {
 		select {
@@ -104,7 +104,7 @@ func fetch(d dreams.DreamsObject) {
 				continue
 			}
 
-			if !Owner.Synced && menu.GnomonScan(d.Configure) {
+			if !Owner.Synced && menu.GnomonScan(d.IsConfiguring()) {
 				log.Println("[dPrediction] Syncing")
 				contracts := menu.Gnomes.IndexContains()
 				go CheckBetContractOwners(contracts)

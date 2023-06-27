@@ -304,7 +304,7 @@ func PredictionOwned() fyne.CanvasObject {
 }
 
 // Refresh all dPrediction objects
-func PredictionRefresh(p *dreams.DreamsItems, d dreams.DreamsObject) {
+func PredictionRefresh(p *dreams.DreamsItems, d *dreams.DreamsObject) {
 	if d.OnTab("Predict") {
 		if Predict.Prices.Text == "" {
 			go SetPredictionPrices(rpc.Daemon.Connect)
