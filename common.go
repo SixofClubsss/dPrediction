@@ -159,7 +159,7 @@ func fetch(d *dreams.DreamsObject) {
 func Disconnected() {
 	Service.Stop()
 	Predict.owner = false
-	Owner.Synced = true
+	Owner.Synced = false
 }
 
 // Disable sports and prediction actions

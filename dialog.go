@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	holdero "github.com/SixofClubsss/Holdero"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
@@ -166,7 +165,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			}
 
 		} else {
-			a, _ = holdero.GetPrice(prediction)
+			a, _ = menu.GetPrice(prediction, "Prediction")
 			window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(4, a, window, reset)
 		}
 
@@ -197,7 +196,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			}
 
 		} else {
-			a, _ = holdero.GetPrice(prediction)
+			a, _ = menu.GetPrice(prediction, "Prediction")
 			window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(5, a, window, reset)
 		}
 
@@ -669,11 +668,11 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 	case 1:
 		float := float64(Predict.Amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero\n\nConfirm", p_scid, amt))
+		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero", p_scid, amt))
 	case 2:
 		float := float64(Predict.Amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero\n\nConfirm", p_scid, amt))
+		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt))
 	case 3:
 		game := Sports.Game_select.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
@@ -681,14 +680,14 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 
 		switch multi {
 		case "3x":
-			x = fmt.Sprint(val * 3 / 100000)
+			x = fmt.Sprintf("%.5f", val*3/100000)
 		case "5x":
-			x = fmt.Sprint(val * 5 / 100000)
+			x = fmt.Sprintf("%.5f", val*5/100000)
 		default:
-			x = fmt.Sprint(val / 100000)
+			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero\n\nConfirm", s_scid, game, teamA, x))
+		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x))
 	case 4:
 		game := Sports.Game_select.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
@@ -696,14 +695,14 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 
 		switch multi {
 		case "3x":
-			x = fmt.Sprint(val * 3 / 100000)
+			x = fmt.Sprintf("%.5f", val*3/100000)
 		case "5x":
-			x = fmt.Sprint(val * 5 / 100000)
+			x = fmt.Sprintf("%.5f", val*5/100000)
 		default:
-			x = fmt.Sprint(val / 100000)
+			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero\n\nConfirm", s_scid, game, teamB, x))
+		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x))
 	default:
 		log.Println("[dReams] No Confirm Input")
 		confirm_display.SetText("Error")
@@ -1102,10 +1101,10 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		}
 		if n_split[1] == "Bellator" || n_split[1] == "UFC" {
 			win, team = GetMmaWinner(n_split[2], n_split[1])
-			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s\n\nConfirm", s_scid, Owner.Payout_n.Text, team)
+			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, team)
 		} else {
 			win, team, a_score, b_score = GetWinner(n_split[2], n_split[1])
-			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s\n\nConfirm", s_scid, Owner.Payout_n.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
+			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
 		}
 	}
 
@@ -1148,9 +1147,9 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	case 3:
 		confirm_display.SetText(payout_str)
 	case 4:
-		confirm_display.SetText("SCID:\n\n" + p_scid + "\n\nFeed from: dReams Client\n\nPost Price: " + price + "\n\nConfirm")
+		confirm_display.SetText("SCID:\n\n" + p_scid + "\n\nFeed from: dReams Client\n\nPost Price: " + price)
 	case 5:
-		confirm_display.SetText("SCID:\n\n" + p_scid + "\n\nFeed from: dReams Client\n\nFinal Price: " + price + "\n\nConfirm")
+		confirm_display.SetText("SCID:\n\n" + p_scid + "\n\nFeed from: dReams Client\n\nFinal Price: " + price)
 	case 6:
 		switch onChainPrediction(pre) {
 		case 1:

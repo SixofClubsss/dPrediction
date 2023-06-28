@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	holdero "github.com/SixofClubsss/Holdero"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
@@ -147,9 +146,9 @@ func SetPredictionInfo(scid string) {
 // Update price feed for dPrediction display
 func SetPredictionPrices(d bool) {
 	if d {
-		_, btc := holdero.GetPrice("BTC-USDT")
-		_, dero := holdero.GetPrice("DERO-USDT")
-		_, xmr := holdero.GetPrice("XMR-USDT")
+		_, btc := menu.GetPrice("BTC-USDT", "Prediction")
+		_, dero := menu.GetPrice("DERO-USDT", "Prediction")
+		_, xmr := menu.GetPrice("XMR-USDT", "Prediction")
 		/// custom feed with rpc.Display.P_feed
 		prices := "Current Price feed from dReams Client\nBTC: " + btc + "\nDERO: " + dero + "\nXMR: " + xmr
 

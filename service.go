@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	holdero "github.com/SixofClubsss/Holdero"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	dero "github.com/deroproject/derohe/rpc"
@@ -579,7 +578,7 @@ func runPredictionPayouts(print bool) {
 			}
 
 		} else {
-			value, _ = holdero.GetPrice(pre)
+			value, _ = menu.GetPrice(pre, "dService")
 			if value > 0 {
 				sent = true
 				tx = PostPrediction(sc, int(value))
@@ -636,7 +635,7 @@ func runPredictionPayouts(print bool) {
 			}
 
 		} else {
-			amt, _ = holdero.GetPrice(pre)
+			amt, _ = menu.GetPrice(pre, "dService")
 			if amt > 0 {
 				tx = EndPrediction(sc, int(amt))
 				sent = true
