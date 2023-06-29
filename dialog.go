@@ -101,7 +101,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 		}
 	}
 
-	Owner.P_end = dwidget.DeroAmtEntry("", 1, 0)
+	Owner.P_end = dwidget.NewDeroEntry("", 1, 0)
 	Owner.P_end.SetPlaceHolder("Closes At:")
 	Owner.P_end.AllowFloat = false
 	Owner.P_end.Validator = validation.NewRegexp(`^\d{10,}$`, "Unix time required")
@@ -110,7 +110,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	Owner.P_mark.SetPlaceHolder("Mark:")
 	Owner.P_mark.Validator = validation.NewRegexp(`^\d{1,}$`, "Int required")
 
-	Owner.P_amt = dwidget.DeroAmtEntry("", 0.1, 1)
+	Owner.P_amt = dwidget.NewDeroEntry("", 0.1, 1)
 	Owner.P_amt.SetPlaceHolder("Minimum Amount:")
 	Owner.P_amt.AllowFloat = true
 	Owner.P_amt.Wrapping = fyne.TextTruncate
@@ -120,7 +120,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	Owner.P_feed = widget.NewSelectEntry(feeds)
 	Owner.P_feed.SetPlaceHolder("Feed:")
 
-	Owner.P_deposit = dwidget.DeroAmtEntry("", 0.1, 1)
+	Owner.P_deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	Owner.P_deposit.SetPlaceHolder("Deposit Amount:")
 	Owner.P_deposit.AllowFloat = true
 	Owner.P_deposit.Wrapping = fyne.TextTruncate
@@ -281,11 +281,11 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	}
 	Owner.S_league.SetPlaceHolder("League:")
 
-	Owner.S_end = dwidget.DeroAmtEntry("", 1, 0)
+	Owner.S_end = dwidget.NewDeroEntry("", 1, 0)
 	Owner.S_end.SetPlaceHolder("Closes At:")
 	Owner.S_end.Validator = validation.NewRegexp(`^\d{10,}$`, "Unix time required")
 
-	Owner.S_amt = dwidget.DeroAmtEntry("", 0.1, 1)
+	Owner.S_amt = dwidget.NewDeroEntry("", 0.1, 1)
 	Owner.S_amt.SetPlaceHolder("Minimum Amount:")
 	Owner.S_amt.AllowFloat = true
 	Owner.S_amt.Wrapping = fyne.TextTruncate
@@ -295,7 +295,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	Owner.S_feed = widget.NewSelectEntry(feeds)
 	Owner.S_feed.SetPlaceHolder("Feed:")
 
-	Owner.S_deposit = dwidget.DeroAmtEntry("", 0.1, 1)
+	Owner.S_deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	Owner.S_deposit.SetPlaceHolder("Deposit Amount:")
 	Owner.S_deposit.AllowFloat = true
 	Owner.S_deposit.Wrapping = fyne.TextTruncate
@@ -403,7 +403,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 		}
 	})
 
-	entry := dwidget.DeroAmtEntry("", 1, 0)
+	entry := dwidget.NewDeroEntry("", 1, 0)
 	entry.SetPlaceHolder("Block #:")
 	entry.AllowFloat = false
 	entry.Wrapping = fyne.TextTruncate
@@ -537,28 +537,28 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 // SCID update objects for side menu
 func updateOpts() fyne.CanvasObject {
 	a_label := widget.NewLabel("Time A         ")
-	a := dwidget.DeroAmtEntry("", 1, 0)
+	a := dwidget.NewDeroEntry("", 1, 0)
 	a.SetPlaceHolder("Time A:")
 	a.AllowFloat = false
 	a.Wrapping = fyne.TextTruncate
 	a.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	b_label := widget.NewLabel("Time B         ")
-	b := dwidget.DeroAmtEntry("", 1, 0)
+	b := dwidget.NewDeroEntry("", 1, 0)
 	b.SetPlaceHolder("Time B:")
 	b.AllowFloat = false
 	b.Wrapping = fyne.TextTruncate
 	b.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	c_label := widget.NewLabel("Time C         ")
-	c := dwidget.DeroAmtEntry("", 1, 0)
+	c := dwidget.NewDeroEntry("", 1, 0)
 	c.SetPlaceHolder("Time C:")
 	c.AllowFloat = false
 	c.Wrapping = fyne.TextTruncate
 	c.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	hl_label := widget.NewLabel("Max Games")
-	hl := dwidget.DeroAmtEntry("", 1, 0)
+	hl := dwidget.NewDeroEntry("", 1, 0)
 	hl.SetPlaceHolder("Max Games:")
 	hl.AllowFloat = false
 	hl.Wrapping = fyne.TextTruncate
@@ -601,7 +601,7 @@ func updateOpts() fyne.CanvasObject {
 		}
 	})
 
-	owner_num := dwidget.DeroAmtEntry("", 1, 0)
+	owner_num := dwidget.NewDeroEntry("", 1, 0)
 	owner_num.SetPlaceHolder("Owner #:")
 	owner_num.AllowFloat = false
 	owner_num.Validator = validation.NewRegexp(`^[^0]\d{0,0}$`, "Int required")
@@ -793,7 +793,7 @@ func serviceRunConfirm(start uint64, payout, transfers bool, window fyne.Window,
 
 // Convert unix time to human readable time
 func humanTimeConvert() fyne.CanvasObject {
-	entry := dwidget.DeroAmtEntry("", 1, 0)
+	entry := dwidget.NewDeroEntry("", 1, 0)
 	entry.AllowFloat = false
 	entry.SetPlaceHolder("Unix time:")
 	entry.Validator = validation.NewRegexp(`^\d{10,}$`, "Unix time required")
@@ -913,7 +913,7 @@ func ownersMenu() {
 	clock := widget.NewEntry()
 	clock.Disable()
 
-	entry := dwidget.DeroAmtEntry("", 1, 0)
+	entry := dwidget.NewDeroEntry("", 1, 0)
 	entry.AllowFloat = false
 	entry.SetPlaceHolder("Hours to close:")
 	entry.Validator = validation.NewRegexp(`^\d{1,}$`, "Int required")
