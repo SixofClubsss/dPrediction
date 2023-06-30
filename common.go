@@ -24,7 +24,7 @@ func DreamsMenuIntro() (entries map[string][]string) {
 			"Variable time limits allowing for different prediction set ups, each contract runs one prediction at a time",
 			"Click a contract from the list to view it",
 			"Closes at, is when the contract will stop accepting predictions",
-			"Mark (price or value you are predicting on) can be set on prediction initialization or it can given live",
+			"Mark (price or value you are predicting on) can be set on prediction initialization or it can be given live",
 			"Posted with in, is the acceptable time frame to post the live Mark",
 			"If Mark is not posted, prediction is voided and you will be refunded",
 			"Payout after, is when the Final price is posted and compared to the mark to determine winners",
