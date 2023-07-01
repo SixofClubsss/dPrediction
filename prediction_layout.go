@@ -103,7 +103,7 @@ func LayoutPredictItems(d *dreams.DreamsObject) *fyne.Container {
 	}
 
 	Predict.Settings.New.OnTapped = func() {
-		max.Objects[1] = newSportsConfirm(2, max.Objects, tabs)
+		max.Objects[1] = newPredictConfirm(2, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}
 
