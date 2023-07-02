@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	fyne.io/fyne/v2 v2.3.1
-	github.com/SixofClubsss/Holdero v0.0.0-20230701014232-92491e1cf993
+	github.com/SixofClubsss/Holdero v0.0.0-20230701210726-409748173e76
 	github.com/dReam-dApps/dReams v0.9.7-0.20230630182006-2db4e86841b7
 	github.com/deroproject/derohe v0.0.0-20230604143809-765b2db1f482
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
