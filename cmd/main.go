@@ -172,7 +172,7 @@ func main() {
 	menu.Control.Contract_rating = make(map[string]uint64)
 
 	// Start Gnomon with search filters
-	go menu.StartGnomon("dService", "gravdb", filter, 0, 0, nil)
+	go menu.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
 
 	// Routine for checking daemon, wallet connection and Gnomon sync
 	go func() {
