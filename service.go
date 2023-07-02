@@ -354,11 +354,11 @@ func intgSportsArgs(scid string, print bool) (args [][]dero.Arguments) {
 
 // Prepare and display all integrated addresses for live dSports or dPrediction contract owned by wallet
 //   - print for debug
-func makeIntegratedAddr(print bool) {
+func MakeIntegratedAddr(print bool) {
 	var addr *dero.Address
 	Service.Dest_port, addr = integratedAddress()
 	if addr == nil {
-		log.Println("[makeIntegratedAddr] Could not make addresses")
+		log.Println("[MakeIntegratedAddr] Could not make addresses")
 		return
 	}
 
@@ -384,19 +384,19 @@ func makeIntegratedAddr(print bool) {
 		higher, lower := intgPredictionArgs(sc, print)
 		if higher != nil && lower != nil {
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%d DST Port", higher.Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%d DST Port", higher.Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
 			}
 
 			service_address.Arguments = higher
 			comment := higher.Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(higher.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(higher.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
 			}
 
 			service_address.Arguments = lower
 			comment = lower.Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(lower.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(lower.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
 			}
 			live = true
 		}
@@ -406,19 +406,19 @@ func makeIntegratedAddr(print bool) {
 		all_args := intgSportsArgs(sc, true)
 		for _, arg := range all_args {
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%d DST Port", arg[0].Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%d DST Port", arg[0].Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
 			}
 
 			service_address.Arguments = arg[0]
 			comment := arg[0].Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[0].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[0].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
 			}
 
 			service_address.Arguments = arg[1]
 			comment = arg[1].Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				log.Println("[makeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[1].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				log.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[1].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
 			}
 			live = true
 		}
@@ -426,7 +426,7 @@ func makeIntegratedAddr(print bool) {
 
 	if !live {
 		if print {
-			log.Println("[makeIntegratedAddr]", "No addresses")
+			log.Println("[MakeIntegratedAddr]", "No addresses")
 		}
 	}
 }

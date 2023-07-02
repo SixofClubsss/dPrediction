@@ -353,7 +353,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 //   - Pass side menu window to reset to
 func serviceOpts(window fyne.Window) fyne.CanvasObject {
 	get_addr := widget.NewButton("Integrated Address", func() {
-		go makeIntegratedAddr(true)
+		go MakeIntegratedAddr(true)
 	})
 
 	txid := widget.NewMultiLineEntry()
@@ -905,7 +905,7 @@ func ownersMenu() {
 		case "Sports":
 			go GetActiveGames()
 		case "Service":
-			go makeIntegratedAddr(false)
+			go MakeIntegratedAddr(false)
 		}
 	}
 

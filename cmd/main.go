@@ -30,7 +30,7 @@ Options:
   --daemon=<127.0.0.1:10102>     Set daemon rpc address to connect.
   --wallet=<127.0.0.1:10103>     Set wallet rpc address to connect.
   --login=<user:pass>     	 Wallet rpc user:pass for auth.
-  --transfers=<false>        True/false value for enabling processing transfers to integrated address.
+  --transfers=<false>            True/false value for enabling processing transfers to integrated address.
   --debug=<true>     		 True/false value for enabling terminal debug.
   --fastsync=<true>	         Gnomon option,  true/false value to define loading at chain height on start up.
   --num-parallel-blocks=<5>      Gnomon option,  defines the number of parallel blocks to index.`
@@ -212,10 +212,11 @@ func main() {
 	prediction.PopulatePredictions(nil)
 	prediction.PopulateSports(nil)
 
-	// Set added print text
+	// Set added print text and make integrated address for transfers
 	add := ""
 	if enable_transfers {
 		add = "and transactions"
+		prediction.MakeIntegratedAddr(prediction.Service.Debug)
 	}
 
 	// Start dService
