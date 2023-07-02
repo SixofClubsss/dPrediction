@@ -157,7 +157,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 				a = rpc.GetBlockTime(Predict.Feed)
 				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(6, a, window, reset)
 			case 3:
-				d := rpc.DaemonHeight("dReams", Predict.Feed)
+				d := rpc.DaemonHeight("Prediction", Predict.Feed)
 				a = float64(d)
 				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(6, a, window, reset)
 			default:
@@ -188,7 +188,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 				a = rpc.GetBlockTime(Predict.Feed)
 				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(7, a, window, reset)
 			case 3:
-				d := rpc.DaemonHeight("dReams", Predict.Feed)
+				d := rpc.DaemonHeight("Prediction", Predict.Feed)
 				a = float64(d)
 				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(7, a, window, reset)
 			default:
@@ -367,7 +367,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				processSingleTx(txid.Text)
 			}
 		} else {
-			log.Println("[dReams] Stop service to manually process Tx")
+			log.Println("[dService] Stop service to manually process Tx")
 		}
 	})
 
@@ -383,7 +383,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				}
 			}
 		} else {
-			log.Println("[dReams] Stop service to delete Tx")
+			log.Println("[dService] Stop service to delete Tx")
 		}
 	})
 
@@ -399,7 +399,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				}
 			}
 		} else {
-			log.Println("[dReams] Stop service to store Tx")
+			log.Println("[dService] Stop service to store Tx")
 		}
 	})
 
@@ -412,7 +412,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 	var start uint64
 	height := widget.NewCheck("Start from current height", func(b bool) {
 		if b {
-			start = rpc.DaemonHeight("dReams", rpc.Daemon.Rpc)
+			start = rpc.DaemonHeight("Prediction", rpc.Daemon.Rpc)
 			entry.SetText(strconv.Itoa(int(start)))
 			entry.Disable()
 		} else {
@@ -437,7 +437,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 			}
 			viewProcessedTx(start)
 		} else {
-			log.Println("[dReams] Stop service to view Tx history")
+			log.Println("[dService] Stop service to view Tx history")
 		}
 	})
 
@@ -487,13 +487,13 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 						window.Content().(*fyne.Container).Objects[2].Refresh()
 					}()
 				} else {
-					log.Println("[dReams] Select which services to run")
+					log.Println("[dService] Select which services to run")
 				}
 			} else {
-				log.Println("[dReams] Enter service starting height")
+				log.Println("[dService] Enter service starting height")
 			}
 		} else {
-			log.Println("[dReams] Service already running")
+			log.Println("[dService] Service already running")
 		}
 	})
 
@@ -503,7 +503,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 
 	stop := widget.NewButton("Stop Service", func() {
 		if Service.IsRunning() {
-			log.Println("[dReams] Stopping service")
+			log.Println("[dService] Stopping service")
 		}
 		Service.Stop()
 
@@ -596,7 +596,7 @@ func updateOpts() fyne.CanvasObject {
 			case "Sports":
 				AddOwner(Sports.Contract, new_owner.Text)
 			default:
-				log.Println("[dReams] Select contract")
+				log.Println("[dService] Select contract")
 			}
 		}
 	})
@@ -614,7 +614,7 @@ func updateOpts() fyne.CanvasObject {
 		case "Sports":
 			RemoveOwner(Sports.Contract, rpc.StringToInt(owner_num.Text))
 		default:
-			log.Println("[dReams] Select contract")
+			log.Println("[dService] Select contract")
 		}
 	})
 
@@ -628,7 +628,7 @@ func updateOpts() fyne.CanvasObject {
 					VarUpdate(Sports.Contract, rpc.StringToInt(a.Text), rpc.StringToInt(b.Text), rpc.StringToInt(c.Text), 30, rpc.StringToInt(hl.Text))
 				}
 			default:
-				log.Println("[dReams] Select contract")
+				log.Println("[dService] Select contract")
 			}
 		}
 	})
@@ -704,7 +704,7 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 
 		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x))
 	default:
-		log.Println("[dReams] No Confirm Input")
+		log.Println("[dService] No Confirm Input")
 		confirm_display.SetText("Error")
 	}
 
@@ -1096,7 +1096,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	var win, team, a_score, b_score, payout_str string
 	if i == 3 {
 		if len(n_split) < 3 {
-			log.Println("[dReams] Could not format game string")
+			log.Println("[dService] Could not format game string")
 			i = 100
 		}
 		if n_split[1] == "Bellator" || n_split[1] == "UFC" {
@@ -1175,7 +1175,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	case 9:
 		confirm_display.SetText("SCID:\n\n" + s_scid + "\n\nThis will Cancel the last initiated bet on this contract")
 	default:
-		log.Println("[dReams] No Confirm Input")
+		log.Println("[dService] No Confirm Input")
 		confirm_display.SetText("Error")
 	}
 
