@@ -499,13 +499,9 @@ func PopulatePredictions(contracts map[string]string) {
 		if contracts == nil {
 			contracts = menu.Gnomes.GetAllOwnersAndSCIDs()
 		}
-		keys := make([]string, len(contracts))
 
-		i := 0
-		for k := range contracts {
-			keys[i] = k
-			list, owned = checkBetContract(keys[i], "p", list, owned)
-			i++
+		for sc := range contracts {
+			list, owned = checkBetContract(sc, "p", list, owned)
 		}
 
 		t := len(list)

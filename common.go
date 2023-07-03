@@ -108,10 +108,8 @@ func fetch(d *dreams.DreamsObject) {
 				log.Println("[dPrediction] Syncing")
 				contracts := menu.Gnomes.IndexContains()
 				go CheckBetContractOwners(contracts)
-				if !d.IsWindows() {
-					go PopulateSports(contracts)
-					go PopulatePredictions(contracts)
-				}
+				go PopulateSports(contracts)
+				go PopulatePredictions(contracts)
 				Owner.Synced = true
 			}
 
@@ -216,17 +214,13 @@ func CheckBetContractOwners(contracts map[string]string) {
 		if contracts == nil {
 			contracts = menu.Gnomes.GetAllOwnersAndSCIDs()
 		}
-		keys := make([]string, len(contracts))
 
-		i := 0
-		for k := range contracts {
-			keys[i] = k
-			verifyBetContractOwner(keys[i], "p")
-			verifyBetContractOwner(keys[i], "s")
+		for sc := range contracts {
+			verifyBetContractOwner(sc, "p")
+			verifyBetContractOwner(sc, "s")
 			if Predict.owner {
 				break
 			}
-			i++
 		}
 	}
 }

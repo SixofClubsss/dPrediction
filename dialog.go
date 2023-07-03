@@ -846,31 +846,27 @@ func GetActiveGames() {
 	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
 		options := []string{}
 		contracts := menu.Gnomes.GetAllOwnersAndSCIDs()
-		keys := make([]string, len(contracts))
-
-		i := 0
-		for k := range contracts {
-			keys[i] = k
-			owner, _ := menu.Gnomes.GetSCIDValuesByKey(keys[i], "owner")
-			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(keys[i]) {
-				if len(keys[i]) == 64 {
-					_, init := menu.Gnomes.GetSCIDValuesByKey(keys[i], "s_init")
+		for sc := range contracts {
+			owner, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "owner")
+			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(sc) {
+				if len(sc) == 64 {
+					_, init := menu.Gnomes.GetSCIDValuesByKey(sc, "s_init")
 					if init != nil {
 						for ic := uint64(1); ic <= init[0]; ic++ {
 							num := strconv.Itoa(int(ic))
-							game, _ := menu.Gnomes.GetSCIDValuesByKey(keys[i], "game_"+num)
-							league, _ := menu.Gnomes.GetSCIDValuesByKey(keys[i], "league_"+num)
-							_, end := menu.Gnomes.GetSCIDValuesByKey(keys[i], "s_end_at_"+num)
-							_, add := menu.Gnomes.GetSCIDValuesByKey(keys[i], "time_a")
-							if game != nil && end != nil && add != nil {
-								if end[0]+add[0] < uint64(time.Now().Unix()) {
-									options = append(options, num+"   "+league[0]+"   "+game[0])
+							if game, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
+								league, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "league_"+num)
+								_, end := menu.Gnomes.GetSCIDValuesByKey(sc, "s_end_at_"+num)
+								_, add := menu.Gnomes.GetSCIDValuesByKey(sc, "time_a")
+								if league != nil && end != nil && add != nil {
+									if end[0]+add[0] < uint64(time.Now().Unix()) {
+										options = append(options, num+"   "+league[0]+"   "+game[0])
+									}
 								}
 							}
 						}
 					}
 				}
-				i++
 			}
 		}
 		Owner.Payout_n.SetOptions(options)

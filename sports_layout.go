@@ -167,7 +167,12 @@ func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
 	tabs.Selected().Content = SportsListings(tabs)
 
 	tabs.OnSelected = func(ti *container.TabItem) {
+		switch ti.Text {
+		case "Contracts":
+			go PopulateSports(nil)
+		default:
 
+		}
 	}
 
 	max := container.NewMax(bundle.Alpha120, tabs)
