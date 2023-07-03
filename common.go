@@ -1,14 +1,17 @@
 package prediction
 
 import (
-	"log"
 	"strconv"
 	"time"
 
+	"github.com/civilware/Gnomon/structures"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
+	"github.com/sirupsen/logrus"
 )
+
+var logger = structures.Logger.WithFields(logrus.Fields{})
 
 func DreamsMenuIntro() (entries map[string][]string) {
 	entries = map[string][]string{
@@ -105,7 +108,7 @@ func fetch(d *dreams.DreamsObject) {
 			}
 
 			if !Owner.Synced && menu.GnomonScan(d.IsConfiguring()) {
-				log.Println("[dPrediction] Syncing")
+				logger.Println("[dPrediction] Syncing")
 				contracts := menu.Gnomes.IndexContains()
 				go CheckBetContractOwners(contracts)
 				go PopulateSports(contracts)
@@ -147,7 +150,7 @@ func fetch(d *dreams.DreamsObject) {
 
 			d.WorkDone()
 		case <-d.CloseDapp():
-			log.Println("[dPrediction] Done")
+			logger.Println("[dPrediction] Done")
 			return
 		}
 	}

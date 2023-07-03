@@ -2,7 +2,6 @@ package prediction
 
 import (
 	"fmt"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -208,7 +207,7 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 				tab.Selected().Content = menu.RateConfirm(Predict.Contract, tab, reset)
 				tab.Selected().Content.Refresh()
 			} else {
-				log.Println("[dReams] You own this contract")
+				logger.Warnln("[dReams] You own this contract")
 			}
 		}
 	})
@@ -342,7 +341,7 @@ func P_initResults(p, amt, eA, c, to, u, d, r, f, m string, ta, tb, tc int) (inf
 	result, err := strconv.ParseFloat(to, 32)
 
 	if err != nil {
-		log.Println("[Predictions]", err)
+		logger.Errorln("[Predictions]", err)
 	}
 
 	s := fmt.Sprintf("%.5f", result/100000)

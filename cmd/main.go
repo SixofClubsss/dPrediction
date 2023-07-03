@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -10,14 +9,18 @@ import (
 	"time"
 
 	prediction "github.com/SixofClubsss/dPrediction"
+	"github.com/civilware/Gnomon/indexer"
+	"github.com/civilware/Gnomon/structures"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
+	"github.com/sirupsen/logrus"
 )
 
 // Run dReamsService process from dReams prediction package
 
 var enable_transfers bool
+var logger = structures.Logger.WithFields(logrus.Fields{})
 var command_line string = `dService
 App to run dService as a single process, powered by Gnomon and dReams.
 
@@ -41,7 +44,7 @@ func flags() (version string) {
 	arguments, err := docopt.ParseArgs(command_line, nil, version)
 
 	if err != nil {
-		log.Fatalf("Error while parsing arguments: %s\n", err)
+		logger.Fatalf("Error while parsing arguments: %s\n", err)
 	}
 
 	fastsync := true
@@ -99,11 +102,14 @@ func flags() (version string) {
 	}
 
 	debug := true
-	if arguments["--debug"] != nil {
+	if arguments["--debug-"] != nil {
 		if arguments["--debug"].(string) == "false" {
 			debug = false
 		}
 	}
+
+	arguments["--debug"] = false
+	indexer.InitLog(arguments, os.Stderr)
 
 	prediction.Service.Start()
 	menu.Gnomes.Trim = true
@@ -126,10 +132,10 @@ func init() {
 		rpc.Wallet.Connected(false)
 		prediction.Service.Stop()
 		for prediction.Service.IsProcessing() {
-			log.Println("[dService] Waiting for service to close")
+			logger.Println("[dService] Waiting for service to close")
 			time.Sleep(3 * time.Second)
 		}
-		log.Println("[dService] Closing")
+		logger.Println("[dService] Closing")
 		os.Exit(0)
 	}()
 }
@@ -139,12 +145,12 @@ func main() {
 	runtime.GOMAXPROCS(n)
 
 	v := flags()
-	log.Println("[dService]", v, runtime.GOOS, runtime.GOARCH)
+	logger.Println("[dService]", v, runtime.GOOS, runtime.GOARCH)
 
 	// Check for daemon connection
 	rpc.Ping()
 	if !rpc.Daemon.Connect {
-		log.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
+		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
 	}
 
 	// Check for wallet connection
@@ -180,7 +186,7 @@ func main() {
 			time.Sleep(time.Second)
 		}
 
-		log.Println("[dService] Starting when Gnomon is synced")
+		logger.Println("[dService] Starting when Gnomon is synced")
 		height = uint64(menu.Gnomes.Indexer.ChainHeight)
 		for menu.Gnomes.IsRunning() && rpc.IsReady() {
 			rpc.Ping()
@@ -193,7 +199,7 @@ func main() {
 				if !menu.Gnomes.Start && menu.Gnomes.IsInitialized() {
 					diff := menu.Gnomes.Indexer.ChainHeight - menu.Gnomes.Indexer.LastIndexedHeight
 					if diff > 3 && prediction.Service.Debug {
-						log.Printf("[dService] Gnomon has %d blocks to go\n", diff)
+						logger.Printf("[dService] Gnomon has %d blocks to go\n", diff)
 					}
 				}
 			}
@@ -220,6 +226,6 @@ func main() {
 	}
 
 	// Start dService
-	log.Printf("[dService] Processing payouts %s\n", add)
+	logger.Printf("[dService] Processing payouts %s\n", add)
 	prediction.RunService(height, true, enable_transfers)
 }
