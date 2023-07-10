@@ -12,10 +12,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var P dreams.DreamsItems
+var P dreams.ContainerStack
 
 // dPrediction tab layout
-func LayoutPredictItems(d *dreams.DreamsObject) *fyne.Container {
+func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	P.LeftLabel = widget.NewLabel("")
 	P.RightLabel = widget.NewLabel("")
 	P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)

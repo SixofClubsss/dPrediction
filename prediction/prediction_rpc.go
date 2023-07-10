@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	holdero "github.com/SixofClubsss/Holdero"
+	"github.com/SixofClubsss/Holdero/holdero"
 	"github.com/dReam-dApps/dReams/rpc"
 	dero "github.com/deroproject/derohe/rpc"
 	"github.com/deroproject/derohe/walletapi"

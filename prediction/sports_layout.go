@@ -14,10 +14,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var S dreams.DreamsItems
+var S dreams.ContainerStack
 
 // dSports tab layout
-func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
+func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	S.LeftLabel = widget.NewLabel("")
 	S.RightLabel = widget.NewLabel("")
 	S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)

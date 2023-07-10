@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	fyne.io/fyne/v2 v2.3.1
-	github.com/SixofClubsss/Holdero v0.0.0-20230703222841-ddc62fab86ee
+	github.com/SixofClubsss/Holdero v0.0.0-20230710050327-cf922ffaec82
 	github.com/civilware/Gnomon v0.0.0-20230703202054-c41eb33ce9c3
-	github.com/dReam-dApps/dReams v0.9.7-0.20230703204357-eeb721c209ac
+	github.com/dReam-dApps/dReams v0.10.1-0.20230710043213-2c198672953a
 	github.com/deroproject/derohe v0.0.0-20230604143809-765b2db1f482
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/sirupsen/logrus v1.9.3
@@ -47,7 +47,7 @@ require (
 	github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/superoo7/go-gecko v1.0.0 // indirect
-	github.com/templexxx/cpu v0.0.9 // indirect
+	github.com/templexxx/cpu v0.1.0 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect

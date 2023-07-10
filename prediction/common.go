@@ -91,7 +91,7 @@ func OnConnected() {
 }
 
 // Main process for dSports and dPrediction
-func fetch(d *dreams.DreamsObject) {
+func fetch(d *dreams.AppObject) {
 	var offset int
 	SetPrintColors(d.OS())
 	time.Sleep(3 * time.Second)
