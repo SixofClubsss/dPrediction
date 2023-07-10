@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	prediction "github.com/SixofClubsss/dPrediction"
+	"github.com/SixofClubsss/dPrediction/prediction"
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
 	"github.com/dReam-dApps/dReams/menu"
