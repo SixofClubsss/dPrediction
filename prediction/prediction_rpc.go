@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	holdero "github.com/SixofClubsss/Holdero"
+	"github.com/SixofClubsss/Holdero/holdero"
 	"github.com/dReam-dApps/dReams/rpc"
 	dero "github.com/deroproject/derohe/rpc"
 	"github.com/deroproject/derohe/walletapi"
@@ -790,7 +790,7 @@ func FetchPredictionFinal(scid string) (txid string) {
 }
 
 // Get dPrediction SC code for public and private SC
-//   - pub defines public or private contract
+//   - pub 1 defines private SC, else public
 func GetPredictCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
 		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
@@ -823,7 +823,7 @@ func GetPredictCode(pub int) string {
 }
 
 // Get dSports SC code for public and private SC
-//   - pub defines public or private contract
+//   - pub 1 defines private SC, else public
 func GetSportsCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
 		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)

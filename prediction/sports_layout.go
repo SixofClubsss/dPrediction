@@ -14,10 +14,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var S dreams.DreamsItems
+var S dreams.ContainerStack
 
 // dSports tab layout
-func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
+func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	S.LeftLabel = widget.NewLabel("")
 	S.RightLabel = widget.NewLabel("")
 	S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
@@ -56,9 +56,11 @@ func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
 	Sports.Game_select.PlaceHolder = "Select Game #"
 	Sports.Game_select.Hide()
 
-	var Multi_options = []string{"1x", "3x", "5x"}
-	Sports.Multi = widget.NewRadioGroup(Multi_options, func(s string) {})
+	var multi_options = []string{"1x", "3x", "5x"}
+	Sports.Multi = widget.NewRadioGroup(multi_options, nil)
+	Sports.Multi.SetSelected("1x")
 	Sports.Multi.Horizontal = true
+	Sports.Multi.Required = true
 	Sports.Multi.Hide()
 
 	Sports.ButtonA = widget.NewButton("TEAM A", nil)
@@ -205,11 +207,14 @@ func LayoutSportsItems(d *dreams.DreamsObject) *fyne.Container {
 	sports_label := container.NewHBox(S.LeftLabel, layout.NewSpacer(), S.RightLabel)
 	sports_box := container.NewHSplit(sports_left, max)
 
-	S.DApp = container.NewVBox(
+	S.DApp = container.NewBorder(
 		dwidget.LabelColor(sports_label),
+		nil,
+		nil,
+		nil,
 		sports_box)
 
 	go fetch(d)
 
-	return S.DApp
+	return container.NewMax(S.DApp)
 }

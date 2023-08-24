@@ -89,9 +89,15 @@ func PredictionContractEntry() fyne.Widget {
 					if yes {
 						Predict.Settings.Check.SetChecked(true)
 					} else {
+						Predict.Owned_list.UnselectAll()
+						Predict.Predict_list.UnselectAll()
+						Predict.Favorite_list.UnselectAll()
 						Predict.Settings.Check.SetChecked(false)
 					}
 				} else {
+					Predict.Owned_list.UnselectAll()
+					Predict.Predict_list.UnselectAll()
+					Predict.Favorite_list.UnselectAll()
 					Predict.Settings.Check.SetChecked(false)
 				}
 			}()
@@ -163,7 +169,7 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 			return len(Predict.Settings.Contracts)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(canvas.NewImageFromImage(nil), widget.NewLabel(""))
+			return container.NewHBox(container.NewMax(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Predict.Settings.Contracts[i])
@@ -179,7 +185,7 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 
 				badge := canvas.NewImageFromResource(menu.DisplayRating(menu.Control.Contract_rating[key]))
 				badge.SetMinSize(fyne.NewSize(35, 35))
-				o.(*fyne.Container).Objects[0] = badge
+				o.(*fyne.Container).Objects[0].(*fyne.Container).Objects[0] = badge
 			}
 		})
 
@@ -302,7 +308,7 @@ func PredictionOwned() fyne.CanvasObject {
 }
 
 // Refresh all dPrediction objects
-func PredictionRefresh(p *dreams.DreamsItems, d *dreams.DreamsObject) {
+func PredictionRefresh(p *dreams.ContainerStack, d *dreams.AppObject) {
 	if d.OnTab("Predict") {
 		if Predict.Prices.Text == "" {
 			go SetPredictionPrices(rpc.Daemon.Connect)
