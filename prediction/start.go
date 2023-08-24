@@ -30,15 +30,24 @@ func StartApp() {
 	menu.InitLogrusLog(runtime.GOOS == "windows")
 	config := menu.ReadDreamsConfig(app_tag)
 
-	// Initialize Fyne app, window and close
+	// Initialize Fyne app and window
 	a := app.NewWithID("dPrediction Desktop Client")
 	a.Settings().SetTheme(bundle.DeroTheme(config.Skin))
 	w := a.NewWindow(app_tag)
 	w.SetIcon(resourceDServiceIconPng)
 	w.Resize(fyne.NewSize(1400, 800))
 	w.SetMaster()
-	quit := make(chan struct{})
 	done := make(chan struct{})
+
+	// Initialize dReams AppObject and close func
+	dreams.Theme.Img = *canvas.NewImageFromResource(nil)
+	d := dreams.AppObject{
+		App:        a,
+		Window:     w,
+		Background: container.NewMax(&dreams.Theme.Img),
+	}
+	d.SetChannels(1)
+
 	closeFunc := func() {
 		save := dreams.SaveData{
 			Skin:   config.Skin,
@@ -52,8 +61,9 @@ func StartApp() {
 		}
 
 		menu.WriteDreamsConfig(save)
+		menu.CloseAppSignal(true)
 		menu.Gnomes.Stop(app_tag)
-		quit <- struct{}{}
+		d.StopProcess()
 		w.Close()
 	}
 
@@ -73,15 +83,6 @@ func StartApp() {
 	menu.Control.Contract_rating = make(map[string]uint64)
 	menu.Gnomes.DBType = "boltdb"
 	menu.Gnomes.Fast = true
-
-	// Initialize up dReams AppObject
-	dreams.Theme.Img = *canvas.NewImageFromResource(nil)
-	d := dreams.AppObject{
-		App:        a,
-		Window:     w,
-		Background: container.NewMax(&dreams.Theme.Img),
-	}
-	d.SetChannels(1)
 
 	// Initialize asset widgets
 	asset_selects := []fyne.Widget{}
@@ -171,12 +172,14 @@ func StartApp() {
 
 				d.SignalChannel()
 
-			case <-quit: // exit
-				logger.Printf("[%s] Closing", app_tag)
+			case <-d.Closing(): // exit
+				logger.Printf("[%s] Closing...", app_tag)
 				if menu.Gnomes.Icon_ind != nil {
 					menu.Gnomes.Icon_ind.Stop()
 				}
 				ticker.Stop()
+				d.CloseAllDapps()
+				time.Sleep(time.Second)
 				done <- struct{}{}
 				return
 			}
@@ -189,4 +192,5 @@ func StartApp() {
 	}()
 	w.ShowAndRun()
 	<-done
+	logger.Printf("[%s] Closed", app_tag)
 }
