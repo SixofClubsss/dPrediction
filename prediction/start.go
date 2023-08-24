@@ -19,6 +19,7 @@ import (
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
+	"github.com/sirupsen/logrus"
 )
 
 const app_tag = "dPrediction"
@@ -27,7 +28,7 @@ const app_tag = "dPrediction"
 func StartApp() {
 	n := runtime.NumCPU()
 	runtime.GOMAXPROCS(n)
-	menu.InitLogrusLog(runtime.GOOS == "windows")
+	menu.InitLogrusLog(logrus.InfoLevel)
 	config := menu.ReadDreamsConfig(app_tag)
 
 	// Initialize Fyne app and window
@@ -125,7 +126,7 @@ func StartApp() {
 	// Stand alone process
 	go func() {
 		logger.Printf("[%s] %s %s %s", app_tag, rpc.DREAMSv, runtime.GOOS, runtime.GOARCH)
-		time.Sleep(6 * time.Second)
+		time.Sleep(3 * time.Second)
 		ticker := time.NewTicker(3 * time.Second)
 
 		for {

@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	fyne.io/fyne/v2 v2.3.1
-	github.com/SixofClubsss/Holdero v0.0.0-20230824165205-c4821c0ab7fd
+	github.com/SixofClubsss/Holdero v0.0.0-20230824192828-61cb6b612bf6
 	github.com/civilware/Gnomon v0.0.0-20230706132518-bda82e989415
-	github.com/dReam-dApps/dReams v0.10.1-0.20230822231833-ab399ba86cd5
+	github.com/dReam-dApps/dReams v0.10.1-0.20230824191814-448137442a38
 	github.com/deroproject/derohe v0.0.0-20230604143809-765b2db1f482
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/sirupsen/logrus v1.9.3
