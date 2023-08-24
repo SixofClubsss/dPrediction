@@ -18,6 +18,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/validation"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -130,14 +131,17 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	Owner.P_set = widget.NewButton("Set Prediction", func() {
 		if Owner.P_deposit.Validate() == nil && Owner.P_amt.Validate() == nil && Owner.P_end.Validate() == nil && Owner.P_mark.Validate() == nil {
 			if len(Predict.Contract) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(2, 100, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(2, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
+				return
 			}
+
+			dialog.NewInformation("Prediction", "Select a valid contract", window).Show()
 		}
 	})
 
 	Owner.P_cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(8, 0, window, reset)
+		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(8, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -151,21 +155,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.Feed)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(6, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.Feed)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(6, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.Feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(6, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(4, a, window, reset)
+			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(4, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -182,21 +186,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.Feed)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(7, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.Feed)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(7, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.Feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(7, a, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(5, a, window, reset)
+			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(5, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -305,14 +309,17 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	Owner.S_set = widget.NewButton("Set Game", func() {
 		if Owner.S_deposit.Validate() == nil && Owner.S_amt.Validate() == nil && Owner.S_end.Validate() == nil {
 			if len(Sports.Contract) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(1, 100, window, reset)
+				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(1, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
+				return
 			}
+
+			dialog.NewInformation("Sports", "Select a valid contract", window).Show()
 		}
 	})
 
 	Owner.S_cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(9, 0, window, reset)
+		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(9, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -323,7 +330,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 
 	sports_confirm := widget.NewButton("Sports Payout", func() {
 		if len(Sports.Contract) == 64 {
-			window.Content().(*fyne.Container).Objects[2] = ownerConfirmAction(3, 100, window, reset)
+			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(3, 100, window, reset))
 			window.Content().(*fyne.Container).Objects[2].Refresh()
 		}
 	})
@@ -1088,18 +1095,22 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		s_dep = fmt.Sprintf("%.5f", s_dep_f)
 	}
 
-	var win, team, a_score, b_score, payout_str string
+	var win, team, a_score, b_score, payout_str, err_string string
 	if i == 3 {
-		if len(n_split) < 3 {
+		if len(n_split) > 1 {
+			if n_split[1] == "Bellator" || n_split[1] == "UFC" {
+				win, team = GetMmaWinner(n_split[2], n_split[1])
+				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, team)
+			} else {
+				win, team, a_score, b_score = GetWinner(n_split[2], n_split[1])
+				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
+			}
+		} else {
 			logger.Errorln("[dService] Could not format game string")
 			i = 100
-		}
-		if n_split[1] == "Bellator" || n_split[1] == "UFC" {
-			win, team = GetMmaWinner(n_split[2], n_split[1])
-			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, team)
-		} else {
-			win, team, a_score, b_score = GetWinner(n_split[2], n_split[1])
-			payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, Owner.Payout_n.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
+			if Owner.Payout_n.Text == "" {
+				err_string = "Select game for payout"
+			}
 		}
 	}
 
@@ -1171,7 +1182,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		confirm_display.SetText("SCID:\n\n" + s_scid + "\n\nThis will Cancel the last initiated bet on this contract")
 	default:
 		logger.Errorln("[dService] No Confirm Input")
-		confirm_display.SetText("Error")
+		confirm_display.SetText("Error\n\n" + err_string)
 	}
 
 	cancel_button := widget.NewButton("Cancel", func() {

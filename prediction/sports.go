@@ -95,9 +95,15 @@ func SportsContractEntry() fyne.Widget {
 							Sports.Game_select.Hide()
 						}
 					} else {
+						Sports.Owned_list.UnselectAll()
+						Sports.Sports_list.UnselectAll()
+						Sports.Favorite_list.UnselectAll()
 						Sports.Settings.Check.SetChecked(false)
 					}
 				} else {
+					Sports.Owned_list.UnselectAll()
+					Sports.Sports_list.UnselectAll()
+					Sports.Favorite_list.UnselectAll()
 					Sports.Settings.Check.SetChecked(false)
 				}
 			}()
@@ -185,7 +191,7 @@ func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
 			return len(Sports.Settings.Contracts)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(canvas.NewImageFromImage(nil), widget.NewLabel(""))
+			return container.NewHBox(container.NewMax(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Sports.Settings.Contracts[i])
@@ -201,7 +207,7 @@ func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
 
 				badge := canvas.NewImageFromResource(menu.DisplayRating(menu.Control.Contract_rating[key]))
 				badge.SetMinSize(fyne.NewSize(35, 35))
-				o.(*fyne.Container).Objects[0] = badge
+				o.(*fyne.Container).Objects[0].(*fyne.Container).Objects[0] = badge
 			}
 		})
 

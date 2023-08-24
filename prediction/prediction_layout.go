@@ -110,9 +110,12 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	predict_label := container.NewHBox(P.LeftLabel, layout.NewSpacer(), P.RightLabel)
 	predict_box := container.NewHSplit(predict_content, max)
 
-	P.DApp = container.NewVBox(
+	P.DApp = container.NewBorder(
 		dwidget.LabelColor(predict_label),
+		nil,
+		nil,
+		nil,
 		predict_box)
 
-	return P.DApp
+	return container.NewMax(P.DApp)
 }
