@@ -80,7 +80,7 @@ func StartApp() {
 	}()
 
 	// Initialize vars
-	rpc.Wallet.TokenBal = make(map[string]uint64)
+	rpc.InitBalances()
 	menu.Control.Contract_rating = make(map[string]uint64)
 	menu.Gnomes.DBType = "boltdb"
 	menu.Gnomes.Fast = true
@@ -116,12 +116,24 @@ func StartApp() {
 
 	// Layout tabs
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Predictions", LayoutPredictItems(&d)),
+		container.NewTabItem("Predict", LayoutPredictItems(&d)),
 		container.NewTabItem("Sports", LayoutSportsItems(&d)),
 		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, asset_selects, resourceDServiceIconPng, d.Window)),
 		container.NewTabItem("Log", rpc.SessionLog()))
 
 	tabs.SetTabLocation(container.TabLocationBottom)
+	d.SetTab("Predict")
+	tabs.OnSelected = func(ti *container.TabItem) {
+		switch ti.Text {
+		case "Predict":
+			d.SetTab("Predict")
+		case "Sports":
+			d.SetTab("Sports")
+		default:
+			d.SetTab("")
+			// nothing
+		}
+	}
 
 	// Stand alone process
 	go func() {
@@ -134,7 +146,8 @@ func StartApp() {
 			case <-ticker.C: // do on interval
 				rpc.Ping()
 				rpc.EchoWallet(app_tag)
-				rpc.Wallet.GetBalance()
+				rpc.GetDreamsBalances(rpc.SCIDs)
+				rpc.GetWalletHeight(app_tag)
 
 				connect_box.RefreshBalance()
 				if !rpc.Startup {
@@ -155,8 +168,8 @@ func StartApp() {
 					}
 
 					if menu.Gnomes.Indexer.LastIndexedHeight >= menu.Gnomes.Indexer.ChainHeight-3 {
-						Predict.Predict_list.Refresh()
-						Sports.Sports_list.Refresh()
+						Predict.Public.List.Refresh()
+						Sports.Public.List.Refresh()
 						menu.Gnomes.Synced(true)
 					} else {
 						menu.Gnomes.Synced(false)

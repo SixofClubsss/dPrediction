@@ -20,11 +20,11 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	P.RightLabel = widget.NewLabel("")
 	P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
-	Predict.Info = widget.NewLabel("SCID:\n\n" + Predict.Contract + "\n")
-	Predict.Info.Wrapping = fyne.TextWrapWord
-	Predict.Prices = widget.NewLabel("")
+	Predict.info = widget.NewLabel("SCID:\n\n" + Predict.Contract.SCID + "\n")
+	Predict.info.Wrapping = fyne.TextWrapWord
+	Predict.prices = widget.NewLabel("")
 
-	predict_info := container.NewVBox(Predict.Info, Predict.Prices)
+	predict_info := container.NewVBox(Predict.info, Predict.prices)
 	predict_scroll := container.NewScroll(predict_info)
 	predict_scroll.SetMinSize(fyne.NewSize(540, 500))
 
@@ -34,13 +34,13 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
 	contract_cont := container.NewHBox(contract_scroll, check_box)
 
-	Predict.Higher = widget.NewButton("Higher", nil)
-	Predict.Higher.Hide()
+	Predict.higher = widget.NewButton("Higher", nil)
+	Predict.higher.Hide()
 
-	Predict.Lower = widget.NewButton("Lower", nil)
-	Predict.Lower.Hide()
+	Predict.lower = widget.NewButton("Lower", nil)
+	Predict.lower.Hide()
 
-	Predict.Container = container.NewVBox(Predict.Higher, Predict.Lower)
+	Predict.Container = container.NewVBox(Predict.higher, Predict.lower)
 	Predict.Container.Hide()
 
 	predict_content := container.NewVBox(
@@ -49,20 +49,20 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		layout.NewSpacer(),
 		Predict.Container)
 
-	Predict.Settings.Unlock = widget.NewButton("Unlock dPrediction Contract", nil)
-	Predict.Settings.Unlock.Hide()
+	Predict.Contract.unlock = widget.NewButton("Unlock dPrediction Contract", nil)
+	Predict.Contract.unlock.Hide()
 
-	Predict.Settings.New = widget.NewButton("New dPrediction Contract", nil)
-	Predict.Settings.New.Hide()
+	Predict.Contract.new = widget.NewButton("New dPrediction Contract", nil)
+	Predict.Contract.new.Hide()
 
-	unlock_cont := container.NewVBox(Predict.Settings.Unlock, Predict.Settings.New)
+	unlock_cont := container.NewVBox(Predict.Contract.unlock, Predict.Contract.new)
 
-	Predict.Settings.Menu = widget.NewButton("Owner Options", func() {
+	Predict.Contract.menu = widget.NewButton("Owner Options", func() {
 		go ownersMenu()
 	})
-	Predict.Settings.Menu.Hide()
+	Predict.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Predict.Settings.Menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Predict.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, PredictionOwned())
 
 	tabs := container.NewAppTabs(
@@ -83,26 +83,26 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 
 	max := container.NewMax(bundle.Alpha120, tabs)
 
-	Predict.Higher.OnTapped = func() {
-		if len(Predict.Contract) == 64 {
+	Predict.higher.OnTapped = func() {
+		if len(Predict.Contract.SCID) == 64 {
 			max.Objects[1] = ConfirmAction(2, "", "", max.Objects, tabs)
 			max.Objects[1].Refresh()
 		}
 	}
 
-	Predict.Lower.OnTapped = func() {
-		if len(Predict.Contract) == 64 {
+	Predict.lower.OnTapped = func() {
+		if len(Predict.Contract.SCID) == 64 {
 			max.Objects[1] = ConfirmAction(1, "", "", max.Objects, tabs)
 			max.Objects[1].Refresh()
 		}
 	}
 
-	Predict.Settings.Unlock.OnTapped = func() {
+	Predict.Contract.unlock.OnTapped = func() {
 		max.Objects[1] = newPredictConfirm(1, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}
 
-	Predict.Settings.New.OnTapped = func() {
+	Predict.Contract.new.OnTapped = func() {
 		max.Objects[1] = newPredictConfirm(2, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}

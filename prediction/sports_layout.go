@@ -22,10 +22,10 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	S.RightLabel = widget.NewLabel("")
 	S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
-	Sports.Info = widget.NewLabel("SCID:\n\n" + Sports.Contract + "\n")
-	Sports.Info.Wrapping = fyne.TextWrapWord
+	Sports.info = widget.NewLabel("SCID:\n\n" + Sports.Contract.SCID + "\n")
+	Sports.info.Wrapping = fyne.TextWrapWord
 
-	sports_content := container.NewVBox(Sports.Info)
+	sports_content := container.NewVBox(Sports.info)
 	sports_scroll := container.NewVScroll(sports_content)
 	sports_scroll.SetMinSize(fyne.NewSize(180, 500))
 
@@ -35,46 +35,46 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
 	contract_cont := container.NewHBox(contract_scroll, check_box)
 
-	Sports.Game_select = widget.NewSelect(Sports.Game_options, func(s string) {
+	Sports.gameSelect = widget.NewSelect(Sports.games, func(s string) {
 		split := strings.Split(s, "   ")
-		a, b := GetSportsTeams(Sports.Contract, split[0])
-		if Sports.Game_select.SelectedIndex() >= 0 {
-			Sports.Multi.Show()
-			Sports.ButtonA.Show()
-			Sports.ButtonB.Show()
-			Sports.ButtonA.Text = a
-			Sports.ButtonA.Refresh()
-			Sports.ButtonB.Text = b
-			Sports.ButtonB.Refresh()
+		a, b := GetSportsTeams(Sports.Contract.SCID, split[0])
+		if Sports.gameSelect.SelectedIndex() >= 0 {
+			Sports.multi.Show()
+			Sports.buttonA.Show()
+			Sports.buttonB.Show()
+			Sports.buttonA.Text = a
+			Sports.buttonA.Refresh()
+			Sports.buttonB.Text = b
+			Sports.buttonB.Refresh()
 		} else {
-			Sports.Multi.Hide()
-			Sports.ButtonA.Hide()
-			Sports.ButtonB.Hide()
+			Sports.multi.Hide()
+			Sports.buttonA.Hide()
+			Sports.buttonB.Hide()
 		}
 	})
 
-	Sports.Game_select.PlaceHolder = "Select Game #"
-	Sports.Game_select.Hide()
+	Sports.gameSelect.PlaceHolder = "Select Game #"
+	Sports.gameSelect.Hide()
 
 	var multi_options = []string{"1x", "3x", "5x"}
-	Sports.Multi = widget.NewRadioGroup(multi_options, nil)
-	Sports.Multi.SetSelected("1x")
-	Sports.Multi.Horizontal = true
-	Sports.Multi.Required = true
-	Sports.Multi.Hide()
+	Sports.multi = widget.NewRadioGroup(multi_options, nil)
+	Sports.multi.SetSelected("1x")
+	Sports.multi.Horizontal = true
+	Sports.multi.Required = true
+	Sports.multi.Hide()
 
-	Sports.ButtonA = widget.NewButton("TEAM A", nil)
-	Sports.ButtonA.Hide()
+	Sports.buttonA = widget.NewButton("TEAM A", nil)
+	Sports.buttonA.Hide()
 
-	Sports.ButtonB = widget.NewButton("TEAM B", nil)
-	Sports.ButtonB.Hide()
+	Sports.buttonB = widget.NewButton("TEAM B", nil)
+	Sports.buttonB.Hide()
 
-	sports_multi := container.NewCenter(Sports.Multi)
+	sports_multi := container.NewCenter(Sports.multi)
 	Sports.Container = container.NewVBox(
 		sports_multi,
-		Sports.Game_select,
-		Sports.ButtonA,
-		Sports.ButtonB)
+		Sports.gameSelect,
+		Sports.buttonA,
+		Sports.buttonB)
 
 	Sports.Container.Hide()
 
@@ -140,22 +140,22 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	Sports.Settings.Unlock = widget.NewButton("Unlock dSports Contracts", nil)
-	Sports.Settings.Unlock.Hide()
+	Sports.Contract.unlock = widget.NewButton("Unlock dSports Contracts", nil)
+	Sports.Contract.unlock.Hide()
 
-	Sports.Settings.New = widget.NewButton("New dSports Contract", nil)
-	Sports.Settings.New.Hide()
+	Sports.Contract.new = widget.NewButton("New dSports Contract", nil)
+	Sports.Contract.new.Hide()
 
 	unlock_cont := container.NewVBox(
-		Sports.Settings.Unlock,
-		Sports.Settings.New)
+		Sports.Contract.unlock,
+		Sports.Contract.new)
 
-	Sports.Settings.Menu = widget.NewButton("Owner Options", func() {
+	Sports.Contract.menu = widget.NewButton("Owner Options", func() {
 		go ownersMenu()
 	})
-	Sports.Settings.Menu.Hide()
+	Sports.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Sports.Settings.Menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Sports.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, SportsOwned())
 
 	tabs := container.NewAppTabs(
@@ -179,27 +179,26 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 
 	max := container.NewMax(bundle.Alpha120, tabs)
 
-	Sports.ButtonA.OnTapped = func() {
-		if len(Sports.Contract) == 64 {
-			max.Objects[1] = ConfirmAction(3, Sports.ButtonA.Text, Sports.ButtonB.Text, max.Objects, tabs)
-			max.Objects[1].Refresh()
-		}
-	}
-	Sports.ButtonA.Hide()
-
-	Sports.ButtonB.OnTapped = func() {
-		if len(Sports.Contract) == 64 {
-			max.Objects[1] = ConfirmAction(4, Sports.ButtonA.Text, Sports.ButtonB.Text, max.Objects, tabs)
+	Sports.buttonA.OnTapped = func() {
+		if len(Sports.Contract.SCID) == 64 {
+			max.Objects[1] = ConfirmAction(3, Sports.buttonA.Text, Sports.buttonB.Text, max.Objects, tabs)
 			max.Objects[1].Refresh()
 		}
 	}
 
-	Sports.Settings.Unlock.OnTapped = func() {
+	Sports.buttonB.OnTapped = func() {
+		if len(Sports.Contract.SCID) == 64 {
+			max.Objects[1] = ConfirmAction(4, Sports.buttonA.Text, Sports.buttonB.Text, max.Objects, tabs)
+			max.Objects[1].Refresh()
+		}
+	}
+
+	Sports.Contract.unlock.OnTapped = func() {
 		max.Objects[1] = newSportsConfirm(1, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}
 
-	Sports.Settings.New.OnTapped = func() {
+	Sports.Contract.new.OnTapped = func() {
 		max.Objects[1] = newSportsConfirm(2, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}

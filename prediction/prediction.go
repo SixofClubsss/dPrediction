@@ -8,6 +8,7 @@ import (
 	"time"
 
 	dreams "github.com/dReam-dApps/dReams"
+	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 
@@ -20,30 +21,27 @@ import (
 )
 
 type predictObjects struct {
-	Init          bool
-	owner         bool
-	Amount        uint64
-	Buffer        int64
-	Contract      string
-	Prediction    string
-	Feed          string
-	Info          *widget.Label
-	Prices        *widget.Label
-	Predict_list  *widget.List
-	Favorite_list *widget.List
-	Owned_list    *widget.List
-	Higher        *widget.Button
-	Lower         *widget.Button
-	Container     *fyne.Container
-	Settings      struct {
-		Contracts      []string
-		Favorites      []string
-		Owned          []string
-		Unlock         *widget.Button
-		New            *widget.Button
-		Menu           *widget.Button
-		Check          *widget.Check
-		Contract_entry *widget.SelectEntry
+	*fyne.Container
+	init       bool
+	owner      bool
+	amount     uint64
+	buffer     int64
+	prediction string
+	feed       string
+	info       *widget.Label
+	prices     *widget.Label
+	Public     dwidget.Lists
+	Favorites  dwidget.Lists
+	Owned      dwidget.Lists
+	higher     *widget.Button
+	lower      *widget.Button
+	Contract   struct {
+		SCID   string
+		unlock *widget.Button
+		new    *widget.Button
+		menu   *widget.Button
+		check  *widget.Check
+		entry  *widget.SelectEntry
 	}
 }
 
@@ -62,59 +60,59 @@ func disablePredictions(d bool) {
 // Check box for dPrediction SCID
 //   - Hides prediction controls on disconnect
 func PredictConnectedBox() fyne.Widget {
-	Predict.Settings.Check = widget.NewCheck("", func(b bool) {
+	Predict.Contract.check = widget.NewCheck("", func(b bool) {
 		if !b {
-			Predict.Higher.Hide()
-			Predict.Lower.Hide()
+			Predict.higher.Hide()
+			Predict.lower.Hide()
 
 		}
 	})
-	Predict.Settings.Check.Disable()
+	Predict.Contract.check.Disable()
 
-	return Predict.Settings.Check
+	return Predict.Contract.check
 }
 
 // Entry for dPrediction SCID
-//   - Bound to Predict.Contract
+//   - Bound to Predict.Settings.SCID
 //   - Checks for valid SCID on changed
 func PredictionContractEntry() fyne.Widget {
 	options := []string{}
-	Predict.Settings.Contract_entry = widget.NewSelectEntry(options)
-	Predict.Settings.Contract_entry.PlaceHolder = "Contract Address: "
-	Predict.Settings.Contract_entry.OnCursorChanged = func() {
+	Predict.Contract.entry = widget.NewSelectEntry(options)
+	Predict.Contract.entry.PlaceHolder = "Contract Address: "
+	Predict.Contract.entry.OnCursorChanged = func() {
 		if rpc.Daemon.IsConnected() {
 			go func() {
-				if len(Predict.Contract) == 64 {
-					yes := ValidBetContract(Predict.Contract)
+				if len(Predict.Contract.SCID) == 64 {
+					yes := ValidBetContract(Predict.Contract.SCID)
 					if yes {
-						Predict.Settings.Check.SetChecked(true)
+						Predict.Contract.check.SetChecked(true)
 					} else {
-						Predict.Owned_list.UnselectAll()
-						Predict.Predict_list.UnselectAll()
-						Predict.Favorite_list.UnselectAll()
-						Predict.Settings.Check.SetChecked(false)
+						Predict.Owned.List.UnselectAll()
+						Predict.Public.List.UnselectAll()
+						Predict.Favorites.List.UnselectAll()
+						Predict.Contract.check.SetChecked(false)
 					}
 				} else {
-					Predict.Owned_list.UnselectAll()
-					Predict.Predict_list.UnselectAll()
-					Predict.Favorite_list.UnselectAll()
-					Predict.Settings.Check.SetChecked(false)
+					Predict.Owned.List.UnselectAll()
+					Predict.Public.List.UnselectAll()
+					Predict.Favorites.List.UnselectAll()
+					Predict.Contract.check.SetChecked(false)
 				}
 			}()
 		}
 	}
 
-	this := binding.BindString(&Predict.Contract)
-	Predict.Settings.Contract_entry.Bind(this)
+	this := binding.BindString(&Predict.Contract.SCID)
+	Predict.Contract.entry.Bind(this)
 
-	return Predict.Settings.Contract_entry
+	return Predict.Contract.entry
 }
 
 // When called, enable and show dPrediction controls
 func ShowPredictionControls() {
 	disablePredictions(false)
-	Predict.Higher.Show()
-	Predict.Lower.Show()
+	Predict.higher.Show()
+	Predict.lower.Show()
 }
 
 // Routine when dPrediction SCID is clicked
@@ -126,7 +124,7 @@ func setPredictionControls(str string) (item string) {
 		trimmed := strings.Trim(split[2], " ")
 		if len(trimmed) == 64 {
 			item = str
-			Predict.Settings.Contract_entry.SetText(trimmed)
+			Predict.Contract.entry.SetText(trimmed)
 			go SetPredictionInfo(trimmed)
 			if CheckActivePrediction(trimmed) {
 				ShowPredictionControls()
@@ -143,8 +141,8 @@ func setPredictionControls(str string) (item string) {
 func SetPredictionInfo(scid string) {
 	info := GetPrediction(scid)
 	if info != "" {
-		Predict.Info.SetText(info)
-		Predict.Info.Refresh()
+		Predict.info.SetText(info)
+		Predict.info.Refresh()
 	}
 }
 
@@ -157,25 +155,25 @@ func SetPredictionPrices(d bool) {
 		/// custom feed with rpc.Display.P_feed
 		prices := "Current Price feed from dReams Client\nBTC: " + btc + "\nDERO: " + dero + "\nXMR: " + xmr
 
-		Predict.Prices.SetText(prices)
+		Predict.prices.SetText(prices)
 	}
 }
 
 // List object for populating public dPrediction contracts, with rating and add favorite controls
 //   - Pass tab for action confirmation reset
 func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
-	Predict.Predict_list = widget.NewList(
+	Predict.Public.List = widget.NewList(
 		func() int {
-			return len(Predict.Settings.Contracts)
+			return len(Predict.Public.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return container.NewHBox(container.NewMax(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Predict.Settings.Contracts[i])
-			if Predict.Settings.Contracts[i][0:2] != "  " {
+			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Predict.Public.SCIDs[i])
+			if Predict.Public.SCIDs[i][0:2] != "  " {
 				var key string
-				split := strings.Split(Predict.Settings.Contracts[i], "   ")
+				split := strings.Split(Predict.Public.SCIDs[i], "   ")
 				if len(split) >= 3 {
 					trimmed := strings.Trim(split[2], " ")
 					if len(trimmed) == 64 {
@@ -191,26 +189,26 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 
 	var item string
 
-	Predict.Predict_list.OnSelected = func(id widget.ListItemID) {
+	Predict.Public.List.OnSelected = func(id widget.ListItemID) {
 		if id != 0 && menu.Connected() {
-			item = setPredictionControls(Predict.Settings.Contracts[id])
-			Predict.Favorite_list.UnselectAll()
-			Predict.Owned_list.UnselectAll()
+			item = setPredictionControls(Predict.Public.SCIDs[id])
+			Predict.Favorites.List.UnselectAll()
+			Predict.Owned.List.UnselectAll()
 		} else {
 			disablePredictions(true)
 		}
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Predict.Settings.Favorites = append(Predict.Settings.Favorites, item)
-		sort.Strings(Predict.Settings.Favorites)
+		Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
+		sort.Strings(Predict.Favorites.SCIDs)
 	})
 
 	rate := widget.NewButton("Rate", func() {
-		if len(Predict.Contract) == 64 {
-			if !menu.CheckOwner(Predict.Contract) {
+		if len(Predict.Contract.SCID) == 64 {
+			if !menu.CheckOwner(Predict.Contract.SCID) {
 				reset := tab.Selected().Content
-				tab.Selected().Content = menu.RateConfirm(Predict.Contract, tab, reset)
+				tab.Selected().Content = menu.RateConfirm(Predict.Contract.SCID, tab, reset)
 				tab.Selected().Content.Refresh()
 			} else {
 				logger.Warnln("[dReams] You own this contract")
@@ -218,105 +216,101 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 		}
 	})
 
-	cont := container.NewBorder(
+	return container.NewBorder(
 		nil,
 		container.NewBorder(nil, nil, save, rate, layout.NewSpacer()),
 		nil,
 		nil,
-		Predict.Predict_list)
-
-	return cont
+		Predict.Public.List)
 }
 
 // List object for populating favorite dPrediction contracts, with remove favorite control
 func PredictionFavorites() fyne.CanvasObject {
-	Predict.Favorite_list = widget.NewList(
+	Predict.Favorites.List = widget.NewList(
 		func() int {
-			return len(Predict.Settings.Favorites)
+			return len(Predict.Favorites.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(Predict.Settings.Favorites[i])
+			o.(*widget.Label).SetText(Predict.Favorites.SCIDs[i])
 		})
 
 	var item string
 
-	Predict.Favorite_list.OnSelected = func(id widget.ListItemID) {
+	Predict.Favorites.List.OnSelected = func(id widget.ListItemID) {
 		if menu.Connected() {
-			item = setPredictionControls(Predict.Settings.Favorites[id])
-			Predict.Predict_list.UnselectAll()
-			Predict.Owned_list.UnselectAll()
+			item = setPredictionControls(Predict.Favorites.SCIDs[id])
+			Predict.Public.List.UnselectAll()
+			Predict.Owned.List.UnselectAll()
 		} else {
 			disablePredictions(true)
 		}
 	}
 
 	remove := widget.NewButton("Remove", func() {
-		if len(Predict.Settings.Favorites) > 0 {
-			Predict.Favorite_list.UnselectAll()
-			new := Predict.Settings.Favorites
+		if len(Predict.Favorites.SCIDs) > 0 {
+			Predict.Favorites.List.UnselectAll()
+			new := Predict.Favorites.SCIDs
 			for i := range new {
 				if new[i] == item {
 					copy(new[i:], new[i+1:])
 					new[len(new)-1] = ""
 					new = new[:len(new)-1]
-					Predict.Settings.Favorites = new
+					Predict.Favorites.SCIDs = new
 					break
 				}
 			}
 		}
-		Predict.Favorite_list.Refresh()
-		sort.Strings(Predict.Settings.Favorites)
+		Predict.Favorites.List.Refresh()
+		sort.Strings(Predict.Favorites.SCIDs)
 	})
 
-	cont := container.NewBorder(
+	return container.NewBorder(
 		nil,
 		container.NewBorder(nil, nil, nil, remove, layout.NewSpacer()),
 		nil,
 		nil,
-		Predict.Favorite_list)
-
-	return cont
+		Predict.Favorites.List)
 }
 
 // List object for populating owned dPrediction contracts
 func PredictionOwned() fyne.CanvasObject {
-	Predict.Owned_list = widget.NewList(
+	Predict.Owned.List = widget.NewList(
 		func() int {
-			return len(Predict.Settings.Owned)
+			return len(Predict.Owned.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(Predict.Settings.Owned[i])
+			o.(*widget.Label).SetText(Predict.Owned.SCIDs[i])
 		})
 
-	Predict.Owned_list.OnSelected = func(id widget.ListItemID) {
+	Predict.Owned.List.OnSelected = func(id widget.ListItemID) {
 		if menu.Connected() {
-			setPredictionControls(Predict.Settings.Owned[id])
-			Predict.Predict_list.UnselectAll()
-			Predict.Favorite_list.UnselectAll()
+			setPredictionControls(Predict.Owned.SCIDs[id])
+			Predict.Public.List.UnselectAll()
+			Predict.Favorites.List.UnselectAll()
 		} else {
 			disablePredictions(true)
 		}
 	}
 
-	return Predict.Owned_list
+	return Predict.Owned.List
 }
 
 // Refresh all dPrediction objects
 func PredictionRefresh(p *dreams.ContainerStack, d *dreams.AppObject) {
 	if d.OnTab("Predict") {
-		if Predict.Prices.Text == "" {
+		if Predict.prices.Text == "" {
 			go SetPredictionPrices(rpc.Daemon.Connect)
 		}
 
 		p.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
-		if CheckActivePrediction(Predict.Contract) {
+		if CheckActivePrediction(Predict.Contract.SCID) {
 			go ShowPredictionControls()
 		} else {
 			disablePredictions(true)
@@ -369,21 +363,21 @@ func P_initResults(p, amt, eA, c, to, u, d, r, f, m string, ta, tb, tc int) (inf
 		}
 
 		if isOnChainPrediction(p) {
-			info = "SCID:\n\n" + Predict.Contract + "\n\n" + p + wfp + "\n\nNode: " + f + "\n\nMark: " + mark + "\nRound Pot: " + s +
+			info = "SCID:\n\n" + Predict.Contract.SCID + "\n\n" + p + wfp + "\n\nNode: " + f + "\n\nMark: " + mark + "\nRound Pot: " + s +
 				" Dero\n\nPredictions: " + c + "\nHigher Predictions: " + u + "\nLower Predictions: " + d +
 				"\n\nPayout After: " + end_pay.String() + "\nRefund if not paid within " + rf + " minutes\n\nRounds Completed: " + r
 		} else {
-			info = "SCID:\n\n" + Predict.Contract + "\n\n" + p + wfp + "\n\nMark: " + mark + "\nRound Pot: " + s +
+			info = "SCID:\n\n" + Predict.Contract.SCID + "\n\n" + p + wfp + "\n\nMark: " + mark + "\nRound Pot: " + s +
 				" Dero\n\nPredictions: " + c + "\nHigher Predictions: " + u + "\nLower Predictions: " + d +
 				"\n\nPayout After: " + end_pay.String() + "\nRefund if not paid within " + rf + " minutes\n\nRounds Completed: " + r
 		}
 
 	} else {
 		var live string
-		if now > Predict.Buffer {
+		if now > Predict.buffer {
 			live = "\n\nAccepting " + p + " Predictions "
 		} else {
-			left := Predict.Buffer - now
+			left := Predict.buffer - now
 			live = "\n\n" + p + "\nBuffer ends in " + strconv.Itoa(int(left)) + " seconds"
 		}
 
@@ -398,11 +392,11 @@ func P_initResults(p, amt, eA, c, to, u, d, r, f, m string, ta, tb, tc int) (inf
 
 		if m == "0" {
 			pw := strconv.Itoa(ta / 60)
-			info = "SCID:\n\n" + Predict.Contract + live + node +
+			info = "SCID:\n\n" + Predict.Contract.SCID + live + node +
 				"\n\nCloses at: " + utc + "\nMark posted with in " + pw + " minutes of close\n\nPrediction Amount: " + amt + " Dero\nRound Pot: " + s + " Dero\n\nPredictions: " + c +
 				"\nHigher Predictions: " + u + "\nLower Predictions: " + d + "\n\nPayout After: " + end_pay.String() + "\nRefund if not paid within " + rf + " minutes\n\nRounds Completed: " + r
 		} else {
-			info = "SCID:\n\n" + Predict.Contract + live + node +
+			info = "SCID:\n\n" + Predict.Contract.SCID + live + node +
 				"\n\nCloses at: " + utc + "\nMark: " + m + "\n\nPrediction Amount: " + amt + " Dero\nRound Pot: " + s + " Dero\n\nPredictions: " + c +
 				"\nHigher Predictions: " + u + "\nLower Predictions: " + d + "\n\nPayout After: " + end_pay.String() + "\nRefund if not paid within " + rf + " minutes\n\nRounds Completed: " + r
 		}
@@ -415,7 +409,7 @@ func P_initResults(p, amt, eA, c, to, u, d, r, f, m string, ta, tb, tc int) (inf
 //   - fr is the un-split result string
 //   - m is prediction mark
 func roundResults(fr, m string) string {
-	if len(Predict.Contract) == 64 && fr != "" {
+	if len(Predict.Contract.SCID) == 64 && fr != "" {
 		split := strings.Split(fr, "_")
 		var res string
 		var def string
@@ -487,10 +481,10 @@ func roundResults(fr, m string) string {
 //   - r is total completed prediction rounds
 //   - m is prediction mark
 func P_no_initResults(fr, tx, r, m string) (info string) {
-	info = "SCID:\n\n" + Predict.Contract + "\n" + "\nRound Completed\n\nRound Mark: " + m +
+	info = "SCID:\n\n" + Predict.Contract.SCID + "\n" + "\nRound Completed\n\nRound Mark: " + m +
 		"\nRound Results: " + roundResults(fr, m) + "\n\nPayout TXID: " + tx + "\n\nRounds Completed: " + r
 
-	Predict.Prediction = ""
+	Predict.prediction = ""
 
 	return
 }
@@ -512,10 +506,10 @@ func PopulatePredictions(contracts map[string]string) {
 		t := len(list)
 		list = append(list, " Contracts: "+strconv.Itoa(t))
 		sort.Strings(list)
-		Predict.Settings.Contracts = list
+		Predict.Public.SCIDs = list
 
 		sort.Strings(owned)
-		Predict.Settings.Owned = owned
+		Predict.Owned.SCIDs = owned
 
 	}
 }
@@ -559,19 +553,19 @@ func GetPrediction(scid string) (info string) {
 		var pre, p_played, p_final, p_mark string
 		if init != nil {
 			if init[0] == 1 {
-				Predict.Init = true
+				Predict.init = true
 
 				if buffer != nil {
-					Predict.Buffer = int64(buffer[0])
+					Predict.buffer = int64(buffer[0])
 				}
 
-				Predict.Amount = amt[0]
+				Predict.amount = amt[0]
 				if predicting != nil {
 					pre = predicting[0]
 				}
-				Predict.Prediction = pre
+				Predict.prediction = pre
 
-				p_amt := fmt.Sprint(float64(Predict.Amount) / 100000)
+				p_amt := fmt.Sprint(float64(Predict.amount) / 100000)
 
 				p_down := fmt.Sprint(down[0])
 				p_up := fmt.Sprint(up[0])
@@ -582,7 +576,7 @@ func GetPrediction(scid string) (info string) {
 
 				var p_feed string
 				if url != nil {
-					Predict.Feed = url[0]
+					Predict.feed = url[0]
 					p_feed = url[0]
 				}
 
@@ -623,7 +617,7 @@ func GetPrediction(scid string) (info string) {
 					p_final = final[0]
 				}
 
-				Predict.Init = false
+				Predict.init = false
 				txid := FetchPredictionFinal(scid)
 
 				if mark != nil {

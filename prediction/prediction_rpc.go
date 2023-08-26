@@ -23,7 +23,7 @@ func PredictHigher(scid, addr string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
-	amt := uint64(Predict.Amount)
+	amt := uint64(Predict.amount)
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Predict"}
 	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: 1}
@@ -62,7 +62,7 @@ func PredictLower(scid, addr string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
-	amt := uint64(Predict.Amount)
+	amt := uint64(Predict.amount)
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Predict"}
 	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: 0}

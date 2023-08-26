@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 
@@ -22,107 +23,94 @@ import (
 )
 
 type sportsItems struct {
-	Contract      string
-	Buffer        bool
-	Info          *widget.Label
-	Sports_list   *widget.List
-	Favorite_list *widget.List
-	Owned_list    *widget.List
-	Payout_log    *widget.Entry
-	Game_select   *widget.Select
-	Game_options  []string
-	Multi         *widget.RadioGroup
-	ButtonA       *widget.Button
-	ButtonB       *widget.Button
-	Container     *fyne.Container
-	Settings      struct {
-		Contracts      []string
-		Favorites      []string
-		Owned          []string
-		Unlock         *widget.Button
-		New            *widget.Button
-		Menu           *widget.Button
-		Check          *widget.Check
-		Contract_entry *widget.SelectEntry
+	*fyne.Container
+	buffer     bool
+	info       *widget.Label
+	Public     dwidget.Lists
+	Favorites  dwidget.Lists
+	Owned      dwidget.Lists
+	payoutLog  *widget.Entry
+	gameSelect *widget.Select
+	games      []string
+	multi      *widget.RadioGroup
+	buttonA    *widget.Button
+	buttonB    *widget.Button
+	Contract   struct {
+		SCID   string
+		unlock *widget.Button
+		new    *widget.Button
+		menu   *widget.Button
+		check  *widget.Check
+		entry  *widget.SelectEntry
 	}
 }
 
 var Sports sportsItems
 
-// Disable dSports objects
-func disableSports(d bool) {
-	if d {
-		Sports.Container.Hide()
-		Sports.Settings.Check.SetChecked(false)
-	}
-
-	Sports.Container.Refresh()
-}
-
 // Check box for dSports SCID
 //   - Hides sports controls on disconnect
 func SportsConnectedBox() fyne.Widget {
-	Sports.Settings.Check = widget.NewCheck("", func(b bool) {
+	Sports.Contract.check = widget.NewCheck("", func(b bool) {
 		if !b {
-			Sports.Game_select.Hide()
-			Sports.Multi.Hide()
-			Sports.ButtonA.Hide()
-			Sports.ButtonB.Hide()
+			Sports.gameSelect.Hide()
+			Sports.multi.Hide()
+			Sports.buttonA.Hide()
+			Sports.buttonB.Hide()
 		}
 	})
-	Sports.Settings.Check.Disable()
+	Sports.Contract.check.Disable()
 
-	return Sports.Settings.Check
+	return Sports.Contract.check
 }
 
 // Entry for dPrediction SCID
-//   - Bound to Sports.Contract
+//   - Bound to Sports.Contract.SCID
 //   - Checks for valid SCID on changed
 func SportsContractEntry() fyne.Widget {
 	options := []string{""}
-	Sports.Settings.Contract_entry = widget.NewSelectEntry(options)
-	Sports.Settings.Contract_entry.PlaceHolder = "Contract Address: "
-	Sports.Settings.Contract_entry.OnCursorChanged = func() {
+	Sports.Contract.entry = widget.NewSelectEntry(options)
+	Sports.Contract.entry.PlaceHolder = "Contract Address: "
+	Sports.Contract.entry.OnCursorChanged = func() {
 		if rpc.Daemon.IsConnected() {
 			go func() {
-				if len(Sports.Contract) == 64 {
-					yes := ValidBetContract(Sports.Contract)
+				if len(Sports.Contract.SCID) == 64 {
+					yes := ValidBetContract(Sports.Contract.SCID)
 					if yes {
-						Sports.Settings.Check.SetChecked(true)
-						if !CheckActiveGames(Sports.Contract) {
-							Sports.Game_select.Show()
+						Sports.Contract.check.SetChecked(true)
+						if !CheckActiveGames(Sports.Contract.SCID) {
+							Sports.gameSelect.Show()
 						} else {
-							Sports.Game_select.Hide()
+							Sports.gameSelect.Hide()
 						}
 					} else {
-						Sports.Owned_list.UnselectAll()
-						Sports.Sports_list.UnselectAll()
-						Sports.Favorite_list.UnselectAll()
-						Sports.Settings.Check.SetChecked(false)
+						Sports.Owned.List.UnselectAll()
+						Sports.Public.List.UnselectAll()
+						Sports.Favorites.List.UnselectAll()
+						Sports.Contract.check.SetChecked(false)
 					}
 				} else {
-					Sports.Owned_list.UnselectAll()
-					Sports.Sports_list.UnselectAll()
-					Sports.Favorite_list.UnselectAll()
-					Sports.Settings.Check.SetChecked(false)
+					Sports.Owned.List.UnselectAll()
+					Sports.Public.List.UnselectAll()
+					Sports.Favorites.List.UnselectAll()
+					Sports.Contract.check.SetChecked(false)
 				}
 			}()
 		}
 	}
 
-	this := binding.BindString(&Sports.Contract)
-	Sports.Settings.Contract_entry.Bind(this)
+	this := binding.BindString(&Sports.Contract.SCID)
+	Sports.Contract.entry.Bind(this)
 
-	return Sports.Settings.Contract_entry
+	return Sports.Contract.entry
 }
 
 // Routine when dSports SCID is clicked
 //   - Sets label info, controls and payout log
 //   - item returned for adding and removing favorite
 func setSportsControls(str string) (item string) {
-	Sports.Game_select.ClearSelected()
-	Sports.Game_select.Options = []string{}
-	Sports.Game_select.Refresh()
+	Sports.gameSelect.ClearSelected()
+	Sports.gameSelect.Options = []string{}
+	Sports.gameSelect.Refresh()
 	split := strings.Split(str, "   ")
 	if len(split) >= 3 {
 		trimmed := strings.Trim(split[2], " ")
@@ -130,9 +118,9 @@ func setSportsControls(str string) (item string) {
 		if len(trimmed) == 64 {
 			go SetSportsInfo(trimmed)
 			item = str
-			Sports.Settings.Contract_entry.SetText(trimmed)
+			Sports.Contract.entry.SetText(trimmed)
 			finals := FetchSportsFinal(trimmed)
-			Sports.Payout_log.SetText(formatFinals(trimmed, finals))
+			Sports.payoutLog.SetText(formatFinals(trimmed, finals))
 		}
 	}
 
@@ -178,26 +166,26 @@ func WinningTeam(teams, winner string) string {
 // Set dSports info label
 func SetSportsInfo(scid string) {
 	info := GetBook(scid)
-	Sports.Info.SetText(info)
-	Sports.Info.Refresh()
-	Sports.Game_select.Refresh()
+	Sports.info.SetText(info)
+	Sports.info.Refresh()
+	Sports.gameSelect.Refresh()
 }
 
 // List object for populating public dSports contracts, with rating and add favorite controls
 //   - Pass tab for action confirmation reset
 func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
-	Sports.Sports_list = widget.NewList(
+	Sports.Public.List = widget.NewList(
 		func() int {
-			return len(Sports.Settings.Contracts)
+			return len(Sports.Public.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return container.NewHBox(container.NewMax(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Sports.Settings.Contracts[i])
-			if Sports.Settings.Contracts[i][0:2] != "  " {
+			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Sports.Public.SCIDs[i])
+			if Sports.Public.SCIDs[i][0:2] != "  " {
 				var key string
-				split := strings.Split(Sports.Settings.Contracts[i], "   ")
+				split := strings.Split(Sports.Public.SCIDs[i], "   ")
 				if len(split) >= 3 {
 					trimmed := strings.Trim(split[2], " ")
 					if len(trimmed) == 64 {
@@ -213,26 +201,26 @@ func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
 
 	var item string
 
-	Sports.Sports_list.OnSelected = func(id widget.ListItemID) {
+	Sports.Public.List.OnSelected = func(id widget.ListItemID) {
 		if id != 0 && menu.Connected() {
-			item = setSportsControls(Sports.Settings.Contracts[id])
-			Sports.Favorite_list.UnselectAll()
-			Sports.Owned_list.UnselectAll()
+			item = setSportsControls(Sports.Public.SCIDs[id])
+			Sports.Favorites.List.UnselectAll()
+			Sports.Owned.List.UnselectAll()
 		} else {
 			Sports.Container.Hide()
 		}
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Sports.Settings.Favorites = append(Sports.Settings.Favorites, item)
-		sort.Strings(Sports.Settings.Favorites)
+		Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
+		sort.Strings(Sports.Favorites.SCIDs)
 	})
 
 	rate := widget.NewButton("Rate", func() {
-		if len(Sports.Contract) == 64 {
-			if !menu.CheckOwner(Sports.Contract) {
+		if len(Sports.Contract.SCID) == 64 {
+			if !menu.CheckOwner(Sports.Contract.SCID) {
 				reset := tab.Selected().Content
-				tab.Selected().Content = menu.RateConfirm(Sports.Contract, tab, reset)
+				tab.Selected().Content = menu.RateConfirm(Sports.Contract.SCID, tab, reset)
 				tab.Selected().Content.Refresh()
 			} else {
 				logger.Warnln("[dReams] You own this contract")
@@ -240,101 +228,97 @@ func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
 		}
 	})
 
-	cont := container.NewBorder(
+	return container.NewBorder(
 		nil,
 		container.NewBorder(nil, nil, save, rate, layout.NewSpacer()),
 		nil,
 		nil,
-		Sports.Sports_list)
-
-	return cont
+		Sports.Public.List)
 }
 
 // List object for populating favorite dSports contracts, with remove favorite control
 func SportsFavorites() fyne.CanvasObject {
-	Sports.Favorite_list = widget.NewList(
+	Sports.Favorites.List = widget.NewList(
 		func() int {
-			return len(Sports.Settings.Favorites)
+			return len(Sports.Favorites.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(Sports.Settings.Favorites[i])
+			o.(*widget.Label).SetText(Sports.Favorites.SCIDs[i])
 		})
 
 	var item string
 
-	Sports.Favorite_list.OnSelected = func(id widget.ListItemID) {
+	Sports.Favorites.List.OnSelected = func(id widget.ListItemID) {
 		if menu.Connected() {
-			item = setSportsControls(Sports.Settings.Favorites[id])
-			Sports.Sports_list.UnselectAll()
-			Sports.Owned_list.UnselectAll()
+			item = setSportsControls(Sports.Favorites.SCIDs[id])
+			Sports.Public.List.UnselectAll()
+			Sports.Owned.List.UnselectAll()
 		} else {
 			Sports.Container.Hide()
 		}
 	}
 
 	remove := widget.NewButton("Remove", func() {
-		if len(Sports.Settings.Favorites) > 0 {
-			Sports.Favorite_list.UnselectAll()
-			new := Sports.Settings.Favorites
+		if len(Sports.Favorites.SCIDs) > 0 {
+			Sports.Favorites.List.UnselectAll()
+			new := Sports.Favorites.SCIDs
 			for i := range new {
 				if new[i] == item {
 					copy(new[i:], new[i+1:])
 					new[len(new)-1] = ""
 					new = new[:len(new)-1]
-					Sports.Settings.Favorites = new
+					Sports.Favorites.SCIDs = new
 					break
 				}
 			}
 		}
-		Sports.Favorite_list.Refresh()
-		sort.Strings(Sports.Settings.Favorites)
+		Sports.Favorites.List.Refresh()
+		sort.Strings(Sports.Favorites.SCIDs)
 	})
 
-	cont := container.NewBorder(
+	return container.NewBorder(
 		nil,
 		container.NewBorder(nil, nil, nil, remove, layout.NewSpacer()),
 		nil,
 		nil,
-		Sports.Favorite_list)
-
-	return cont
+		Sports.Favorites.List)
 }
 
 // List object for populating owned dSports contracts
 func SportsOwned() fyne.CanvasObject {
-	Sports.Owned_list = widget.NewList(
+	Sports.Owned.List = widget.NewList(
 		func() int {
-			return len(Sports.Settings.Owned)
+			return len(Sports.Owned.SCIDs)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(Sports.Settings.Owned[i])
+			o.(*widget.Label).SetText(Sports.Owned.SCIDs[i])
 		})
 
-	Sports.Owned_list.OnSelected = func(id widget.ListItemID) {
+	Sports.Owned.List.OnSelected = func(id widget.ListItemID) {
 		if menu.Connected() {
-			setSportsControls(Sports.Settings.Owned[id])
-			Sports.Sports_list.UnselectAll()
-			Sports.Favorite_list.UnselectAll()
+			setSportsControls(Sports.Owned.SCIDs[id])
+			Sports.Public.List.UnselectAll()
+			Sports.Favorites.List.UnselectAll()
 		} else {
 			Sports.Container.Hide()
 		}
 	}
 
-	return Sports.Owned_list
+	return Sports.Owned.List
 }
 
 // Log entry for dSports payout results
 func SportsPayouts() fyne.CanvasObject {
-	Sports.Payout_log = widget.NewMultiLineEntry()
-	Sports.Payout_log.Disable()
+	Sports.payoutLog = widget.NewMultiLineEntry()
+	Sports.payoutLog.Disable()
 
-	return Sports.Payout_log
+	return Sports.payoutLog
 }
 
 // Populate all dReams dSports contracts
@@ -354,10 +338,10 @@ func PopulateSports(contracts map[string]string) {
 		t := len(list)
 		list = append(list, " Contracts: "+strconv.Itoa(t))
 		sort.Strings(list)
-		Sports.Settings.Contracts = list
+		Sports.Public.SCIDs = list
 
 		sort.Strings(owned)
-		Sports.Settings.Owned = owned
+		Sports.Owned.SCIDs = owned
 	}
 }
 
@@ -432,12 +416,12 @@ func GetBook(scid string) (info string) {
 			init := initValue[0]
 			played := playedValue[0]
 
-			Sports.Game_options = []string{}
-			Sports.Game_select.Options = Sports.Game_options
+			Sports.games = []string{}
+			Sports.gameSelect.Options = Sports.games
 			played_str := strconv.Itoa(int(played))
 			if init == played {
 				info = "SCID:\n\n" + scid + "\n\nGames Completed: " + played_str + "\n\nNo current Games\n"
-				Sports.Buffer = false
+				Sports.buffer = false
 				return
 			}
 
@@ -464,15 +448,15 @@ func GetBook(scid string) (info string) {
 
 					now := uint64(time.Now().Unix())
 					if now < buffer[0] {
-						Sports.Buffer = true
+						Sports.buffer = true
 					} else {
-						Sports.Buffer = false
+						Sports.buffer = false
 					}
 
 					if s_end[0] > now && now > buffer[0] {
-						current := Sports.Game_select.Options
+						current := Sports.gameSelect.Options
 						new := append(current, strconv.Itoa(iv)+"   "+game[0])
-						Sports.Game_select.Options = new
+						Sports.gameSelect.Options = new
 					}
 
 					eA := fmt.Sprint(s_end[0] * 1000)
@@ -847,7 +831,7 @@ func GetGameEnd(date, game, league string) {
 				g := a + "--" + b
 
 				if g == game {
-					Owner.S_end.SetText(strconv.Itoa(int(utc_time.Unix())))
+					owner.sports.end.SetText(strconv.Itoa(int(utc_time.Unix())))
 					return
 				}
 			}
@@ -867,7 +851,7 @@ func GetGameEnd(date, game, league string) {
 			b := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 			g := a + "--" + b
 			if g == game {
-				Owner.S_end.SetText(strconv.Itoa(int(utc_time.Unix())))
+				owner.sports.end.SetText(strconv.Itoa(int(utc_time.Unix())))
 				return
 			}
 		}
@@ -1071,9 +1055,9 @@ func GetHockey(date, league string) {
 			teamB := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 
 			if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-				current := Owner.S_game.Options
+				current := owner.sports.game.Options
 				new := append(current, utc_time.In(tz).String()[0:16]+"   "+teamA+"--"+teamB)
-				Owner.S_game.Options = new
+				owner.sports.game.Options = new
 			}
 		}
 	}
@@ -1099,9 +1083,9 @@ func GetSoccer(date, league string) {
 			teamB := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 
 			if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-				current := Owner.S_game.Options
+				current := owner.sports.game.Options
 				new := append(current, utc_time.In(tz).String()[0:16]+"   "+teamA+"--"+teamB)
-				Owner.S_game.Options = new
+				owner.sports.game.Options = new
 			}
 		}
 	}
@@ -1214,9 +1198,9 @@ func GetFootball(date, league string) {
 			teamB := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 
 			if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-				current := Owner.S_game.Options
+				current := owner.sports.game.Options
 				new := append(current, utc_time.In(tz).String()[0:16]+"   "+teamA+"--"+teamB)
-				Owner.S_game.Options = new
+				owner.sports.game.Options = new
 			}
 		}
 	}
@@ -1241,9 +1225,9 @@ func GetBasketball(date, league string) {
 			teamB := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 
 			if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-				current := Owner.S_game.Options
+				current := owner.sports.game.Options
 				new := append(current, utc_time.In(tz).String()[0:16]+"   "+teamA+"--"+teamB)
-				Owner.S_game.Options = new
+				owner.sports.game.Options = new
 			}
 		}
 	}
@@ -1268,9 +1252,9 @@ func GetBaseball(date, league string) {
 			teamB := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 
 			if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-				current := Owner.S_game.Options
+				current := owner.sports.game.Options
 				new := append(current, utc_time.In(tz).String()[0:16]+"   "+teamA+"--"+teamB)
-				Owner.S_game.Options = new
+				owner.sports.game.Options = new
 			}
 		}
 	}
@@ -1296,9 +1280,9 @@ func GetMma(date, league string) {
 				fighterB := found.Events[i].Competitions[f].Competitors[1].Athlete.DisplayName
 
 				if !found.Events[i].Status.Type.Completed && pregame == "pre" {
-					current := Owner.S_game.Options
+					current := owner.sports.game.Options
 					new := append(current, utc_time.In(tz).String()[0:16]+"   "+fighterA+"--"+fighterB)
-					Owner.S_game.Options = new
+					owner.sports.game.Options = new
 				}
 			}
 		}

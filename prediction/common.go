@@ -84,10 +84,10 @@ func DreamsMenuIntro() (entries map[string][]string) {
 
 // Do this when first connected
 func OnConnected() {
-	Predict.Settings.Contract_entry.CursorColumn = 1
-	Predict.Settings.Contract_entry.Refresh()
-	Sports.Settings.Contract_entry.CursorColumn = 1
-	Sports.Settings.Contract_entry.Refresh()
+	Predict.Contract.entry.CursorColumn = 1
+	Predict.Contract.entry.Refresh()
+	Sports.Contract.entry.CursorColumn = 1
+	Sports.Contract.entry.Refresh()
 }
 
 // Main process for dSports and dPrediction
@@ -100,26 +100,26 @@ func fetch(d *dreams.AppObject) {
 		case <-d.Receive():
 			if !rpc.Wallet.IsConnected() || !rpc.Daemon.IsConnected() {
 				disableActions()
-				Owner.Synced = false
+				owner.synced = false
 				S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 				d.WorkDone()
 				continue
 			}
 
-			if !Owner.Synced && menu.GnomonScan(d.IsConfiguring()) {
+			if !owner.synced && menu.GnomonScan(d.IsConfiguring()) {
 				logger.Println("[dPrediction] Syncing")
 				contracts := menu.Gnomes.IndexContains()
 				go CheckBetContractOwners(contracts)
 				go PopulateSports(contracts)
 				go PopulatePredictions(contracts)
-				Owner.Synced = true
+				owner.synced = true
 			}
 
 			// dSports
 			if d.OnTab("Sports") {
 				if offset%5 == 0 {
-					go SetSportsInfo(Sports.Contract)
+					go SetSportsInfo(Sports.Contract.SCID)
 				}
 			}
 			S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
@@ -127,16 +127,16 @@ func fetch(d *dreams.AppObject) {
 			//dPrediction
 			if d.OnTab("Predict") {
 				if offset%5 == 0 {
-					go SetPredictionInfo(Predict.Contract)
+					go SetPredictionInfo(Predict.Contract.SCID)
 				}
 
-				if offset == 11 || Predict.Prices.Text == "" {
+				if offset == 11 || Predict.prices.Text == "" {
 					go SetPredictionPrices(rpc.Daemon.Connect)
 				}
 
 				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
 
-				if CheckActivePrediction(Predict.Contract) {
+				if CheckActivePrediction(Predict.Contract.SCID) {
 					go ShowPredictionControls()
 				} else {
 					disablePredictions(true)
@@ -160,53 +160,55 @@ func fetch(d *dreams.AppObject) {
 func Disconnected() {
 	Service.Stop()
 	Predict.owner = false
-	Owner.Synced = false
+	owner.synced = false
 }
 
 // Disable sports and prediction actions
 func disableActions() {
-	Predict.Settings.New.Hide()
-	Sports.Settings.New.Hide()
-	Predict.Settings.Unlock.Hide()
-	Sports.Settings.Unlock.Hide()
-	Predict.Settings.Menu.Hide()
-	Sports.Settings.Menu.Hide()
+	Predict.Contract.new.Hide()
+	Sports.Contract.new.Hide()
+	Predict.Contract.unlock.Hide()
+	Sports.Contract.unlock.Hide()
+	Predict.Contract.menu.Hide()
+	Sports.Contract.menu.Hide()
 
-	Predict.Settings.New.Refresh()
-	Sports.Settings.New.Refresh()
-	Predict.Settings.Unlock.Refresh()
-	Sports.Settings.Unlock.Refresh()
-	Predict.Settings.Menu.Refresh()
-	Sports.Settings.Menu.Refresh()
+	Predict.Contract.new.Refresh()
+	Sports.Contract.new.Refresh()
+	Predict.Contract.unlock.Refresh()
+	Sports.Contract.unlock.Refresh()
+	Predict.Contract.menu.Refresh()
+	Sports.Contract.menu.Refresh()
 
-	Predict.Settings.Contracts = []string{}
-	Sports.Settings.Contracts = []string{}
-	Predict.Settings.Owned = []string{}
-	Sports.Settings.Owned = []string{}
+	Predict.Public.SCIDs = []string{}
+	Sports.Public.SCIDs = []string{}
+	Predict.Owned.SCIDs = []string{}
+	Sports.Owned.SCIDs = []string{}
 
-	Predict.Settings.Check.SetChecked(false)
+	Predict.Contract.check.SetChecked(false)
 	disablePredictions(true)
-	disableSports(true)
+	Sports.Contract.check.SetChecked(false)
+	Sports.Hide()
+	Sports.Refresh()
 }
 
 // Set objects if bet owner
 func setBetOwner(owner string) {
 	if owner == rpc.Wallet.Address {
 		Predict.owner = true
-		Predict.Settings.New.Show()
-		Sports.Settings.New.Show()
-		Predict.Settings.Unlock.Hide()
-		Sports.Settings.Unlock.Hide()
-		Predict.Settings.Menu.Show()
-		Sports.Settings.Menu.Show()
+		Predict.Contract.new.Show()
+		Sports.Contract.new.Show()
+		Predict.Contract.unlock.Hide()
+		Sports.Contract.unlock.Hide()
+		Predict.Contract.menu.Show()
+		Sports.Contract.menu.Show()
 	} else {
 		Predict.owner = false
-		Predict.Settings.New.Hide()
-		Sports.Settings.New.Hide()
-		Predict.Settings.Unlock.Show()
-		Sports.Settings.Unlock.Show()
-		Predict.Settings.Menu.Hide()
-		Sports.Settings.Menu.Hide()
+		Predict.Contract.new.Hide()
+		Sports.Contract.new.Hide()
+		Predict.Contract.unlock.Show()
+		Sports.Contract.unlock.Show()
+		Predict.Contract.menu.Hide()
+		Sports.Contract.menu.Hide()
 	}
 }
 
@@ -310,8 +312,8 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 					if VerifyBetSigner(scid) {
 						co_signer = true
 						if !menu.Gnomes.Import {
-							Predict.Settings.Menu.Show()
-							Sports.Settings.Menu.Show()
+							Predict.Contract.menu.Show()
+							Sports.Contract.menu.Show()
 						}
 					}
 

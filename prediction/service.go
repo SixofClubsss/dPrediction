@@ -364,14 +364,14 @@ func MakeIntegratedAddr(print bool) {
 	service_address := addr.Clone()
 
 	var p_contracts, s_contracts []string
-	for _, sc := range Predict.Settings.Owned {
+	for _, sc := range Predict.Owned.SCIDs {
 		split := strings.Split(sc, "   ")
 		if len(split) > 2 {
 			p_contracts = append(p_contracts, split[2])
 		}
 	}
 
-	for _, sc := range Sports.Settings.Owned {
+	for _, sc := range Sports.Owned.SCIDs {
 		split := strings.Split(sc, "   ")
 		if len(split) > 2 {
 			s_contracts = append(s_contracts, split[2])
@@ -501,7 +501,7 @@ func RunService(start uint64, payouts, transfers bool) {
 // Process and queue dPrediction contracts actions for service to complete
 //   - print for debug
 func runPredictionPayouts(print bool) {
-	contracts := Predict.Settings.Owned
+	contracts := Predict.Owned.SCIDs
 	var pay_queue, post_queue []string
 	for i := range contracts {
 		if !menu.Gnomes.IsRunning() {
@@ -545,15 +545,15 @@ func runPredictionPayouts(print bool) {
 		var sent bool
 		var value float64
 		GetPrediction(sc)
-		pre := Predict.Prediction
+		pre := Predict.prediction
 		if isOnChainPrediction(pre) {
 			switch onChainPrediction(pre) {
 			case 1:
-				value = rpc.GetDifficulty(Predict.Feed)
+				value = rpc.GetDifficulty(Predict.feed)
 			case 2:
-				value = rpc.GetBlockTime(Predict.Feed)
+				value = rpc.GetBlockTime(Predict.feed)
 			case 3:
-				d := rpc.DaemonHeight("dService", Predict.Feed)
+				d := rpc.DaemonHeight("dService", Predict.feed)
 				value = float64(d)
 			default:
 
@@ -600,16 +600,16 @@ func runPredictionPayouts(print bool) {
 		var sent bool
 		var amt float64
 		GetPrediction(sc)
-		pre := Predict.Prediction
+		pre := Predict.prediction
 		if isOnChainPrediction(pre) {
 			sent = true
-			switch onChainPrediction(Predict.Prediction) {
+			switch onChainPrediction(Predict.prediction) {
 			case 1:
-				amt = rpc.GetDifficulty(Predict.Feed)
+				amt = rpc.GetDifficulty(Predict.feed)
 			case 2:
-				amt = rpc.GetBlockTime(Predict.Feed)
+				amt = rpc.GetBlockTime(Predict.feed)
 			case 3:
-				d := rpc.DaemonHeight("dService", Predict.Feed)
+				d := rpc.DaemonHeight("dService", Predict.feed)
 				amt = float64(d)
 			default:
 				sent = false
@@ -655,7 +655,7 @@ func runPredictionPayouts(print bool) {
 // Process dSpots contracts payouts for service to complete
 //   - print for debug
 func runSportsPayouts(print bool) {
-	contracts := Sports.Settings.Owned
+	contracts := Sports.Owned.SCIDs
 	for i := range contracts {
 		if !menu.Gnomes.IsRunning() {
 			return
@@ -729,14 +729,14 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	rpcClient, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 
 	var p_contracts, s_contracts []string
-	for _, sc := range Predict.Settings.Owned {
+	for _, sc := range Predict.Owned.SCIDs {
 		split := strings.Split(sc, "   ")
 		if len(split) > 2 {
 			p_contracts = append(p_contracts, split[2])
 		}
 	}
 
-	for _, sc := range Sports.Settings.Owned {
+	for _, sc := range Sports.Owned.SCIDs {
 		split := strings.Split(sc, "   ")
 		if len(split) > 2 {
 			s_contracts = append(s_contracts, split[2])
@@ -1026,14 +1026,14 @@ func processSingleTx(txid string) {
 		rpcClient, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 
 		var p_contracts, s_contracts []string
-		for _, sc := range Predict.Settings.Owned {
+		for _, sc := range Predict.Owned.SCIDs {
 			split := strings.Split(sc, "   ")
 			if len(split) > 2 {
 				p_contracts = append(p_contracts, split[2])
 			}
 		}
 
-		for _, sc := range Sports.Settings.Owned {
+		for _, sc := range Sports.Owned.SCIDs {
 			split := strings.Split(sc, "   ")
 			if len(split) > 2 {
 				s_contracts = append(s_contracts, split[2])
