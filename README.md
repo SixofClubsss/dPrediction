@@ -3,7 +3,7 @@ P2P predictions and sports bet built on Dero.
 
 Written in Go and using [Fyne Toolkit](https://fyne.io/), dPrediction is built on Dero's private L1. Powered by [Gnomon](https://github.com/civilware/Gnomon) and [dReams](https://github.com/dReam-dApps/dReams), dPrediction allows users to facilitates P2P predictions and Sports bets through a combination of Dero services and smart contracts. dPrediction was entered into dArch Event 1 under the On-Chain Options and Futures category. Contracts and services are each individually ran and operated, no oracles or bridges are used in its operation. 
 
-![goMod](https://img.shields.io/github/go-mod/go-version/SixofClubsss/dPrediction.svg)![goReport](https://goreportcard.com/badge/github.com/SixofClubsss/dPrediction)[![GoDoc reference example](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/SixofClubsss/dPrediction)
+![goMod](https://img.shields.io/github/go-mod/go-version/SixofClubsss/dPrediction.svg)![goReport](https://goreportcard.com/badge/github.com/SixofClubsss/dPrediction)[![goDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/SixofClubsss/dPrediction)
 
 ### Features
 - Install and run your own dPredictions/dSports
