@@ -30,10 +30,6 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 
 	check_box := container.NewVBox(PredictConnectedBox())
 
-	contract_scroll := container.NewHScroll(PredictionContractEntry())
-	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
-	contract_cont := container.NewHBox(contract_scroll, check_box)
-
 	Predict.higher = widget.NewButton("Higher", nil)
 	Predict.higher.Hide()
 
@@ -42,12 +38,6 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 
 	Predict.Container = container.NewVBox(Predict.higher, Predict.lower)
 	Predict.Container.Hide()
-
-	predict_content := container.NewVBox(
-		contract_cont,
-		predict_scroll,
-		layout.NewSpacer(),
-		Predict.Container)
 
 	Predict.Contract.unlock = widget.NewButton("Unlock dPrediction Contract", nil)
 	Predict.Contract.unlock.Hide()
@@ -106,6 +96,16 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		max.Objects[1] = newPredictConfirm(2, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}
+
+	contract_scroll := container.NewHScroll(PredictionContractEntry())
+	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
+	contract_cont := container.NewHBox(contract_scroll, check_box)
+
+	predict_content := container.NewVBox(
+		contract_cont,
+		predict_scroll,
+		layout.NewSpacer(),
+		Predict.Container)
 
 	predict_label := container.NewHBox(P.LeftLabel, layout.NewSpacer(), P.RightLabel)
 	predict_box := container.NewHSplit(predict_content, max)

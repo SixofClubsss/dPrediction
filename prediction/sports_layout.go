@@ -31,10 +31,6 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 
 	check_box := container.NewVBox(SportsConnectedBox())
 
-	contract_scroll := container.NewHScroll(SportsContractEntry())
-	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
-	contract_cont := container.NewHBox(contract_scroll, check_box)
-
 	Sports.gameSelect = widget.NewSelect(Sports.games, func(s string) {
 		split := strings.Split(s, "   ")
 		a, b := GetSportsTeams(Sports.Contract.SCID, split[0])
@@ -77,12 +73,6 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		Sports.buttonB)
 
 	Sports.Container.Hide()
-
-	sports_left := container.NewVBox(
-		contract_cont,
-		sports_scroll,
-		layout.NewSpacer(),
-		Sports.Container)
 
 	epl := widget.NewLabel("")
 	epl.Wrapping = fyne.TextWrapWord
@@ -202,6 +192,16 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		max.Objects[1] = newSportsConfirm(2, max.Objects, tabs)
 		max.Objects[1].Refresh()
 	}
+
+	contract_scroll := container.NewHScroll(SportsContractEntry())
+	contract_scroll.SetMinSize(fyne.NewSize(600, 35.1875))
+	contract_cont := container.NewHBox(contract_scroll, check_box)
+
+	sports_left := container.NewVBox(
+		contract_cont,
+		sports_scroll,
+		layout.NewSpacer(),
+		Sports.Container)
 
 	sports_label := container.NewHBox(S.LeftLabel, layout.NewSpacer(), S.RightLabel)
 	sports_box := container.NewHSplit(sports_left, max)
