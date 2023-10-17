@@ -52,7 +52,7 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	})
 	Predict.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Predict.Contract.menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewStack(Predict.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, PredictionOwned())
 
 	tabs := container.NewAppTabs(
@@ -71,7 +71,7 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	max := container.NewMax(bundle.Alpha120, tabs)
+	max := container.NewStack(bundle.Alpha120, tabs)
 
 	Predict.higher.OnTapped = func() {
 		if len(Predict.Contract.SCID) == 64 {
@@ -117,5 +117,5 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		nil,
 		predict_box)
 
-	return container.NewMax(P.DApp)
+	return container.NewStack(P.DApp)
 }

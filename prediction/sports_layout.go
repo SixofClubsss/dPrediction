@@ -145,7 +145,7 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	})
 	Sports.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Sports.Contract.menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewStack(Sports.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, SportsOwned())
 
 	tabs := container.NewAppTabs(
@@ -167,7 +167,7 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	max := container.NewMax(bundle.Alpha120, tabs)
+	max := container.NewStack(bundle.Alpha120, tabs)
 
 	Sports.buttonA.OnTapped = func() {
 		if len(Sports.Contract.SCID) == 64 {
@@ -215,5 +215,5 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 
 	go fetch(d)
 
-	return container.NewMax(S.DApp)
+	return container.NewStack(S.DApp)
 }

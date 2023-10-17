@@ -167,7 +167,7 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 			return len(Predict.Public.SCIDs)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(container.NewMax(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
+			return container.NewHBox(container.NewStack(canvas.NewImageFromImage(nil)), widget.NewLabel(""))
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			o.(*fyne.Container).Objects[1].(*widget.Label).SetText(Predict.Public.SCIDs[i])

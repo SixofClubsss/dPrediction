@@ -140,7 +140,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.set = widget.NewButton("Set Prediction", func() {
 		if owner.predict.deposit.Validate() == nil && owner.predict.amt.Validate() == nil && owner.predict.end.Validate() == nil && owner.predict.mark.Validate() == nil {
 			if len(Predict.Contract.SCID) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(2, 100, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(2, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
 				return
 			}
@@ -150,7 +150,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	})
 
 	owner.predict.cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(8, 0, window, reset))
+		window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(8, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -164,21 +164,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(4, a, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(4, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -195,21 +195,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(5, a, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(5, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -318,7 +318,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.set = widget.NewButton("Set Game", func() {
 		if owner.sports.deposit.Validate() == nil && owner.sports.amt.Validate() == nil && owner.sports.end.Validate() == nil {
 			if len(Sports.Contract.SCID) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(1, 100, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(1, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
 				return
 			}
@@ -328,7 +328,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	})
 
 	owner.sports.cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(9, 0, window, reset))
+		window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(9, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -339,7 +339,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 
 	sports_confirm := widget.NewButton("Sports Payout", func() {
 		if len(Sports.Contract.SCID) == 64 {
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(3, 100, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(3, 100, window, reset))
 			window.Content().(*fyne.Container).Objects[2].Refresh()
 			return
 		}
@@ -762,7 +762,7 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 		obj[1].Refresh()
 	}()
 
-	return container.NewMax(bundle.Alpha120, content)
+	return container.NewStack(bundle.Alpha120, content)
 }
 
 // dReam Service start confirmation
@@ -806,7 +806,7 @@ func serviceRunConfirm(start uint64, payout, transfers bool, window fyne.Window,
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
 	content := container.NewBorder(nil, options, nil, nil, display)
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
 
 // Convert unix time to human readable time
@@ -1016,8 +1016,7 @@ func ownersMenu() {
 	go func() {
 		time.Sleep(200 * time.Millisecond)
 		ow.SetContent(
-			container.New(
-				layout.NewMaxLayout(),
+			container.NewStack(
 				menu.BackgroundRast("ownersMenu"),
 				alpha,
 				border))
@@ -1255,7 +1254,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
 	content := container.NewBorder(nil, options, nil, nil, display)
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
 
 // Confirmation for dPrediction contract installs
@@ -1340,7 +1339,7 @@ Private will not show up in the list`
 		obj[1].Refresh()
 	}()
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
 
 // Confirmation for dSports contract installs
@@ -1425,5 +1424,5 @@ Private will not show up in the list`
 		obj[1].Refresh()
 	}()
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
