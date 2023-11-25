@@ -119,7 +119,7 @@ func StartApp() {
 		container.NewTabItem("Predict", LayoutPredictItems(&d)),
 		container.NewTabItem("Sports", LayoutSportsItems(&d)),
 		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, asset_selects, resourceDServiceIconPng, d.Window)),
-		container.NewTabItem("Log", rpc.SessionLog()))
+		container.NewTabItem("Log", rpc.SessionLog(app_tag)))
 
 	tabs.SetTabLocation(container.TabLocationBottom)
 	d.SetTab("Predict")
@@ -137,7 +137,6 @@ func StartApp() {
 
 	// Stand alone process
 	go func() {
-		logger.Printf("[%s] %s %s %s", app_tag, rpc.DREAMSv, runtime.GOOS, runtime.GOARCH)
 		time.Sleep(3 * time.Second)
 		ticker := time.NewTicker(3 * time.Second)
 
