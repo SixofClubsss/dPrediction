@@ -40,8 +40,7 @@ Options:
 
 // Set opts when starting dService
 func flags() (version string) {
-	version = rpc.DREAMSv
-	arguments, err := docopt.ParseArgs(command_line, nil, version)
+	arguments, err := docopt.ParseArgs(command_line, nil, prediction.Version().String())
 
 	if err != nil {
 		logger.Fatalf("Error while parsing arguments: %s\n", err)

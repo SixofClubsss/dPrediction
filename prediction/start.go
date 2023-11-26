@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"github.com/blang/semver/v4"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
@@ -23,6 +24,13 @@ import (
 )
 
 const app_tag = "dPrediction"
+
+var version = semver.MustParse("0.3.0-dev")
+
+// Check package version
+func Version() semver.Version {
+	return version
+}
 
 // Start dPrediction dApp
 func StartApp() {
@@ -119,7 +127,7 @@ func StartApp() {
 		container.NewTabItem("Predict", LayoutPredictItems(&d)),
 		container.NewTabItem("Sports", LayoutSportsItems(&d)),
 		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, asset_selects, resourceDServiceIconPng, d.Window)),
-		container.NewTabItem("Log", rpc.SessionLog(app_tag)))
+		container.NewTabItem("Log", rpc.SessionLog(app_tag, version)))
 
 	tabs.SetTabLocation(container.TabLocationBottom)
 	d.SetTab("Predict")
