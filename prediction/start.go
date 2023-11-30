@@ -27,7 +27,7 @@ const app_tag = "dPrediction"
 
 var version = semver.MustParse("0.3.0-dev")
 
-// Check package version
+// Check prediction package version
 func Version() semver.Version {
 	return version
 }
@@ -126,7 +126,7 @@ func StartApp() {
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Predict", LayoutPredictItems(&d)),
 		container.NewTabItem("Sports", LayoutSportsItems(&d)),
-		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, asset_selects, resourceDServiceIconPng, d.Window)),
+		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, asset_selects, resourceDServiceCirclePng, d.Window)),
 		container.NewTabItem("Log", rpc.SessionLog(app_tag, version)))
 
 	tabs.SetTabLocation(container.TabLocationBottom)
