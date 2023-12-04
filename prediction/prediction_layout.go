@@ -56,12 +56,11 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, PredictionOwned())
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Contracts", layout.NewSpacer()),
+		container.NewTabItem("Contracts", PredictionListings(d)),
 		container.NewTabItem("Favorites", PredictionFavorites()),
 		container.NewTabItem("Owned", owned_tab))
 
 	tabs.SelectIndex(0)
-	tabs.Selected().Content = PredictionListings(tabs)
 
 	tabs.OnSelected = func(ti *container.TabItem) {
 		switch ti.Text {
@@ -88,13 +87,11 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	}
 
 	Predict.Contract.unlock.OnTapped = func() {
-		max.Objects[1] = newPredictConfirm(1, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newPredictConfirm(1, d)
 	}
 
 	Predict.Contract.new.OnTapped = func() {
-		max.Objects[1] = newPredictConfirm(2, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newPredictConfirm(2, d)
 	}
 
 	contract_scroll := container.NewHScroll(PredictionContractEntry())

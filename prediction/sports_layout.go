@@ -149,14 +149,13 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, SportsOwned())
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Contracts", layout.NewSpacer()),
+		container.NewTabItem("Contracts", SportsListings(d)),
 		container.NewTabItem("Favorites", SportsFavorites()),
 		container.NewTabItem("Owned", owned_tab),
 		container.NewTabItem("Scores", score_tabs),
 		container.NewTabItem("Payouts", SportsPayouts()))
 
 	tabs.SelectIndex(0)
-	tabs.Selected().Content = SportsListings(tabs)
 
 	tabs.OnSelected = func(ti *container.TabItem) {
 		switch ti.Text {
@@ -184,13 +183,11 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	}
 
 	Sports.Contract.unlock.OnTapped = func() {
-		max.Objects[1] = newSportsConfirm(1, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newSportsConfirm(1, d)
 	}
 
 	Sports.Contract.new.OnTapped = func() {
-		max.Objects[1] = newSportsConfirm(2, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newSportsConfirm(2, d)
 	}
 
 	contract_scroll := container.NewHScroll(SportsContractEntry())

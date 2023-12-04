@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
@@ -18,6 +19,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -173,7 +175,7 @@ func SetSportsInfo(scid string) {
 
 // List object for populating public dSports contracts, with rating and add favorite controls
 //   - Pass tab for action confirmation reset
-func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
+func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 	Sports.Public.List = widget.NewList(
 		func() int {
 			return len(Sports.Public.SCIDs)
@@ -219,11 +221,10 @@ func SportsListings(tab *container.AppTabs) fyne.CanvasObject {
 	rate := widget.NewButton("Rate", func() {
 		if len(Sports.Contract.SCID) == 64 {
 			if !menu.CheckOwner(Sports.Contract.SCID) {
-				reset := tab.Selected().Content
-				tab.Selected().Content = menu.RateConfirm(Sports.Contract.SCID, tab, reset)
-				tab.Selected().Content.Refresh()
+				menu.RateConfirm(Sports.Contract.SCID, d)
 			} else {
-				logger.Warnln("[dReams] You own this contract")
+				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
+				logger.Warnln("[dSports] Can't rate, you own this contract")
 			}
 		}
 	})

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
@@ -1258,19 +1259,20 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 }
 
 // Confirmation for dPrediction contract installs
-func newPredictConfirm(c int, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var text string
+func newPredictConfirm(c int, d *dreams.AppObject) {
+	var text, title string
 	gas_fee := 0.125
 	unlock_fee := float64(rpc.UnlockFee) / 100000
 	switch c {
 	case 1:
+		title = "Unlock dPredictions & dSports"
 		text = `You are about to unlock and install your first dPrediction contract 
 		
 To help support the project, there is a ` + fmt.Sprintf("%.5f", unlock_fee) + ` DERO donation attached to preform this action
 
 Unlocking dPrediction or dSports gives you unlimited access to bet contract uploads and all base level owner features
 
-Total transaction will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO (0.12500 gas fee for contract install)
+Including gas fee, transaction total will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO
 
 
 Select a public or private contract
@@ -1279,6 +1281,7 @@ Public will show up in indexed list of contracts
 
 Private will not show up in the list`
 	case 2:
+		title = "New dPredictions"
 		text = `You are about to install a new dPrediction contract
 
 Gas fee to install contract is 0.12500 DERO
@@ -1296,14 +1299,15 @@ Private will not show up in the list`
 	label.Alignment = fyne.TextAlignCenter
 
 	var choice *widget.Select
+	var confirm *dialog.CustomDialog
 
 	pre_button := widget.NewButton("Install", func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(true, choice.SelectedIndex())
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		confirm.Hide()
+		confirm = nil
 	})
 
 	pre_button.Hide()
@@ -1318,44 +1322,49 @@ Private will not show up in the list`
 	})
 
 	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
+		confirm.Hide()
+		confirm = nil
 	})
 
 	left := container.NewVBox(pre_button)
 	right := container.NewVBox(cancel_button)
 	buttons := container.NewAdaptiveGrid(3, left, container.NewVBox(layout.NewSpacer()), right)
 	actions := container.NewVBox(choice, buttons)
-	info_box := container.NewVBox(layout.NewSpacer(), label, layout.NewSpacer())
 
-	content := container.NewBorder(nil, actions, nil, nil, info_box)
+	spacer := canvas.NewRectangle(color.Transparent)
+	spacer.SetMinSize(fyne.NewSize(420, 100))
+
+	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm.SetButtons([]fyne.CanvasObject{actions})
+	confirm.Show()
 
 	go func() {
 		for rpc.IsReady() {
 			time.Sleep(time.Second)
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		if confirm != nil {
+			confirm.Hide()
+			confirm = nil
+		}
 	}()
-
-	return container.NewStack(content)
 }
 
 // Confirmation for dSports contract installs
-func newSportsConfirm(c int, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var text string
+func newSportsConfirm(c int, d *dreams.AppObject) {
+	var text, title string
 	gas_fee := 0.14
 	unlock_fee := float64(rpc.UnlockFee) / 100000
 	switch c {
 	case 1:
+		title = "Unlock dPredictions & dSports"
 		text = `You are about to unlock and install your first dSports contract
 		
 To help support the project, there is a ` + fmt.Sprintf("%.5f", unlock_fee) + ` DERO donation attached to preform this action
 
 Unlocking dPrediction or dSports gives you unlimited access to bet contract uploads and all base level owner features
 
-Total transaction will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO (0.14000 gas fee for contract install)
+Including gas fee, transaction total will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO
 
 
 Select a public or private contract
@@ -1364,6 +1373,7 @@ Public will show up in indexed list of contracts
 
 Private will not show up in the list`
 	case 2:
+		title = "New dSports"
 		text = `You are about to install a new dSports contract
 
 Gas fee to install contract is 0.14000 DERO
@@ -1381,14 +1391,15 @@ Private will not show up in the list`
 	label.Alignment = fyne.TextAlignCenter
 
 	var choice *widget.Select
+	var confirm *dialog.CustomDialog
 
 	sports_button := widget.NewButton("Install", func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(false, choice.SelectedIndex())
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		confirm.Hide()
+		confirm = nil
 	})
 
 	sports_button.Hide()
@@ -1403,26 +1414,30 @@ Private will not show up in the list`
 	})
 
 	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
+		confirm.Hide()
+		confirm = nil
 	})
 
 	left := container.NewVBox(sports_button)
 	right := container.NewVBox(cancel_button)
 	buttons := container.NewAdaptiveGrid(3, left, container.NewVBox(layout.NewSpacer()), right)
 	actions := container.NewVBox(choice, buttons)
-	info_box := container.NewVBox(layout.NewSpacer(), label, layout.NewSpacer())
 
-	content := container.NewBorder(nil, actions, nil, nil, info_box)
+	spacer := canvas.NewRectangle(color.Transparent)
+	spacer.SetMinSize(fyne.NewSize(420, 100))
+
+	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm.SetButtons([]fyne.CanvasObject{actions})
+	confirm.Show()
 
 	go func() {
 		for rpc.IsReady() {
 			time.Sleep(time.Second)
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		if confirm != nil {
+			confirm.Hide()
+			confirm = nil
+		}
 	}()
-
-	return container.NewStack(content)
 }

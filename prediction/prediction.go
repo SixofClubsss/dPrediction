@@ -16,6 +16,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -161,7 +162,7 @@ func SetPredictionPrices(d bool) {
 
 // List object for populating public dPrediction contracts, with rating and add favorite controls
 //   - Pass tab for action confirmation reset
-func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
+func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 	Predict.Public.List = widget.NewList(
 		func() int {
 			return len(Predict.Public.SCIDs)
@@ -207,11 +208,10 @@ func PredictionListings(tab *container.AppTabs) fyne.CanvasObject {
 	rate := widget.NewButton("Rate", func() {
 		if len(Predict.Contract.SCID) == 64 {
 			if !menu.CheckOwner(Predict.Contract.SCID) {
-				reset := tab.Selected().Content
-				tab.Selected().Content = menu.RateConfirm(Predict.Contract.SCID, tab, reset)
-				tab.Selected().Content.Refresh()
+				menu.RateConfirm(Predict.Contract.SCID, d)
 			} else {
-				logger.Warnln("[dReams] You own this contract")
+				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
+				logger.Warnln("[dPrediction] Can't rate, you own this contract")
 			}
 		}
 	})

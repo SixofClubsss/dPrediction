@@ -111,7 +111,6 @@ func flags() (version string) {
 	indexer.InitLog(arguments, os.Stderr)
 
 	prediction.Service.Start()
-	menu.Gnomes.Trim = true
 	enable_transfers = transfers
 	prediction.Service.Debug = debug
 	menu.Gnomes.Fast = fastsync

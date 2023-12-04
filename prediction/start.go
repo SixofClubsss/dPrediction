@@ -185,6 +185,7 @@ func StartApp() {
 				} else {
 					menu.DisableIndexControls(true)
 					connect_box.Disconnect.SetChecked(false)
+					Disconnected()
 				}
 
 				if rpc.Daemon.IsConnected() {

@@ -4,8 +4,13 @@ import (
 	"strconv"
 	"time"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 	"github.com/civilware/Gnomon/structures"
 	dreams "github.com/dReam-dApps/dReams"
+	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/sirupsen/logrus"
@@ -90,6 +95,30 @@ func OnConnected() {
 	Sports.Contract.entry.Refresh()
 }
 
+// Splash screen for when both contract lists syncing
+func syncScreen() {
+	text := canvas.NewText("Syncing...", bundle.TextColor)
+	text.Alignment = fyne.TextAlignCenter
+	text.TextSize = 21
+
+	img := canvas.NewImageFromResource(resourceDServiceCirclePng)
+	img.SetMinSize(fyne.NewSize(150, 150))
+
+	screen := container.NewStack(container.NewCenter(container.NewBorder(nil, text, nil, nil, img)), widget.NewProgressBarInfinite())
+
+	rSports := S.DApp.Objects[0]
+	rPredict := P.DApp.Objects[0]
+	S.DApp.Objects[0] = screen
+	P.DApp.Objects[0] = screen
+	contracts := menu.Gnomes.IndexContains()
+	CheckBetContractOwners(contracts)
+	PopulateSports(contracts)
+	PopulatePredictions(contracts)
+	owner.synced = true
+	S.DApp.Objects[0] = rSports
+	P.DApp.Objects[0] = rPredict
+}
+
 // Main process for dSports and dPrediction
 func fetch(d *dreams.AppObject) {
 	var offset int
@@ -109,11 +138,7 @@ func fetch(d *dreams.AppObject) {
 
 			if !owner.synced && menu.GnomonScan(d.IsConfiguring()) {
 				logger.Println("[dPrediction] Syncing")
-				contracts := menu.Gnomes.IndexContains()
-				go CheckBetContractOwners(contracts)
-				go PopulateSports(contracts)
-				go PopulatePredictions(contracts)
-				owner.synced = true
+				syncScreen()
 			}
 
 			// dSports
