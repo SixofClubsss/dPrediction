@@ -217,6 +217,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 		Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
 		sort.Strings(Sports.Favorites.SCIDs)
 	})
+	save.Importance = widget.LowImportance
 
 	rate := widget.NewButton("Rate", func() {
 		if len(Sports.Contract.SCID) == 64 {
@@ -228,6 +229,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 			}
 		}
 	})
+	rate.Importance = widget.LowImportance
 
 	return container.NewBorder(
 		nil,
@@ -279,6 +281,7 @@ func SportsFavorites() fyne.CanvasObject {
 		Sports.Favorites.List.Refresh()
 		sort.Strings(Sports.Favorites.SCIDs)
 	})
+	remove.Importance = widget.LowImportance
 
 	return container.NewBorder(
 		nil,

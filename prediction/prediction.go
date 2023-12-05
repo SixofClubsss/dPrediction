@@ -204,6 +204,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 		Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
 		sort.Strings(Predict.Favorites.SCIDs)
 	})
+	save.Importance = widget.LowImportance
 
 	rate := widget.NewButton("Rate", func() {
 		if len(Predict.Contract.SCID) == 64 {
@@ -215,6 +216,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 			}
 		}
 	})
+	rate.Importance = widget.LowImportance
 
 	return container.NewBorder(
 		nil,
@@ -266,6 +268,7 @@ func PredictionFavorites() fyne.CanvasObject {
 		Predict.Favorites.List.Refresh()
 		sort.Strings(Predict.Favorites.SCIDs)
 	})
+	remove.Importance = widget.LowImportance
 
 	return container.NewBorder(
 		nil,

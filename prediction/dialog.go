@@ -671,14 +671,9 @@ func updateOpts() fyne.CanvasObject {
 // dSports and dPrediction action confirmation
 //   - i defines the action to be confirmed
 //   - teamA, teamB needed only for dSports confirmations
-//   - Pass main window obj and tabs to reset to
-func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var confirm_display = widget.NewLabel("")
-	confirm_display.Wrapping = fyne.TextWrapWord
-	confirm_display.Alignment = fyne.TextAlignCenter
-
+func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
+	var text string
 	p_scid := Predict.Contract.SCID
-
 	s_scid := Sports.Contract.SCID
 	split := strings.Split(Sports.gameSelect.Selected, "   ")
 	multi := Sports.multi.Selected
@@ -687,11 +682,11 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 	case 1:
 		float := float64(Predict.amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero", p_scid, amt))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero", p_scid, amt)
 	case 2:
 		float := float64(Predict.amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt)
 	case 3:
 		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
@@ -706,7 +701,7 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x)
 	case 4:
 		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
@@ -721,49 +716,53 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x)
 	default:
 		logger.Errorln("[dService] No Confirm Input")
-		confirm_display.SetText("Error")
+		text = "Error"
 	}
 
-	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
-	})
+	done := make(chan struct{})
+	confirm := dialog.NewConfirm("Bet", text, func(b bool) {
+		if b {
+			switch i {
+			case 1:
+				PredictLower(p_scid, "")
+			case 2:
+				PredictHigher(p_scid, "")
+			case 3:
+				PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
+			case 4:
+				PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
+			default:
 
-	confirm_button := widget.NewButton("Confirm", func() {
-		switch i {
-		case 1:
-			PredictLower(p_scid, "")
-		case 2:
-			PredictHigher(p_scid, "")
-		case 3:
-			PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
-		case 4:
-			PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
-		default:
-
+			}
 		}
-
-		obj[1] = tabs
-		obj[1].Refresh()
-	})
-
-	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
-	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
-	content := container.NewBorder(nil, options, nil, nil, display)
+		done <- struct{}{}
+	}, d.Window)
+	confirm.Show()
 
 	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
+		for {
+			select {
+			case <-done:
+				if confirm != nil {
+					confirm.Hide()
+					confirm = nil
+				}
+				return
+			default:
+				if !rpc.IsReady() {
+					if confirm != nil {
+						confirm.Hide()
+						confirm = nil
+					}
+					return
+				}
+				time.Sleep(time.Second)
+			}
 		}
-
-		obj[1] = tabs
-		obj[1].Refresh()
 	}()
-
-	return container.NewStack(bundle.Alpha120, content)
 }
 
 // dReam Service start confirmation
@@ -791,17 +790,18 @@ func serviceRunConfirm(start uint64, payout, transfers bool, window fyne.Window,
 	confirm_display.Wrapping = fyne.TextWrapWord
 	confirm_display.Alignment = fyne.TextAlignCenter
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		Service.Stop()
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
-	confirm_button := widget.NewButton("Confirm", func() {
+	confirm_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		go RunService(start, payout, transfers)
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
+	confirm_button.Importance = widget.HighImportance
 
 	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
@@ -1197,12 +1197,12 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		confirm_display.SetText("Error\n\n" + err_string)
 	}
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
-	confirm_button := widget.NewButton("Confirm", func() {
+	confirm_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		owner.sports.payout.SetText("")
 		switch i {
 		case 1:
@@ -1250,6 +1250,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
+	confirm_button.Importance = widget.HighImportance
 
 	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
@@ -1301,15 +1302,17 @@ Private will not show up in the list`
 	var choice *widget.Select
 	var confirm *dialog.CustomDialog
 
-	pre_button := widget.NewButton("Install", func() {
+	done := make(chan struct{})
+	pre_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(true, choice.SelectedIndex())
 		}
 
 		confirm.Hide()
 		confirm = nil
+		done <- struct{}{}
 	})
-
+	pre_button.Importance = widget.HighImportance
 	pre_button.Hide()
 
 	options := []string{"Public", "Private"}
@@ -1321,9 +1324,10 @@ Private will not show up in the list`
 		}
 	})
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		confirm.Hide()
 		confirm = nil
+		done <- struct{}{}
 	})
 
 	left := container.NewVBox(pre_button)
@@ -1339,13 +1343,24 @@ Private will not show up in the list`
 	confirm.Show()
 
 	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
-		}
-
-		if confirm != nil {
-			confirm.Hide()
-			confirm = nil
+		for {
+			select {
+			case <-done:
+				if confirm != nil {
+					confirm.Hide()
+					confirm = nil
+				}
+				return
+			default:
+				if !rpc.IsReady() {
+					if confirm != nil {
+						confirm.Hide()
+						confirm = nil
+					}
+					return
+				}
+				time.Sleep(time.Second)
+			}
 		}
 	}()
 }
@@ -1393,15 +1408,17 @@ Private will not show up in the list`
 	var choice *widget.Select
 	var confirm *dialog.CustomDialog
 
-	sports_button := widget.NewButton("Install", func() {
+	done := make(chan struct{})
+	sports_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(false, choice.SelectedIndex())
 		}
 
 		confirm.Hide()
 		confirm = nil
+		done <- struct{}{}
 	})
-
+	sports_button.Importance = widget.HighImportance
 	sports_button.Hide()
 
 	options := []string{"Public", "Private"}
@@ -1413,9 +1430,10 @@ Private will not show up in the list`
 		}
 	})
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		confirm.Hide()
 		confirm = nil
+		done <- struct{}{}
 	})
 
 	left := container.NewVBox(sports_button)
@@ -1431,13 +1449,24 @@ Private will not show up in the list`
 	confirm.Show()
 
 	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
-		}
-
-		if confirm != nil {
-			confirm.Hide()
-			confirm = nil
+		for {
+			select {
+			case <-done:
+				if confirm != nil {
+					confirm.Hide()
+					confirm = nil
+				}
+				return
+			default:
+				if !rpc.IsReady() {
+					if confirm != nil {
+						confirm.Hide()
+						confirm = nil
+					}
+					return
+				}
+				time.Sleep(time.Second)
+			}
 		}
 	}()
 }
