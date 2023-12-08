@@ -165,13 +165,13 @@ func intgPredictionArgs(scid string, print bool) (higher_arg dero.Arguments, low
 	var p_amt []uint64
 	var end uint64
 	var pre, mark string
-	if menu.Gnomes.IsInitialized() {
-		_, init := menu.Gnomes.GetSCIDValuesByKey(scid, "p_init")
+	if gnomon.IsInitialized() {
+		_, init := gnomon.GetSCIDValuesByKey(scid, "p_init")
 		if init != nil && init[0] == 1 {
-			predicting, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "predicting")
-			_, p_end := menu.Gnomes.GetSCIDValuesByKey(scid, "p_end_at")
-			_, p_mark := menu.Gnomes.GetSCIDValuesByKey(scid, "mark")
-			_, p_amt = menu.Gnomes.GetSCIDValuesByKey(scid, "p_amount")
+			predicting, _ := gnomon.GetSCIDValuesByKey(scid, "predicting")
+			_, p_end := gnomon.GetSCIDValuesByKey(scid, "p_end_at")
+			_, p_mark := gnomon.GetSCIDValuesByKey(scid, "mark")
+			_, p_amt = gnomon.GetSCIDValuesByKey(scid, "p_amount")
 			if predicting != nil && p_end != nil {
 				pre = predicting[0] + "  "
 				end = p_end[0]
@@ -253,13 +253,13 @@ func intgPredictionArgs(scid string, print bool) (higher_arg dero.Arguments, low
 func intgSportsArgs(scid string, print bool) (args [][]dero.Arguments) {
 	var end uint64
 	var league, game, a_string, b_string string
-	if menu.Gnomes.IsInitialized() {
-		_, init := menu.Gnomes.GetSCIDValuesByKey(scid, "s_init")
-		_, played := menu.Gnomes.GetSCIDValuesByKey(scid, "s_played")
+	if gnomon.IsInitialized() {
+		_, init := gnomon.GetSCIDValuesByKey(scid, "s_init")
+		_, played := gnomon.GetSCIDValuesByKey(scid, "s_played")
 		if init != nil && played != nil {
 			if init[0] > played[0] {
 				iv := uint64(0)
-				_, hl := menu.Gnomes.GetSCIDValuesByKey(scid, "hl")
+				_, hl := gnomon.GetSCIDValuesByKey(scid, "hl")
 				if hl != nil && played[0] > hl[0]*2 {
 					iv = played[0] - hl[0]*2
 				}
@@ -272,11 +272,11 @@ func intgSportsArgs(scid string, print bool) (args [][]dero.Arguments) {
 					}
 
 					v := strconv.Itoa(int(iv))
-					_, s_init := menu.Gnomes.GetSCIDValuesByKey(scid, "s_init_"+v)
+					_, s_init := gnomon.GetSCIDValuesByKey(scid, "s_init_"+v)
 					if s_init != nil && s_init[0] == 1 {
-						s_game, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "game_"+v)
-						s_league, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "league_"+v)
-						_, s_end := menu.Gnomes.GetSCIDValuesByKey(scid, "s_end_at_"+v)
+						s_game, _ := gnomon.GetSCIDValuesByKey(scid, "game_"+v)
+						s_league, _ := gnomon.GetSCIDValuesByKey(scid, "league_"+v)
+						_, s_end := gnomon.GetSCIDValuesByKey(scid, "s_end_at_"+v)
 						if s_game != nil && s_end != nil && s_league != nil {
 							league = s_league[0] + "  "
 							game = s_game[0] + "  "
@@ -308,7 +308,7 @@ func intgSportsArgs(scid string, print bool) (args [][]dero.Arguments) {
 					team_a := "s" + v + "  " + league + game + a_string + chopped_scid + format
 					team_b := "s" + v + "  " + league + game + b_string + chopped_scid + format
 
-					_, s_amt := menu.Gnomes.GetSCIDValuesByKey(scid, "s_amount_"+v)
+					_, s_amt := gnomon.GetSCIDValuesByKey(scid, "s_amount_"+v)
 					amt := uint64(0)
 					if s_amt != nil && s_amt[0] != 0 {
 						amt = s_amt[0]
@@ -504,21 +504,21 @@ func runPredictionPayouts(print bool) {
 	contracts := Predict.Owned.SCIDs
 	var pay_queue, post_queue []string
 	for i := range contracts {
-		if !menu.Gnomes.IsRunning() {
+		if !gnomon.IsRunning() {
 			return
 		}
 		split := strings.Split(contracts[i], "   ")
 		if len(split) > 2 {
-			_, u := menu.Gnomes.GetSCIDValuesByKey(split[2], "p_init")
+			_, u := gnomon.GetSCIDValuesByKey(split[2], "p_init")
 			if u != nil {
 				if u[0] == 1 {
 					serviceDebug(print, "[runPredictionPayouts]", fmt.Sprintf("%s Live", split[2]))
 					now := uint64(time.Now().Unix())
-					_, end := menu.Gnomes.GetSCIDValuesByKey(split[2], "p_end_at")
-					_, time_a := menu.Gnomes.GetSCIDValuesByKey(split[2], "time_a")
-					_, time_c := menu.Gnomes.GetSCIDValuesByKey(split[2], "time_c")
-					_, mark := menu.Gnomes.GetSCIDValuesByKey(split[2], "mark")
-					predict, _ := menu.Gnomes.GetSCIDValuesByKey(split[2], "predicting")
+					_, end := gnomon.GetSCIDValuesByKey(split[2], "p_end_at")
+					_, time_a := gnomon.GetSCIDValuesByKey(split[2], "time_a")
+					_, time_c := gnomon.GetSCIDValuesByKey(split[2], "time_c")
+					_, mark := gnomon.GetSCIDValuesByKey(split[2], "mark")
+					predict, _ := gnomon.GetSCIDValuesByKey(split[2], "predicting")
 					if end != nil && time_c != nil {
 						if now >= end[0]+time_c[0] {
 							serviceDebug(print, "[runPredictionPayouts]", "Adding for payout")
@@ -657,23 +657,23 @@ func runPredictionPayouts(print bool) {
 func runSportsPayouts(print bool) {
 	contracts := Sports.Owned.SCIDs
 	for i := range contracts {
-		if !menu.Gnomes.IsRunning() {
+		if !gnomon.IsRunning() {
 			return
 		}
 		split := strings.Split(contracts[i], "   ")
 		if len(split) > 2 {
-			_, init := menu.Gnomes.GetSCIDValuesByKey(split[2], "s_init")
-			_, played := menu.Gnomes.GetSCIDValuesByKey(split[2], "s_played")
+			_, init := gnomon.GetSCIDValuesByKey(split[2], "s_init")
+			_, played := gnomon.GetSCIDValuesByKey(split[2], "s_played")
 			if init != nil && played != nil {
 				if init[0] > played[0] {
 					serviceDebug(print, "[runSportsPayouts]", fmt.Sprintf("%s Live games", split[2]))
 					for iv := uint64(1); iv <= init[0]; iv++ {
 						num := strconv.Itoa(int(iv))
-						game, _ := menu.Gnomes.GetSCIDValuesByKey(split[2], "game_"+num)
-						league, _ := menu.Gnomes.GetSCIDValuesByKey(split[2], "league_"+num)
-						_, end := menu.Gnomes.GetSCIDValuesByKey(split[2], "s_end_at_"+num)
-						_, a_time := menu.Gnomes.GetSCIDValuesByKey(split[2], "time_a")
-						_, b_time := menu.Gnomes.GetSCIDValuesByKey(split[2], "time_b")
+						game, _ := gnomon.GetSCIDValuesByKey(split[2], "game_"+num)
+						league, _ := gnomon.GetSCIDValuesByKey(split[2], "league_"+num)
+						_, end := gnomon.GetSCIDValuesByKey(split[2], "s_end_at_"+num)
+						_, a_time := gnomon.GetSCIDValuesByKey(split[2], "time_a")
+						_, b_time := gnomon.GetSCIDValuesByKey(split[2], "time_b")
 						if game != nil && end != nil && a_time != nil && b_time != nil && league != nil {
 							if end[0]+a_time[0] < uint64(time.Now().Unix()) {
 								var sent bool
@@ -902,9 +902,9 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 					var amt []uint64
 					switch prefix {
 					case "p":
-						_, amt = menu.Gnomes.GetSCIDValuesByKey(scid, "p_amount")
+						_, amt = gnomon.GetSCIDValuesByKey(scid, "p_amount")
 					case "s":
-						_, amt = menu.Gnomes.GetSCIDValuesByKey(scid, "s_amount_"+game_num)
+						_, amt = gnomon.GetSCIDValuesByKey(scid, "s_amount_"+game_num)
 					default:
 						serviceDebug(print, "[processBetTx]", fmt.Sprintf("%s No prefix", e.TXID))
 						sendRefund(scid, destination_expected, "No prefix", e)
@@ -1149,9 +1149,9 @@ func processSingleTx(txid string) {
 					var amt []uint64
 					switch prefix {
 					case "p":
-						_, amt = menu.Gnomes.GetSCIDValuesByKey(scid, "p_amount")
+						_, amt = gnomon.GetSCIDValuesByKey(scid, "p_amount")
 					case "s":
-						_, amt = menu.Gnomes.GetSCIDValuesByKey(scid, "s_amount_"+game_num)
+						_, amt = gnomon.GetSCIDValuesByKey(scid, "s_amount_"+game_num)
 					default:
 						logger.Errorln("[processSingleTx]", e.TXID, "No prefix")
 						ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No prefix", e.TXID)
@@ -1387,10 +1387,10 @@ func deleteTx(bucket string, db *bbolt.DB, e dero.Entry) {
 //   - destination_expected for reply message and refunds
 func sendToPrediction(pre int, scid, destination_expected string, e dero.Entry) bool {
 	waitForBlock()
-	_, end := menu.Gnomes.GetSCIDValuesByKey(scid, "p_end_at")
-	_, buffer := menu.Gnomes.GetSCIDValuesByKey(scid, "buffer")
-	_, limit := menu.Gnomes.GetSCIDValuesByKey(scid, "limit")
-	_, played := menu.Gnomes.GetSCIDValuesByKey(scid, "p_#")
+	_, end := gnomon.GetSCIDValuesByKey(scid, "p_end_at")
+	_, buffer := gnomon.GetSCIDValuesByKey(scid, "buffer")
+	_, limit := gnomon.GetSCIDValuesByKey(scid, "limit")
+	_, played := gnomon.GetSCIDValuesByKey(scid, "p_#")
 	if end == nil || buffer == nil || limit == nil || played == nil {
 		return false
 	}
@@ -1426,10 +1426,10 @@ func sendToPrediction(pre int, scid, destination_expected string, e dero.Entry) 
 //   - destination_expected and abv for reply message and refunds
 func sendToSports(n, abv, team, scid, destination_expected string, e dero.Entry) bool {
 	waitForBlock()
-	_, end := menu.Gnomes.GetSCIDValuesByKey(scid, "s_end_at_"+n)
-	_, buffer := menu.Gnomes.GetSCIDValuesByKey(scid, "buffer"+n)
-	_, limit := menu.Gnomes.GetSCIDValuesByKey(scid, "limit")
-	_, played := menu.Gnomes.GetSCIDValuesByKey(scid, "s_#_"+n)
+	_, end := gnomon.GetSCIDValuesByKey(scid, "s_end_at_"+n)
+	_, buffer := gnomon.GetSCIDValuesByKey(scid, "buffer"+n)
+	_, limit := gnomon.GetSCIDValuesByKey(scid, "limit")
+	_, played := gnomon.GetSCIDValuesByKey(scid, "s_#_"+n)
 	if end == nil || buffer == nil || limit == nil || played == nil {
 		return false
 	}

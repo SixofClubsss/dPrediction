@@ -833,11 +833,11 @@ func humanTimeConvert() fyne.CanvasObject {
 
 // Check dPrediction SCID for live status
 func CheckPredictionStatus() {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
-		_, ends := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "p_end_at")
-		_, time_a := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "time_a")
-		_, time_c := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "time_c")
-		_, mark := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "mark")
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
+		_, ends := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "p_end_at")
+		_, time_a := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "time_a")
+		_, time_c := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "time_c")
+		_, mark := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "mark")
 		if ends != nil && time_a != nil && time_c != nil {
 			now := uint64(time.Now().Unix())
 			if now >= ends[0] && now <= ends[0]+time_a[0] && mark == nil {
@@ -862,21 +862,21 @@ func CheckPredictionStatus() {
 
 // Check dSports SCID for active games
 func GetActiveGames() {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
 		options := []string{}
-		contracts := menu.Gnomes.GetAllOwnersAndSCIDs()
+		contracts := gnomon.GetAllOwnersAndSCIDs()
 		for sc := range contracts {
-			owner, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "owner")
+			owner, _ := gnomon.GetSCIDValuesByKey(sc, "owner")
 			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(sc) {
 				if len(sc) == 64 {
-					_, init := menu.Gnomes.GetSCIDValuesByKey(sc, "s_init")
+					_, init := gnomon.GetSCIDValuesByKey(sc, "s_init")
 					if init != nil {
 						for ic := uint64(1); ic <= init[0]; ic++ {
 							num := strconv.Itoa(int(ic))
-							if game, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
-								league, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "league_"+num)
-								_, end := menu.Gnomes.GetSCIDValuesByKey(sc, "s_end_at_"+num)
-								_, add := menu.Gnomes.GetSCIDValuesByKey(sc, "time_a")
+							if game, _ := gnomon.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
+								league, _ := gnomon.GetSCIDValuesByKey(sc, "league_"+num)
+								_, end := gnomon.GetSCIDValuesByKey(sc, "s_end_at_"+num)
+								_, add := gnomon.GetSCIDValuesByKey(sc, "time_a")
 								if league != nil && end != nil && add != nil {
 									if end[0]+add[0] < uint64(time.Now().Unix()) {
 										options = append(options, num+"   "+league[0]+"   "+game[0])

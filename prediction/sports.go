@@ -12,6 +12,7 @@ import (
 
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/dwidget"
+	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 
@@ -204,7 +205,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 	var item string
 
 	Sports.Public.List.OnSelected = func(id widget.ListItemID) {
-		if id != 0 && menu.Connected() {
+		if id != 0 && gnomes.Connected() {
 			item = setSportsControls(Sports.Public.SCIDs[id])
 			Sports.Favorites.List.UnselectAll()
 			Sports.Owned.List.UnselectAll()
@@ -221,7 +222,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 
 	rate := widget.NewButton("Rate", func() {
 		if len(Sports.Contract.SCID) == 64 {
-			if !menu.CheckOwner(Sports.Contract.SCID) {
+			if !gnomes.CheckOwner(Sports.Contract.SCID) {
 				menu.RateConfirm(Sports.Contract.SCID, d)
 			} else {
 				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
@@ -255,7 +256,7 @@ func SportsFavorites() fyne.CanvasObject {
 	var item string
 
 	Sports.Favorites.List.OnSelected = func(id widget.ListItemID) {
-		if menu.Connected() {
+		if gnomes.Connected() {
 			item = setSportsControls(Sports.Favorites.SCIDs[id])
 			Sports.Public.List.UnselectAll()
 			Sports.Owned.List.UnselectAll()
@@ -305,7 +306,7 @@ func SportsOwned() fyne.CanvasObject {
 		})
 
 	Sports.Owned.List.OnSelected = func(id widget.ListItemID) {
-		if menu.Connected() {
+		if gnomes.Connected() {
 			setSportsControls(Sports.Owned.SCIDs[id])
 			Sports.Public.List.UnselectAll()
 			Sports.Favorites.List.UnselectAll()
@@ -328,11 +329,11 @@ func SportsPayouts() fyne.CanvasObject {
 // Populate all dReams dSports contracts
 //   - Pass contracts from db store, can be nil arg
 func PopulateSports(contracts map[string]string) {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
 		list := []string{}
 		owned := []string{}
 		if contracts == nil {
-			contracts = menu.Gnomes.GetAllOwnersAndSCIDs()
+			contracts = gnomon.GetAllOwnersAndSCIDs()
 		}
 
 		for sc := range contracts {
@@ -351,9 +352,9 @@ func PopulateSports(contracts map[string]string) {
 
 // Check for live dSports on SCID
 func CheckActiveGames(scid string) bool {
-	if menu.Gnomes.IsReady() {
-		_, played := menu.Gnomes.GetSCIDValuesByKey(scid, "s_played")
-		_, init := menu.Gnomes.GetSCIDValuesByKey(scid, "s_init")
+	if gnomon.IsReady() {
+		_, played := gnomon.GetSCIDValuesByKey(scid, "s_played")
+		_, init := gnomon.GetSCIDValuesByKey(scid, "s_init")
 
 		if played != nil && init != nil {
 			return played[0] == init[0]
@@ -364,7 +365,7 @@ func CheckActiveGames(scid string) bool {
 }
 
 func GetSportsAmt(scid, n string) uint64 {
-	_, amt := menu.Gnomes.GetSCIDValuesByKey(scid, "s_amount_"+n)
+	_, amt := gnomon.GetSCIDValuesByKey(scid, "s_amount_"+n)
 	if amt != nil {
 		return amt[0]
 	} else {
@@ -374,7 +375,7 @@ func GetSportsAmt(scid, n string) uint64 {
 
 // Get current dSports game teams
 func GetSportsTeams(scid, n string) (string, string) {
-	game, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "game_"+n)
+	game, _ := gnomon.GetSCIDValuesByKey(scid, "game_"+n)
 
 	if game != nil {
 		team_a := TrimTeamA(game[0])
@@ -412,11 +413,11 @@ func TrimTeamB(s string) string {
 
 // Gets dSports data from SCID and return formatted info string
 func GetBook(scid string) (info string) {
-	if menu.Gnomes.IsReady() {
-		_, initValue := menu.Gnomes.GetSCIDValuesByKey(scid, "s_init")
+	if gnomon.IsReady() {
+		_, initValue := gnomon.GetSCIDValuesByKey(scid, "s_init")
 		if initValue != nil {
-			_, playedValue := menu.Gnomes.GetSCIDValuesByKey(scid, "s_played")
-			//_, hl := menu.Gnomes.GetSCIDValuesByKey(scid, "hl")
+			_, playedValue := gnomon.GetSCIDValuesByKey(scid, "s_played")
+			//_, hl := gnomon.GetSCIDValuesByKey(scid, "hl")
 			init := initValue[0]
 			played := playedValue[0]
 
@@ -432,20 +433,20 @@ func GetBook(scid string) (info string) {
 			var single bool
 			iv := 1
 			for {
-				_, s_init := menu.Gnomes.GetSCIDValuesByKey(scid, "s_init_"+strconv.Itoa(iv))
+				_, s_init := gnomon.GetSCIDValuesByKey(scid, "s_init_"+strconv.Itoa(iv))
 				if s_init != nil {
-					game, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "game_"+strconv.Itoa(iv))
-					league, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "league_"+strconv.Itoa(iv))
-					_, s_n := menu.Gnomes.GetSCIDValuesByKey(scid, "s_#_"+strconv.Itoa(iv))
-					_, s_amt := menu.Gnomes.GetSCIDValuesByKey(scid, "s_amount_"+strconv.Itoa(iv))
-					_, s_end := menu.Gnomes.GetSCIDValuesByKey(scid, "s_end_at_"+strconv.Itoa(iv))
-					_, s_total := menu.Gnomes.GetSCIDValuesByKey(scid, "s_total_"+strconv.Itoa(iv))
-					//s_urlValue, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "s_url_"+strconv.Itoa(iv))
-					_, s_ta := menu.Gnomes.GetSCIDValuesByKey(scid, "team_a_"+strconv.Itoa(iv))
-					_, s_tb := menu.Gnomes.GetSCIDValuesByKey(scid, "team_b_"+strconv.Itoa(iv))
-					_, time_a := menu.Gnomes.GetSCIDValuesByKey(scid, "time_a")
-					_, time_b := menu.Gnomes.GetSCIDValuesByKey(scid, "time_b")
-					_, buffer := menu.Gnomes.GetSCIDValuesByKey(scid, "buffer"+strconv.Itoa(iv))
+					game, _ := gnomon.GetSCIDValuesByKey(scid, "game_"+strconv.Itoa(iv))
+					league, _ := gnomon.GetSCIDValuesByKey(scid, "league_"+strconv.Itoa(iv))
+					_, s_n := gnomon.GetSCIDValuesByKey(scid, "s_#_"+strconv.Itoa(iv))
+					_, s_amt := gnomon.GetSCIDValuesByKey(scid, "s_amount_"+strconv.Itoa(iv))
+					_, s_end := gnomon.GetSCIDValuesByKey(scid, "s_end_at_"+strconv.Itoa(iv))
+					_, s_total := gnomon.GetSCIDValuesByKey(scid, "s_total_"+strconv.Itoa(iv))
+					//s_urlValue, _ := gnomon.GetSCIDValuesByKey(scid, "s_url_"+strconv.Itoa(iv))
+					_, s_ta := gnomon.GetSCIDValuesByKey(scid, "team_a_"+strconv.Itoa(iv))
+					_, s_tb := gnomon.GetSCIDValuesByKey(scid, "team_b_"+strconv.Itoa(iv))
+					_, time_a := gnomon.GetSCIDValuesByKey(scid, "time_a")
+					_, time_b := gnomon.GetSCIDValuesByKey(scid, "time_b")
+					_, buffer := gnomon.GetSCIDValuesByKey(scid, "buffer"+strconv.Itoa(iv))
 
 					team_a := TrimTeamA(game[0])
 					team_b := TrimTeamB(game[0])

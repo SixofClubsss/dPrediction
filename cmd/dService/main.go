@@ -11,6 +11,7 @@ import (
 	"github.com/SixofClubsss/dPrediction/prediction"
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
+	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
@@ -19,6 +20,7 @@ import (
 
 // Run dReamsService process from dReams prediction package
 
+var gnomon = gnomes.NewGnomes()
 var enable_transfers bool
 var logger = structures.Logger.WithFields(logrus.Fields{})
 var command_line string = `dService
@@ -113,9 +115,9 @@ func flags() (version string) {
 	prediction.Service.Start()
 	enable_transfers = transfers
 	prediction.Service.Debug = debug
-	menu.Gnomes.Fast = fastsync
-	menu.Gnomes.Para = parallel
-	menu.Gnomes.Import = true
+	gnomon.SetFastsync(fastsync)
+	gnomon.SetParallel(parallel)
+	gnomes.Imported = true
 
 	return
 }
@@ -126,7 +128,7 @@ func init() {
 	go func() {
 		<-c
 		fmt.Println()
-		menu.Gnomes.Stop("dService")
+		gnomon.Stop("dService")
 		rpc.Wallet.Connected(false)
 		prediction.Service.Stop()
 		for prediction.Service.IsProcessing() {
@@ -176,26 +178,26 @@ func main() {
 	menu.Control.Contract_rating = make(map[string]uint64)
 
 	// Start Gnomon with search filters
-	go menu.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
+	go gnomes.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
 
 	// Routine for checking daemon, wallet connection and Gnomon sync
 	go func() {
-		for !menu.Gnomes.IsInitialized() {
+		for !gnomon.IsInitialized() {
 			time.Sleep(time.Second)
 		}
 
 		logger.Println("[dService] Starting when Gnomon is synced")
-		height = uint64(menu.Gnomes.Indexer.ChainHeight)
-		for menu.Gnomes.IsRunning() && rpc.IsReady() {
+		height = uint64(gnomon.GetChainHeight())
+		for gnomon.IsRunning() && rpc.IsReady() {
 			rpc.Ping()
 			rpc.EchoWallet("dService")
-			menu.Gnomes.IndexContains()
-			if menu.Gnomes.Indexer.LastIndexedHeight >= menu.Gnomes.Indexer.ChainHeight-3 && menu.Gnomes.HasIndex(9) {
-				menu.Gnomes.Synced(true)
+			gnomon.IndexContains()
+			if gnomon.GetLastHeight() >= gnomon.GetChainHeight()-3 && gnomon.HasIndex(9) {
+				gnomon.Synced(true)
 			} else {
-				menu.Gnomes.Synced(false)
-				if !menu.Gnomes.Start && menu.Gnomes.IsInitialized() {
-					diff := menu.Gnomes.Indexer.ChainHeight - menu.Gnomes.Indexer.LastIndexedHeight
+				gnomon.Synced(false)
+				if !gnomon.IsStarting() && gnomon.IsInitialized() {
+					diff := gnomon.GetChainHeight() - gnomon.GetLastHeight()
 					if diff > 3 && prediction.Service.Debug {
 						logger.Printf("[dService] Gnomon has %d blocks to go\n", diff)
 					}
@@ -206,7 +208,7 @@ func main() {
 	}()
 
 	// Wait for Gnomon to sync
-	for !menu.Gnomes.IsSynced() && !menu.Gnomes.HasIndex(100) {
+	for !gnomon.IsSynced() && !gnomon.HasIndex(100) {
 		time.Sleep(time.Second)
 	}
 

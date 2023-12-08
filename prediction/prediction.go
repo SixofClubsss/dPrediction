@@ -9,6 +9,7 @@ import (
 
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/dwidget"
+	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 
@@ -191,7 +192,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 	var item string
 
 	Predict.Public.List.OnSelected = func(id widget.ListItemID) {
-		if id != 0 && menu.Connected() {
+		if id != 0 && gnomes.Connected() {
 			item = setPredictionControls(Predict.Public.SCIDs[id])
 			Predict.Favorites.List.UnselectAll()
 			Predict.Owned.List.UnselectAll()
@@ -208,7 +209,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 
 	rate := widget.NewButton("Rate", func() {
 		if len(Predict.Contract.SCID) == 64 {
-			if !menu.CheckOwner(Predict.Contract.SCID) {
+			if !gnomes.CheckOwner(Predict.Contract.SCID) {
 				menu.RateConfirm(Predict.Contract.SCID, d)
 			} else {
 				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
@@ -242,7 +243,7 @@ func PredictionFavorites() fyne.CanvasObject {
 	var item string
 
 	Predict.Favorites.List.OnSelected = func(id widget.ListItemID) {
-		if menu.Connected() {
+		if gnomes.Connected() {
 			item = setPredictionControls(Predict.Favorites.SCIDs[id])
 			Predict.Public.List.UnselectAll()
 			Predict.Owned.List.UnselectAll()
@@ -292,7 +293,7 @@ func PredictionOwned() fyne.CanvasObject {
 		})
 
 	Predict.Owned.List.OnSelected = func(id widget.ListItemID) {
-		if menu.Connected() {
+		if gnomes.Connected() {
 			setPredictionControls(Predict.Owned.SCIDs[id])
 			Predict.Public.List.UnselectAll()
 			Predict.Favorites.List.UnselectAll()
@@ -495,11 +496,11 @@ func P_no_initResults(fr, tx, r, m string) (info string) {
 // Populate all dReams dPrediction contracts
 //   - Pass contracts from db store, can be nil arg
 func PopulatePredictions(contracts map[string]string) {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
 		list := []string{}
 		owned := []string{}
 		if contracts == nil {
-			contracts = menu.Gnomes.GetAllOwnersAndSCIDs()
+			contracts = gnomon.GetAllOwnersAndSCIDs()
 		}
 
 		for sc := range contracts {
@@ -519,9 +520,9 @@ func PopulatePredictions(contracts map[string]string) {
 
 // Check if dPrediction is live on SCID
 func CheckActivePrediction(scid string) bool {
-	if len(scid) == 64 && menu.Gnomes.IsReady() {
-		_, ends := menu.Gnomes.GetSCIDValuesByKey(scid, "p_end_at")
-		_, buff := menu.Gnomes.GetSCIDValuesByKey(scid, "buffer")
+	if len(scid) == 64 && gnomon.IsReady() {
+		_, ends := gnomon.GetSCIDValuesByKey(scid, "p_end_at")
+		_, buff := gnomon.GetSCIDValuesByKey(scid, "buffer")
 		if ends != nil && buff != nil {
 			now := time.Now().Unix()
 			if now < int64(ends[0]) && now > int64(buff[0]) {
@@ -534,24 +535,24 @@ func CheckActivePrediction(scid string) bool {
 
 // Gets dPrediction data from SCID and return formatted info string
 func GetPrediction(scid string) (info string) {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
-		predicting, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "predicting")
-		url, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "p_url")
-		final, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "p_final")
-		//final_tx, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "p_final_txid")
-		_, amt := menu.Gnomes.GetSCIDValuesByKey(scid, "p_amount")
-		_, init := menu.Gnomes.GetSCIDValuesByKey(scid, "p_init")
-		_, up := menu.Gnomes.GetSCIDValuesByKey(scid, "p_up")
-		_, down := menu.Gnomes.GetSCIDValuesByKey(scid, "p_down")
-		_, count := menu.Gnomes.GetSCIDValuesByKey(scid, "p_#")
-		_, end := menu.Gnomes.GetSCIDValuesByKey(scid, "p_end_at")
-		_, buffer := menu.Gnomes.GetSCIDValuesByKey(scid, "buffer")
-		_, pot := menu.Gnomes.GetSCIDValuesByKey(scid, "p_total")
-		_, rounds := menu.Gnomes.GetSCIDValuesByKey(scid, "p_played")
-		_, mark := menu.Gnomes.GetSCIDValuesByKey(scid, "mark")
-		_, time_a := menu.Gnomes.GetSCIDValuesByKey(scid, "time_a")
-		_, time_b := menu.Gnomes.GetSCIDValuesByKey(scid, "time_b")
-		_, time_c := menu.Gnomes.GetSCIDValuesByKey(scid, "time_c")
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
+		predicting, _ := gnomon.GetSCIDValuesByKey(scid, "predicting")
+		url, _ := gnomon.GetSCIDValuesByKey(scid, "p_url")
+		final, _ := gnomon.GetSCIDValuesByKey(scid, "p_final")
+		//final_tx, _ := gnomon.GetSCIDValuesByKey(scid, "p_final_txid")
+		_, amt := gnomon.GetSCIDValuesByKey(scid, "p_amount")
+		_, init := gnomon.GetSCIDValuesByKey(scid, "p_init")
+		_, up := gnomon.GetSCIDValuesByKey(scid, "p_up")
+		_, down := gnomon.GetSCIDValuesByKey(scid, "p_down")
+		_, count := gnomon.GetSCIDValuesByKey(scid, "p_#")
+		_, end := gnomon.GetSCIDValuesByKey(scid, "p_end_at")
+		_, buffer := gnomon.GetSCIDValuesByKey(scid, "buffer")
+		_, pot := gnomon.GetSCIDValuesByKey(scid, "p_total")
+		_, rounds := gnomon.GetSCIDValuesByKey(scid, "p_played")
+		_, mark := gnomon.GetSCIDValuesByKey(scid, "mark")
+		_, time_a := gnomon.GetSCIDValuesByKey(scid, "time_a")
+		_, time_b := gnomon.GetSCIDValuesByKey(scid, "time_b")
+		_, time_c := gnomon.GetSCIDValuesByKey(scid, "time_c")
 
 		var pre, p_played, p_final, p_mark string
 		if init != nil {
