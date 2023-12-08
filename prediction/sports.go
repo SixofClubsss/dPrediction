@@ -196,7 +196,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 					}
 				}
 
-				badge := canvas.NewImageFromResource(menu.DisplayRating(menu.Control.Contract_rating[key]))
+				badge := canvas.NewImageFromResource(menu.DisplayRating(menu.Control.Ratings[key]))
 				badge.SetMinSize(fyne.NewSize(35, 35))
 				o.(*fyne.Container).Objects[0].(*fyne.Container).Objects[0] = badge
 			}

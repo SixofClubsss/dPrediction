@@ -40,6 +40,7 @@ type printColors struct {
 	Red    string
 }
 
+var Imported bool
 var Service service
 var PrintColor printColors
 

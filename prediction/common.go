@@ -313,7 +313,7 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 
 					if restrict != nil && rating != nil {
 						menu.Control.Lock()
-						menu.Control.Contract_rating[scid] = rating[0]
+						menu.Control.Ratings[scid] = rating[0]
 						menu.Control.Unlock()
 						if rating[0] <= restrict[0] {
 							hidden = true
@@ -337,7 +337,7 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 					var co_signer bool
 					if VerifyBetSigner(scid) {
 						co_signer = true
-						if !gnomes.Imported {
+						if !Imported {
 							Predict.Contract.menu.Show()
 							Sports.Contract.menu.Show()
 						}

@@ -74,7 +74,7 @@ func StartApp() {
 		}
 
 		menu.WriteDreamsConfig(save)
-		menu.CloseAppSignal(true)
+		menu.SetClose(true)
 		gnomon.Stop(app_tag)
 		d.StopProcess()
 		w.Close()
@@ -93,7 +93,7 @@ func StartApp() {
 
 	// Initialize vars
 	rpc.InitBalances()
-	menu.Control.Contract_rating = make(map[string]uint64)
+	menu.Control.Ratings = make(map[string]uint64)
 	gnomon.SetDBStorageType("boltdb")
 	gnomon.SetFastsync(true)
 
@@ -215,8 +215,8 @@ func StartApp() {
 
 			case <-d.Closing(): // exit
 				logger.Printf("[%s] Closing...", app_tag)
-				if gnomes.Icon_ind != nil {
-					gnomes.Icon_ind.Stop()
+				if gnomes.Indicator.Icon != nil {
+					gnomes.Indicator.Icon.Stop()
 				}
 				ticker.Stop()
 				d.CloseAllDapps()

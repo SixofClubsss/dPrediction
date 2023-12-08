@@ -117,7 +117,7 @@ func flags() (version string) {
 	prediction.Service.Debug = debug
 	gnomon.SetFastsync(fastsync)
 	gnomon.SetParallel(parallel)
-	gnomes.Imported = true
+	prediction.Imported = true
 
 	return
 }
@@ -175,7 +175,7 @@ func main() {
 	}
 
 	// Set up SCID rating map
-	menu.Control.Contract_rating = make(map[string]uint64)
+	menu.Control.Ratings = make(map[string]uint64)
 
 	// Start Gnomon with search filters
 	go gnomes.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
