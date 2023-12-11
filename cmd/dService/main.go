@@ -12,7 +12,6 @@ import (
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
 	"github.com/dReam-dApps/dReams/gnomes"
-	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
 	"github.com/sirupsen/logrus"
@@ -173,9 +172,6 @@ func main() {
 	if sports != "" {
 		filter = append(filter, sports)
 	}
-
-	// Set up SCID rating map
-	menu.Control.Ratings = make(map[string]uint64)
 
 	// Start Gnomon with search filters
 	go gnomes.StartGnomon("dService", "boltdb", filter, 0, 0, nil)

@@ -1,6 +1,7 @@
 package prediction
 
 import (
+	"image/color"
 	"strconv"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/civilware/Gnomon/structures"
 	dreams "github.com/dReam-dApps/dReams"
-	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
@@ -98,14 +98,14 @@ func OnConnected() {
 
 // Splash screen for when both contract lists syncing
 func syncScreen() {
-	text := canvas.NewText("Syncing...", bundle.TextColor)
+	text := canvas.NewText("Syncing...", color.White)
 	text.Alignment = fyne.TextAlignCenter
 	text.TextSize = 21
 
 	img := canvas.NewImageFromResource(resourceDServiceCirclePng)
 	img.SetMinSize(fyne.NewSize(150, 150))
 
-	screen := container.NewStack(container.NewCenter(container.NewBorder(nil, text, nil, nil, img)), widget.NewProgressBarInfinite())
+	screen := container.NewStack(container.NewCenter(img, text), widget.NewProgressBarInfinite())
 
 	rSports := S.DApp.Objects[0]
 	rPredict := P.DApp.Objects[0]
