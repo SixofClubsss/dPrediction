@@ -740,29 +740,8 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 		}
 		done <- struct{}{}
 	}, d.Window)
-	confirm.Show()
 
-	go func() {
-		for {
-			select {
-			case <-done:
-				if confirm != nil {
-					confirm.Hide()
-					confirm = nil
-				}
-				return
-			default:
-				if !rpc.IsReady() {
-					if confirm != nil {
-						confirm.Hide()
-						confirm = nil
-					}
-					return
-				}
-				time.Sleep(time.Second)
-			}
-		}
-	}()
+	go menu.ShowConfirmDialog(done, confirm)
 }
 
 // dReam Service start confirmation
@@ -1340,29 +1319,7 @@ Private will not show up in the list`
 
 	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
 	confirm.SetButtons([]fyne.CanvasObject{actions})
-	confirm.Show()
-
-	go func() {
-		for {
-			select {
-			case <-done:
-				if confirm != nil {
-					confirm.Hide()
-					confirm = nil
-				}
-				return
-			default:
-				if !rpc.IsReady() {
-					if confirm != nil {
-						confirm.Hide()
-						confirm = nil
-					}
-					return
-				}
-				time.Sleep(time.Second)
-			}
-		}
-	}()
+	go menu.ShowConfirmDialog(done, confirm)
 }
 
 // Confirmation for dSports contract installs
@@ -1446,27 +1403,5 @@ Private will not show up in the list`
 
 	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
 	confirm.SetButtons([]fyne.CanvasObject{actions})
-	confirm.Show()
-
-	go func() {
-		for {
-			select {
-			case <-done:
-				if confirm != nil {
-					confirm.Hide()
-					confirm = nil
-				}
-				return
-			default:
-				if !rpc.IsReady() {
-					if confirm != nil {
-						confirm.Hide()
-						confirm = nil
-					}
-					return
-				}
-				time.Sleep(time.Second)
-			}
-		}
-	}()
+	go menu.ShowConfirmDialog(done, confirm)
 }
