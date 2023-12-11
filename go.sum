@@ -51,8 +51,8 @@ github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbi
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/SixofClubsss/Holdero v0.0.0-20231208231927-e992e5eeeb76 h1:J18z4t93wDlY8KWpT8doM6DnnU3kx2jAKSFXocEe10s=
-github.com/SixofClubsss/Holdero v0.0.0-20231208231927-e992e5eeeb76/go.mod h1:olLYcffZ9SA/C+sVyr04NZYPIVe9d5kGoRl/W/6K0+s=
+github.com/SixofClubsss/Holdero v0.0.0-20231211012213-9b1bf8efebee h1:yy//1RRzeFIAHMpzcc8lAZytyT3TLzvxz4SOc/HnuC8=
+github.com/SixofClubsss/Holdero v0.0.0-20231211012213-9b1bf8efebee/go.mod h1:PTGKIB5Zp6kCb4cITVMvaqcyRrjtWtn8eqTN6VsGFUA=
 github.com/VictoriaMetrics/metrics v1.24.0 h1:ILavebReOjYctAGY5QU2F9X0MYvkcrG3aEn2RKa1Zkw=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
