@@ -114,7 +114,7 @@ func flags() (version string) {
 	prediction.Service.Start()
 	enable_transfers = transfers
 	prediction.Service.Debug = debug
-	gnomon.SetFastsync(fastsync)
+	gnomon.SetFastsync(fastsync, true, 10000)
 	gnomon.SetParallel(parallel)
 	prediction.Imported = true
 
