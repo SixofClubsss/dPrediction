@@ -123,7 +123,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.amt = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.predict.amt.SetPlaceHolder("Minimum Amount:")
 	owner.predict.amt.AllowFloat = true
-	owner.predict.amt.Wrapping = fyne.TextTruncate
+	owner.predict.amt.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.predict.amt.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	feeds := []string{"dReams Client"}
@@ -133,7 +133,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.predict.deposit.SetPlaceHolder("Deposit Amount:")
 	owner.predict.deposit.AllowFloat = true
-	owner.predict.deposit.Wrapping = fyne.TextTruncate
+	owner.predict.deposit.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.predict.deposit.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	reset := window.Content().(*fyne.Container).Objects[2]
@@ -301,7 +301,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.amt = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.sports.amt.SetPlaceHolder("Minimum Amount:")
 	owner.sports.amt.AllowFloat = true
-	owner.sports.amt.Wrapping = fyne.TextTruncate
+	owner.sports.amt.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.sports.amt.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	feeds := []string{"dReams Client"}
@@ -311,7 +311,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.sports.deposit.SetPlaceHolder("Deposit Amount:")
 	owner.sports.deposit.AllowFloat = true
-	owner.sports.deposit.Wrapping = fyne.TextTruncate
+	owner.sports.deposit.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.sports.deposit.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	reset := window.Content().(*fyne.Container).Objects[2]
@@ -425,7 +425,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 	entry := dwidget.NewDeroEntry("", 1, 0)
 	entry.SetPlaceHolder("Block #:")
 	entry.AllowFloat = false
-	entry.Wrapping = fyne.TextTruncate
+	entry.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	entry.Validator = validation.NewRegexp(`^[^0]\d{0,}$`, "Int required")
 
 	var start uint64
@@ -559,28 +559,28 @@ func updateOpts() fyne.CanvasObject {
 	a := dwidget.NewDeroEntry("", 1, 0)
 	a.SetPlaceHolder("Time A:")
 	a.AllowFloat = false
-	a.Wrapping = fyne.TextTruncate
+	a.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	a.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	b_label := widget.NewLabel("Time B         ")
 	b := dwidget.NewDeroEntry("", 1, 0)
 	b.SetPlaceHolder("Time B:")
 	b.AllowFloat = false
-	b.Wrapping = fyne.TextTruncate
+	b.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	b.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	c_label := widget.NewLabel("Time C         ")
 	c := dwidget.NewDeroEntry("", 1, 0)
 	c.SetPlaceHolder("Time C:")
 	c.AllowFloat = false
-	c.Wrapping = fyne.TextTruncate
+	c.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	c.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	hl_label := widget.NewLabel("Max Games")
 	hl := dwidget.NewDeroEntry("", 1, 0)
 	hl.SetPlaceHolder("Max Games:")
 	hl.AllowFloat = false
-	hl.Wrapping = fyne.TextTruncate
+	hl.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	hl.Validator = validation.NewRegexp(`^[^0]\d{0,}$`, "Int required")
 
 	hl_box := container.NewBorder(nil, nil, hl_label, nil, hl)
@@ -624,7 +624,7 @@ func updateOpts() fyne.CanvasObject {
 	owner_num.SetPlaceHolder("Owner #:")
 	owner_num.AllowFloat = false
 	owner_num.Validator = validation.NewRegexp(`^[^0]\d{0,0}$`, "Int required")
-	owner_num.Wrapping = fyne.TextTruncate
+	owner_num.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 
 	remove_owner := widget.NewButton("Remove Owner", func() {
 		switch sc.Selected {
@@ -1010,7 +1010,7 @@ func ownersMenu() {
 
 		time.Sleep(time.Second)
 		markets := []string{}
-		if stored, ok := rpc.FindStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Rpc).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &markets); err == nil {
 					owner.predict.name.SetOptions(markets)
@@ -1019,7 +1019,7 @@ func ownersMenu() {
 		}
 
 		leagues := []string{}
-		if stored, ok := rpc.FindStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Rpc).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &leagues); err == nil {
 					owner.sports.league.SetOptions(leagues)
@@ -1279,7 +1279,6 @@ Private will not show up in the list`
 	label.Alignment = fyne.TextAlignCenter
 
 	var choice *widget.Select
-	var confirm *dialog.CustomDialog
 
 	done := make(chan struct{})
 	pre_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
@@ -1287,8 +1286,6 @@ Private will not show up in the list`
 			UploadBetContract(true, choice.SelectedIndex())
 		}
 
-		confirm.Hide()
-		confirm = nil
 		done <- struct{}{}
 	})
 	pre_button.Importance = widget.HighImportance
@@ -1304,8 +1301,6 @@ Private will not show up in the list`
 	})
 
 	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
-		confirm.Hide()
-		confirm = nil
 		done <- struct{}{}
 	})
 
@@ -1317,7 +1312,7 @@ Private will not show up in the list`
 	spacer := canvas.NewRectangle(color.Transparent)
 	spacer.SetMinSize(fyne.NewSize(420, 100))
 
-	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm := dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
 	confirm.SetButtons([]fyne.CanvasObject{actions})
 	go menu.ShowConfirmDialog(done, confirm)
 }
@@ -1363,7 +1358,6 @@ Private will not show up in the list`
 	label.Alignment = fyne.TextAlignCenter
 
 	var choice *widget.Select
-	var confirm *dialog.CustomDialog
 
 	done := make(chan struct{})
 	sports_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
@@ -1371,8 +1365,6 @@ Private will not show up in the list`
 			UploadBetContract(false, choice.SelectedIndex())
 		}
 
-		confirm.Hide()
-		confirm = nil
 		done <- struct{}{}
 	})
 	sports_button.Importance = widget.HighImportance
@@ -1388,8 +1380,6 @@ Private will not show up in the list`
 	})
 
 	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
-		confirm.Hide()
-		confirm = nil
 		done <- struct{}{}
 	})
 
@@ -1401,7 +1391,7 @@ Private will not show up in the list`
 	spacer := canvas.NewRectangle(color.Transparent)
 	spacer.SetMinSize(fyne.NewSize(420, 100))
 
-	confirm = dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm := dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
 	confirm.SetButtons([]fyne.CanvasObject{actions})
 	go menu.ShowConfirmDialog(done, confirm)
 }

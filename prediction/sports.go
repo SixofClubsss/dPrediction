@@ -205,7 +205,7 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 	var item string
 
 	Sports.Public.List.OnSelected = func(id widget.ListItemID) {
-		if id != 0 && gnomes.Connected() {
+		if id != 0 && gnomes.IsConnected() {
 			item = setSportsControls(Sports.Public.SCIDs[id])
 			Sports.Favorites.List.UnselectAll()
 			Sports.Owned.List.UnselectAll()
@@ -256,7 +256,7 @@ func SportsFavorites() fyne.CanvasObject {
 	var item string
 
 	Sports.Favorites.List.OnSelected = func(id widget.ListItemID) {
-		if gnomes.Connected() {
+		if gnomes.IsConnected() {
 			item = setSportsControls(Sports.Favorites.SCIDs[id])
 			Sports.Public.List.UnselectAll()
 			Sports.Owned.List.UnselectAll()
@@ -306,7 +306,7 @@ func SportsOwned() fyne.CanvasObject {
 		})
 
 	Sports.Owned.List.OnSelected = func(id widget.ListItemID) {
-		if gnomes.Connected() {
+		if gnomes.IsConnected() {
 			setSportsControls(Sports.Owned.SCIDs[id])
 			Sports.Public.List.UnselectAll()
 			Sports.Favorites.List.UnselectAll()

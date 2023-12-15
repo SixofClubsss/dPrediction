@@ -88,14 +88,6 @@ func DreamsMenuIntro() (entries map[string][]string) {
 	return
 }
 
-// Do this when first connected
-func OnConnected() {
-	Predict.Contract.entry.CursorColumn = 1
-	Predict.Contract.entry.Refresh()
-	Sports.Contract.entry.CursorColumn = 1
-	Sports.Contract.entry.Refresh()
-}
-
 // Splash screen for when both contract lists syncing
 func syncScreen() {
 	text := canvas.NewText("Syncing...", color.White)
@@ -118,6 +110,11 @@ func syncScreen() {
 	owner.synced = true
 	S.DApp.Objects[0] = rSports
 	P.DApp.Objects[0] = rPredict
+
+	Predict.Contract.entry.CursorColumn = 1
+	Predict.Contract.entry.Refresh()
+	Sports.Contract.entry.CursorColumn = 1
+	Sports.Contract.entry.Refresh()
 }
 
 // Main process for dSports and dPrediction
@@ -137,7 +134,7 @@ func fetch(d *dreams.AppObject) {
 				continue
 			}
 
-			if !owner.synced && gnomes.GnomonScan(d.IsConfiguring()) {
+			if !owner.synced && gnomes.Scan(d.IsConfiguring()) {
 				logger.Println("[dPrediction] Syncing")
 				syncScreen()
 			}
@@ -320,16 +317,13 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 						}
 					}
 
-					if headers != nil {
-						if headers[1] != "" {
-							desc = headers[1]
+					if headers.Name != "" {
+						name = " " + headers.Name
+						if headers.Description != "" {
+							desc = headers.Description
 						}
 
-						if headers[0] != "" {
-							name = " " + headers[0]
-						}
-
-						if headers[0] == "-" {
+						if headers.Name == "-" {
 							hidden = true
 						}
 					}

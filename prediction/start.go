@@ -94,7 +94,7 @@ func StartApp() {
 
 	// Initialize vars
 	gnomon.SetDBStorageType("boltdb")
-	gnomon.SetFastsync(true)
+	gnomon.SetFastsync(true, true, 10000)
 
 	// Initialize asset widgets
 	//asset_selects := []fyne.Widget{}
@@ -178,7 +178,7 @@ func StartApp() {
 
 				connect_box.RefreshBalance()
 				if !rpc.Startup {
-					gnomes.GnomonEndPoint()
+					gnomes.EndPoint()
 				}
 
 				if rpc.Daemon.IsConnected() && gnomon.IsInitialized() {

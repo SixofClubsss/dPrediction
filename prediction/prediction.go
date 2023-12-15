@@ -192,7 +192,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 	var item string
 
 	Predict.Public.List.OnSelected = func(id widget.ListItemID) {
-		if id != 0 && gnomes.Connected() {
+		if id != 0 && gnomes.IsConnected() {
 			item = setPredictionControls(Predict.Public.SCIDs[id])
 			Predict.Favorites.List.UnselectAll()
 			Predict.Owned.List.UnselectAll()
@@ -243,7 +243,7 @@ func PredictionFavorites() fyne.CanvasObject {
 	var item string
 
 	Predict.Favorites.List.OnSelected = func(id widget.ListItemID) {
-		if gnomes.Connected() {
+		if gnomes.IsConnected() {
 			item = setPredictionControls(Predict.Favorites.SCIDs[id])
 			Predict.Public.List.UnselectAll()
 			Predict.Owned.List.UnselectAll()
@@ -293,7 +293,7 @@ func PredictionOwned() fyne.CanvasObject {
 		})
 
 	Predict.Owned.List.OnSelected = func(id widget.ListItemID) {
-		if gnomes.Connected() {
+		if gnomes.IsConnected() {
 			setPredictionControls(Predict.Owned.SCIDs[id])
 			Predict.Public.List.UnselectAll()
 			Predict.Favorites.List.UnselectAll()
