@@ -675,6 +675,7 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 	var text string
 	p_scid := Predict.Contract.SCID
 	s_scid := Sports.Contract.SCID
+	game := Sports.gameSelect.Selected
 	split := strings.Split(Sports.gameSelect.Selected, "   ")
 	multi := Sports.multi.Selected
 
@@ -688,7 +689,6 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 		amt := float / 100000
 		text = fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt)
 	case 3:
-		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
 		var x string
 
@@ -703,7 +703,6 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 
 		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x)
 	case 4:
-		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
 		var x string
 
@@ -727,13 +726,29 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 		if b {
 			switch i {
 			case 1:
-				PredictLower(p_scid, "")
+				if tx := PredictLower(p_scid, ""); tx != "" {
+					go menu.ShowTxDialog("Predict Lower", fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
+				} else {
+					go menu.ShowTxDialog("Predict Lower", "TX error, check logs", tx, 3*time.Second, d.Window)
+				}
 			case 2:
-				PredictHigher(p_scid, "")
+				if tx := PredictHigher(p_scid, ""); tx != "" {
+					go menu.ShowTxDialog("Predict Higher", fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
+				} else {
+					go menu.ShowTxDialog("Predict Higher", "TX error, check logs", tx, 3*time.Second, d.Window)
+				}
 			case 3:
-				PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
+				if tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0); tx != "" {
+					go menu.ShowTxDialog(game, fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
+				} else {
+					go menu.ShowTxDialog(game, "TX error, check logs", tx, 3*time.Second, d.Window)
+				}
 			case 4:
-				PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
+				if tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1); tx != "" {
+					go menu.ShowTxDialog(game, fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
+				} else {
+					go menu.ShowTxDialog(game, "TX error, check logs", tx, 3*time.Second, d.Window)
+				}
 			default:
 
 			}
@@ -1089,11 +1104,20 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	var win, team, a_score, b_score, payout_str, err_string string
 	if i == 3 {
 		if len(n_split) > 1 {
+			end_diff := uint64(3)
+			var game_date string
+			if gnomon.IsReady() {
+				_, game_end := gnomon.GetSCIDValuesByKey(s_scid, "s_end_at_"+n_split[0])
+				if game_end != nil {
+					end_diff = (uint64(time.Now().Unix()) - game_end[0]) / 60 / 60 / 24
+					game_date = time.Unix(int64(game_end[0]), 0).UTC().Format("2006-01-02")
+				}
+			}
 			if n_split[1] == "Bellator" || n_split[1] == "UFC" {
-				win, team = GetMmaWinner(n_split[2], n_split[1])
+				win, team = GetMmaWinner(n_split[2], n_split[1], game_date, int(end_diff))
 				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s", s_scid, owner.sports.payout.Text, team)
 			} else {
-				win, team, a_score, b_score = GetWinner(n_split[2], n_split[1])
+				win, team, a_score, b_score = GetWinner(n_split[2], n_split[1], game_date, int(end_diff))
 				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, owner.sports.payout.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
 			}
 		} else {

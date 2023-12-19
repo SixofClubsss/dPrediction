@@ -679,11 +679,15 @@ func runSportsPayouts(print bool) {
 							if end[0]+a_time[0] < uint64(time.Now().Unix()) {
 								var sent bool
 								var win, winner, a_score, b_score, payout_str string
+
+								end_diff := (uint64(time.Now().Unix()) - end[0]) / 60 / 60 / 24
+								game_date := time.Unix(int64(end[0]), 0).UTC().Format("2006-01-02")
+
 								if league[0] == "Bellator" || league[0] == "UFC" {
-									win, winner = GetMmaWinner(game[0], league[0])
+									win, winner = GetMmaWinner(game[0], league[0], game_date, int(end_diff))
 									payout_str = fmt.Sprintf("Fight: %s   Winner: %s", game[0], winner)
 								} else {
-									win, winner, a_score, b_score = GetWinner(game[0], league[0])
+									win, winner, a_score, b_score = GetWinner(game[0], league[0], game_date, int(end_diff))
 									payout_str = fmt.Sprintf("Game: %s %s-%s   Winner: %s", game[0], a_score, b_score, winner)
 								}
 

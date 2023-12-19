@@ -19,7 +19,7 @@ const (
 
 // Place higher prediction to SC
 //   - addr only needed if dService is placing prediction
-func PredictHigher(scid, addr string) {
+func PredictHigher(scid, addr string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -53,11 +53,13 @@ func PredictHigher(scid, addr string) {
 	}
 
 	rpc.PrintLog("[Predictions] Higher Prediction TX: %s", txid)
+
+	return txid.TXID
 }
 
 // Place lower prediction to SC
 //   - addr only needed if dService is placing prediction
-func PredictLower(scid, addr string) {
+func PredictLower(scid, addr string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -91,6 +93,8 @@ func PredictLower(scid, addr string) {
 	}
 
 	rpc.PrintLog("[Predictions] Lower Prediction TX: %s", txid)
+
+	return txid.TXID
 }
 
 // dService prediction place by received tx
@@ -403,7 +407,7 @@ func PredictionRefund(scid, tic string) {
 //   - n is the game number
 //   - a is amount to book
 //   - pick is team to book
-func PickTeam(scid, multi, n string, a uint64, pick int) {
+func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -448,6 +452,8 @@ func PickTeam(scid, multi, n string, a uint64, pick int) {
 	}
 
 	rpc.PrintLog("[Sports] Pick TX: %s", txid)
+
+	return txid.TXID
 }
 
 // User can refund a void dSports payout from SC
@@ -493,7 +499,7 @@ func SportsRefund(scid, tic, n string) {
 //   - dep allows owner to add a initial deposit
 //   - game is name of game, formatted TEAM--TEAM
 //   - feed defines where price api data is sourced from
-func SetSports(end int, amt, dep uint64, scid, league, game, feed string) {
+func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -528,6 +534,8 @@ func SetSports(end int, amt, dep uint64, scid, league, game, feed string) {
 	}
 
 	rpc.PrintLog("[Sports] Set TX: %s", txid)
+
+	return txid.TXID
 }
 
 // Owner sets up a dPrediction prediction

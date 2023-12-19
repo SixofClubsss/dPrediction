@@ -1098,8 +1098,9 @@ func GetSoccer(date, league string) {
 
 // Gets and returns the winner of game
 //   - league defines api prefix
-func GetWinner(game, league string) (win string, team_name string, a_score string, b_score string) {
-	for i := -3; i < 1; i++ {
+func GetWinner(game, league, game_date string, diff int) (win string, team_name string, a_score string, b_score string) {
+	diff = diff + 3
+	for i := -diff; i < 1; i++ {
 		day := time.Now().AddDate(0, 0, i)
 		date := time.Unix(day.Unix(), 0).String()
 		date = date[0:10]
@@ -1112,7 +1113,13 @@ func GetWinner(game, league string) (win string, team_name string, a_score strin
 				b := found.Events[i].Competitions[0].Competitors[1].Team.Abbreviation
 				g := a + "--" + b
 
-				if g == game {
+				parsed_date, err := time.Parse("2006-01-02T15:04Z", found.Events[i].Competitions[0].Date)
+				if err != nil {
+					logger.Debugln("[GetWinner]", err)
+					continue
+				}
+
+				if g == game && parsed_date.UTC().Format("2006-01-02") == game_date {
 					if found.Events[i].Status.Type.Completed {
 						teamA := found.Events[i].Competitions[0].Competitors[0].Team.Abbreviation
 						a_win := found.Events[i].Competitions[0].Competitors[0].Winner
@@ -1142,8 +1149,9 @@ func GetWinner(game, league string) (win string, team_name string, a_score strin
 
 // Gets and returns the winner of mma match
 //   - league defines api prefix
-func GetMmaWinner(game, league string) (win string, fighter string) {
-	for i := -3; i < 1; i++ {
+func GetMmaWinner(game, league, game_date string, diff int) (win string, fighter string) {
+	diff = diff + 3
+	for i := -diff; i < 1; i++ {
 		day := time.Now().AddDate(0, 0, i)
 		date := time.Unix(day.Unix(), 0).String()
 		date = date[0:10]
@@ -1157,7 +1165,13 @@ func GetMmaWinner(game, league string) (win string, fighter string) {
 					b := found.Events[i].Competitions[f].Competitors[1].Athlete.DisplayName
 					g := a + "--" + b
 
-					if g == game {
+					parsed_date, err := time.Parse("2006-01-02T15:04Z", found.Events[i].Competitions[0].Date)
+					if err != nil {
+						logger.Debugln("[GetMmaWinner]", err)
+						continue
+					}
+
+					if g == game && parsed_date.UTC().Format("2006-01-02") == game_date {
 						if found.Events[i].Competitions[f].Status.Type.Completed {
 							teamA := found.Events[i].Competitions[f].Competitors[0].Athlete.DisplayName
 							a_win := found.Events[i].Competitions[f].Competitors[0].Winner
