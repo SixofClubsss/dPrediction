@@ -27,5 +27,6 @@ This file lists the changes to dPrediction repo with each version.
 
 * Call back to game date in GetWinner funcs
 * Deprecated fyne.TextTruncate
+* Deprecated container.NewMax
 * Fyne error when downloading custom
 * Validator hangs
