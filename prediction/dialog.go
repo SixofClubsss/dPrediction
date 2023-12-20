@@ -726,29 +726,21 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 		if b {
 			switch i {
 			case 1:
-				if tx := PredictLower(p_scid, ""); tx != "" {
-					go menu.ShowTxDialog("Predict Lower", fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
-				} else {
-					go menu.ShowTxDialog("Predict Lower", "TX error, check logs", tx, 3*time.Second, d.Window)
-				}
+				tx := PredictLower(p_scid, "")
+				go menu.ShowTxDialog("Predict Lower", "Predictions", tx, 3*time.Second, d.Window)
+
 			case 2:
-				if tx := PredictHigher(p_scid, ""); tx != "" {
-					go menu.ShowTxDialog("Predict Higher", fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
-				} else {
-					go menu.ShowTxDialog("Predict Higher", "TX error, check logs", tx, 3*time.Second, d.Window)
-				}
+				tx := PredictHigher(p_scid, "")
+				go menu.ShowTxDialog("Predict Higher", "Predictions", tx, 3*time.Second, d.Window)
+
 			case 3:
-				if tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0); tx != "" {
-					go menu.ShowTxDialog(game, fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
-				} else {
-					go menu.ShowTxDialog(game, "TX error, check logs", tx, 3*time.Second, d.Window)
-				}
+				tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
+				go menu.ShowTxDialog(game, "Sports", tx, 3*time.Second, d.Window)
+
 			case 4:
-				if tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1); tx != "" {
-					go menu.ShowTxDialog(game, fmt.Sprintf("TXID: %s", tx), tx, 3*time.Second, d.Window)
-				} else {
-					go menu.ShowTxDialog(game, "TX error, check logs", tx, 3*time.Second, d.Window)
-				}
+				tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
+				go menu.ShowTxDialog(game, "Sports", tx, 3*time.Second, d.Window)
+
 			default:
 
 			}
