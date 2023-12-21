@@ -12,6 +12,7 @@ import (
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
 	"github.com/dReam-dApps/dReams/gnomes"
+	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
 	"github.com/sirupsen/logrus"
@@ -130,6 +131,7 @@ func init() {
 		gnomon.Stop("dService")
 		rpc.Wallet.Connected(false)
 		prediction.Service.Stop()
+		menu.SetClose(true)
 		for prediction.Service.IsProcessing() {
 			logger.Println("[dService] Waiting for service to close")
 			time.Sleep(3 * time.Second)
@@ -148,13 +150,13 @@ func main() {
 
 	// Check for daemon connection
 	rpc.Ping()
-	if !rpc.Daemon.Connect {
+	if !rpc.Daemon.IsConnected() {
 		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
 	}
 
 	// Check for wallet connection
 	rpc.GetAddress("dService")
-	if !rpc.Wallet.Connect {
+	if !rpc.Wallet.IsConnected() {
 		os.Exit(1)
 	}
 
@@ -178,13 +180,13 @@ func main() {
 
 	// Routine for checking daemon, wallet connection and Gnomon sync
 	go func() {
-		for !gnomon.IsInitialized() {
+		for !menu.IsClosing() && !gnomon.IsInitialized() {
 			time.Sleep(time.Second)
 		}
 
 		logger.Println("[dService] Starting when Gnomon is synced")
 		height = uint64(gnomon.GetChainHeight())
-		for gnomon.IsRunning() && rpc.IsReady() {
+		for !menu.IsClosing() && gnomon.IsRunning() && rpc.IsReady() {
 			rpc.Ping()
 			rpc.EchoWallet("dService")
 			gnomon.IndexContains()
@@ -204,7 +206,7 @@ func main() {
 	}()
 
 	// Wait for Gnomon to sync
-	for !gnomon.IsSynced() && !gnomon.HasIndex(100) {
+	for !menu.IsClosing() && (!gnomon.IsSynced() || gnomon.IsStatus("fastsyncing")) {
 		time.Sleep(time.Second)
 	}
 

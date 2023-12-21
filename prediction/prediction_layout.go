@@ -30,10 +30,12 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 
 	check_box := container.NewVBox(PredictConnectedBox())
 
-	Predict.higher = widget.NewButton("Higher", nil)
+	Predict.higher = widget.NewButtonWithIcon("Higher", dreams.FyneIcon("arrowUp"), nil)
+	Predict.higher.Importance = widget.HighImportance
 	Predict.higher.Hide()
 
-	Predict.lower = widget.NewButton("Lower", nil)
+	Predict.lower = widget.NewButtonWithIcon("Lower", dreams.FyneIcon("arrowDown"), nil)
+	Predict.lower.Importance = widget.HighImportance
 	Predict.lower.Hide()
 
 	Predict.Container = container.NewVBox(Predict.higher, Predict.lower)
