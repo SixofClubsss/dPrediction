@@ -60,9 +60,11 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	Sports.multi.Hide()
 
 	Sports.buttonA = widget.NewButton("TEAM A", nil)
+	Sports.buttonA.Importance = widget.HighImportance
 	Sports.buttonA.Hide()
 
 	Sports.buttonB = widget.NewButton("TEAM B", nil)
+	Sports.buttonB.Importance = widget.HighImportance
 	Sports.buttonB.Hide()
 
 	sports_multi := container.NewCenter(Sports.multi)
