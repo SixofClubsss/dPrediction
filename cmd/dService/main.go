@@ -40,10 +40,14 @@ Options:
   --fastsync=<true>	         Gnomon option,  true/false value to define loading at chain height on start up.
   --num-parallel-blocks=<5>      Gnomon option,  defines the number of parallel blocks to index.`
 
-// Set opts when starting dService
-func flags() (version string) {
-	arguments, err := docopt.ParseArgs(command_line, nil, prediction.Version().String())
+func main() {
+	n := runtime.NumCPU()
+	runtime.GOMAXPROCS(n)
 
+	v := prediction.Version().String()
+
+	// Flags when starting dService
+	arguments, err := docopt.ParseArgs(command_line, nil, v)
 	if err != nil {
 		logger.Fatalf("Error while parsing arguments: %s\n", err)
 	}
@@ -103,7 +107,7 @@ func flags() (version string) {
 	}
 
 	debug := true
-	if arguments["--debug-"] != nil {
+	if arguments["--debug"] != nil {
 		if arguments["--debug"].(string) == "false" {
 			debug = false
 		}
@@ -112,6 +116,20 @@ func flags() (version string) {
 	arguments["--debug"] = false
 	indexer.InitLog(arguments, os.Stderr)
 
+	logger.Printf("[dService] %s  OS: %s  ARCH: %s  DREAMS: %s  GNOMON: %s\n", v, runtime.GOOS, runtime.GOARCH, rpc.Version(), structures.Version.String())
+
+	// Check for daemon connection
+	rpc.Ping()
+	if !rpc.Daemon.IsConnected() {
+		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
+	}
+
+	// Check for wallet connection
+	rpc.GetAddress("dService")
+	if !rpc.Wallet.IsConnected() {
+		logger.Fatalf("[dService] Wallet %s not connected\n", rpc.Wallet.Rpc)
+	}
+
 	prediction.Service.Start()
 	enable_transfers = transfers
 	prediction.Service.Debug = debug
@@ -119,10 +137,22 @@ func flags() (version string) {
 	gnomon.SetParallel(parallel)
 	prediction.Imported = true
 
-	return
-}
+	// Start dService from last payload format height at minimum
+	height := prediction.PAYLOAD_FORMAT
 
-func init() {
+	// Set up Gnomon search filters
+	filter := []string{}
+	predict := prediction.GetPredictCode(0)
+	if predict != "" {
+		filter = append(filter, predict)
+	}
+
+	sports := prediction.GetSportsCode(0)
+	if sports != "" {
+		filter = append(filter, sports)
+	}
+
+	// Handle ctrl+c close
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -139,41 +169,6 @@ func init() {
 		logger.Println("[dService] Closing")
 		os.Exit(0)
 	}()
-}
-
-func main() {
-	n := runtime.NumCPU()
-	runtime.GOMAXPROCS(n)
-
-	v := flags()
-	logger.Println("[dService]", v, runtime.GOOS, runtime.GOARCH)
-
-	// Check for daemon connection
-	rpc.Ping()
-	if !rpc.Daemon.IsConnected() {
-		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
-	}
-
-	// Check for wallet connection
-	rpc.GetAddress("dService")
-	if !rpc.Wallet.IsConnected() {
-		os.Exit(1)
-	}
-
-	// Start dService from last payload format height at minimum
-	height := prediction.PAYLOAD_FORMAT
-
-	// Set up Gnomon search filters
-	filter := []string{}
-	predict := prediction.GetPredictCode(0)
-	if predict != "" {
-		filter = append(filter, predict)
-	}
-
-	sports := prediction.GetSportsCode(0)
-	if sports != "" {
-		filter = append(filter, sports)
-	}
 
 	// Start Gnomon with search filters
 	go gnomes.StartGnomon("dService", "boltdb", filter, 0, 0, nil)

@@ -589,7 +589,6 @@ func runPredictionPayouts(print bool) {
 
 		if sent {
 			Service.Last_block = rpc.Wallet.Height
-			serviceDebug(print, "[runPredictionPayouts]", "Tx Delay")
 			time.Sleep(time.Second)
 			rpc.ConfirmTx(tx, "runPredictionPayouts", 36)
 		}
@@ -646,7 +645,6 @@ func runPredictionPayouts(print bool) {
 
 		if sent {
 			Service.Last_block = rpc.Wallet.Height
-			serviceDebug(print, "[runPredictionPayouts]", "Tx Delay")
 			time.Sleep(time.Second)
 			rpc.ConfirmTx(tx, "runPredictionPayouts", 36)
 		}
@@ -709,7 +707,6 @@ func runSportsPayouts(print bool) {
 
 								if sent {
 									Service.Last_block = rpc.Wallet.Height
-									serviceDebug(print, "[runSportsPayouts]", "Tx Delay")
 									time.Sleep(time.Second)
 									rpc.ConfirmTx(tx, "runSportsPayouts", 36)
 								}
@@ -1414,10 +1411,6 @@ func sendToPrediction(pre int, scid, destination_expected string, e dero.Entry) 
 
 	Service.Last_block = rpc.Wallet.Height
 
-	if Service.Debug {
-		logger.Println("[sendToPrediction] Tx delay")
-	}
-
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendToPrediction", 36)
 
@@ -1460,10 +1453,6 @@ func sendToSports(n, abv, team, scid, destination_expected string, e dero.Entry)
 
 	Service.Last_block = rpc.Wallet.Height
 
-	if Service.Debug {
-		logger.Println("[sendToSports] Tx delay")
-	}
-
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendToSports", 36)
 
@@ -1477,10 +1466,6 @@ func sendRefund(scid, addr, msg string, e dero.Entry) {
 	waitForBlock()
 	tx := ServiceRefund(e.Amount, e.SourcePort, scid, addr, msg, e.TXID)
 	Service.Last_block = rpc.Wallet.Height
-
-	if Service.Debug {
-		logger.Println("[sendRefund] Tx delay")
-	}
 
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendRefund", 36)
