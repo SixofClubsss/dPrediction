@@ -60,9 +60,11 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	Sports.multi.Hide()
 
 	Sports.buttonA = widget.NewButton("TEAM A", nil)
+	Sports.buttonA.Importance = widget.HighImportance
 	Sports.buttonA.Hide()
 
 	Sports.buttonB = widget.NewButton("TEAM B", nil)
+	Sports.buttonB.Importance = widget.HighImportance
 	Sports.buttonB.Hide()
 
 	sports_multi := container.NewCenter(Sports.multi)
@@ -131,9 +133,11 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	}
 
 	Sports.Contract.unlock = widget.NewButton("Unlock dSports Contracts", nil)
+	Sports.Contract.unlock.Importance = widget.HighImportance
 	Sports.Contract.unlock.Hide()
 
 	Sports.Contract.new = widget.NewButton("New dSports Contract", nil)
+	Sports.Contract.new.Importance = widget.HighImportance
 	Sports.Contract.new.Hide()
 
 	unlock_cont := container.NewVBox(
@@ -143,20 +147,20 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 	Sports.Contract.menu = widget.NewButton("Owner Options", func() {
 		go ownersMenu()
 	})
+	Sports.Contract.menu.Importance = widget.HighImportance
 	Sports.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Sports.Contract.menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewStack(Sports.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, SportsOwned())
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Contracts", layout.NewSpacer()),
+		container.NewTabItem("Contracts", SportsListings(d)),
 		container.NewTabItem("Favorites", SportsFavorites()),
 		container.NewTabItem("Owned", owned_tab),
 		container.NewTabItem("Scores", score_tabs),
 		container.NewTabItem("Payouts", SportsPayouts()))
 
 	tabs.SelectIndex(0)
-	tabs.Selected().Content = SportsListings(tabs)
 
 	tabs.OnSelected = func(ti *container.TabItem) {
 		switch ti.Text {
@@ -167,30 +171,26 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	max := container.NewMax(bundle.Alpha120, tabs)
+	max := container.NewStack(bundle.Alpha120, tabs)
 
 	Sports.buttonA.OnTapped = func() {
 		if len(Sports.Contract.SCID) == 64 {
-			max.Objects[1] = ConfirmAction(3, Sports.buttonA.Text, Sports.buttonB.Text, max.Objects, tabs)
-			max.Objects[1].Refresh()
+			ConfirmAction(3, Sports.buttonA.Text, Sports.buttonB.Text, d)
 		}
 	}
 
 	Sports.buttonB.OnTapped = func() {
 		if len(Sports.Contract.SCID) == 64 {
-			max.Objects[1] = ConfirmAction(4, Sports.buttonA.Text, Sports.buttonB.Text, max.Objects, tabs)
-			max.Objects[1].Refresh()
+			ConfirmAction(4, Sports.buttonA.Text, Sports.buttonB.Text, d)
 		}
 	}
 
 	Sports.Contract.unlock.OnTapped = func() {
-		max.Objects[1] = newSportsConfirm(1, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newSportsConfirm(1, d)
 	}
 
 	Sports.Contract.new.OnTapped = func() {
-		max.Objects[1] = newSportsConfirm(2, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newSportsConfirm(2, d)
 	}
 
 	contract_scroll := container.NewHScroll(SportsContractEntry())
@@ -215,5 +215,5 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 
 	go fetch(d)
 
-	return container.NewMax(S.DApp)
+	return container.NewStack(S.DApp)
 }

@@ -19,7 +19,7 @@ const (
 
 // Place higher prediction to SC
 //   - addr only needed if dService is placing prediction
-func PredictHigher(scid, addr string) {
+func PredictHigher(scid, addr string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -48,17 +48,18 @@ func PredictHigher(scid, addr string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[PredictHigher]", err)
+		rpc.PrintError("[Predictions] Higher Prediction: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Prediction TX:", txid)
-	rpc.AddLog("Prediction TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Higher Prediction TX: %s", txid)
+
+	return txid.TXID
 }
 
 // Place lower prediction to SC
 //   - addr only needed if dService is placing prediction
-func PredictLower(scid, addr string) {
+func PredictLower(scid, addr string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -87,12 +88,13 @@ func PredictLower(scid, addr string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[PredictLower]", err)
+		rpc.PrintError("[Predictions] Lower Prediction: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Prediction TX:", txid)
-	rpc.AddLog("Prediction TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Lower Prediction TX: %s", txid)
+
+	return txid.TXID
 }
 
 // dService prediction place by received tx
@@ -134,7 +136,7 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 	}
 
 	t := []dero.Transfer{t1}
-	fee := rpc.GasEstimate(scid, "[AutoPredict]", args, t, rpc.LowLimitFee)
+	fee := rpc.GasEstimate(scid, "[Predictions]", args, t, rpc.LowLimitFee)
 	params := &dero.Transfer_Params{
 		Transfers: t,
 		SC_ID:     scid,
@@ -144,12 +146,11 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[AutoPredict]", err)
+		rpc.PrintError("[Predictions] Auto Predict: %s", err)
 		return
 	}
 
-	logger.Println("[AutoPredict] Prediction TX:", txid)
-	rpc.AddLog("AutoPredict TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Auto Predict TX: %s", txid)
 
 	return txid.TXID
 }
@@ -186,12 +187,11 @@ func ServiceRefund(amt, src uint64, scid, addr, msg, refund_tx string) (tx strin
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[ServiceRefund]", err)
+		rpc.PrintError("[Predictions] Refund: %s", err)
 		return
 	}
 
-	logger.Println("[ServiceRefund] Refund TX:", txid)
-	rpc.AddLog("Refund TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Refund TX: %s", txid)
 
 	return txid.TXID
 }
@@ -229,7 +229,7 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 	}
 
 	t := []dero.Transfer{t1}
-	fee := rpc.GasEstimate(scid, "[AutoBook]", args, t, rpc.LowLimitFee)
+	fee := rpc.GasEstimate(scid, "[Predictions]", args, t, rpc.LowLimitFee)
 	params := &dero.Transfer_Params{
 		Transfers: t,
 		SC_ID:     scid,
@@ -239,12 +239,11 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[AutoBook]", err)
+		rpc.PrintError("[Predictions] Auto Book: %s", err)
 		return
 	}
 
-	logger.Println("[AutoBook] Book TX:", txid)
-	rpc.AddLog("AutoBook TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Auto Book TX: %s", txid)
 
 	return txid.TXID
 }
@@ -281,7 +280,7 @@ func VarUpdate(scid string, ta, tb, tc, l, hl int) {
 	}
 
 	t := []dero.Transfer{t1}
-	fee := rpc.GasEstimate(scid, "[VarUpdate]", args, t, rpc.LowLimitFee)
+	fee := rpc.GasEstimate(scid, "[Predictions]", args, t, rpc.LowLimitFee)
 	params := &dero.Transfer_Params{
 		Transfers: t,
 		SC_ID:     scid,
@@ -291,12 +290,11 @@ func VarUpdate(scid string, ta, tb, tc, l, hl int) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[VarUpdate]", err)
+		rpc.PrintError("[Predictions] Var Update: %s", err)
 		return
 	}
 
-	logger.Println("[VarUpdate] VarUpdate TX:", txid)
-	rpc.AddLog("VarUpdate TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Var Update TX: %s", txid)
 }
 
 // Owner can add new co-owner to bet SC
@@ -327,12 +325,11 @@ func AddOwner(scid, addr string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[AddSigner]", err)
+		rpc.PrintError("[Predictions] Add Signer: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Add Signer TX:", txid)
-	rpc.AddLog("Add Signer TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Add Signer TX: %s", txid)
 }
 
 // Owner can remove co-owner from bet SC
@@ -363,12 +360,11 @@ func RemoveOwner(scid string, num int) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[RemoveSigner]", err)
+		rpc.PrintError("[Predictions] Remove Signer: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Remove Signer TX:", txid)
-	rpc.AddLog("Remove Signer: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Remove Signer TX: %s", txid)
 }
 
 // User can refund a void dPrediction payout from SC
@@ -399,12 +395,11 @@ func PredictionRefund(scid, tic string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[PredictionRefund]", err)
+		rpc.PrintError("[Predictions] Refund: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Refund TX:", txid)
-	rpc.AddLog("Refund TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Refund TX: %s", txid)
 }
 
 // Book sports team on dSports SC
@@ -412,7 +407,7 @@ func PredictionRefund(scid, tic string) {
 //   - n is the game number
 //   - a is amount to book
 //   - pick is team to book
-func PickTeam(scid, multi, n string, a uint64, pick int) {
+func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -452,12 +447,13 @@ func PickTeam(scid, multi, n string, a uint64, pick int) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[PickTeam]", err)
+		rpc.PrintError("[Sports] Pick: %s", err)
 		return
 	}
 
-	logger.Println("[Sports] Pick TX:", txid)
-	rpc.AddLog("Pick TX: " + txid.TXID)
+	rpc.PrintLog("[Sports] Pick TX: %s", txid)
+
+	return txid.TXID
 }
 
 // User can refund a void dSports payout from SC
@@ -490,12 +486,11 @@ func SportsRefund(scid, tic, n string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[SportsRefund]", err)
+		rpc.PrintError("[Sports] Refund: %s", err)
 		return
 	}
 
-	logger.Println("[Sports] Refund TX:", txid)
-	rpc.AddLog("Refund TX: " + txid.TXID)
+	rpc.PrintLog("[Sports] Refund TX: %s", txid)
 }
 
 // Owner sets a dSports game
@@ -504,7 +499,7 @@ func SportsRefund(scid, tic, n string) {
 //   - dep allows owner to add a initial deposit
 //   - game is name of game, formatted TEAM--TEAM
 //   - feed defines where price api data is sourced from
-func SetSports(end int, amt, dep uint64, scid, league, game, feed string) {
+func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx string) {
 	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
@@ -534,12 +529,13 @@ func SetSports(end int, amt, dep uint64, scid, league, game, feed string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[SetSports]", err)
+		rpc.PrintError("[Sports] Set: %s", err)
 		return
 	}
 
-	logger.Println("[Sports] Set TX:", txid)
-	rpc.AddLog("Set Sports TX: " + txid.TXID)
+	rpc.PrintLog("[Sports] Set TX: %s", txid)
+
+	return txid.TXID
 }
 
 // Owner sets up a dPrediction prediction
@@ -579,12 +575,11 @@ func SetPrediction(end, mark int, amt, dep uint64, scid, predict, feed string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[SetPrediction]", err)
+		rpc.PrintError("[Predictions] Set: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Set TX:", txid)
-	rpc.AddLog("Set Prediction TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Set TX: %s", txid)
 }
 
 // Owner cancel for initiated bet for dSports and dPrediction contracts
@@ -621,17 +616,11 @@ func CancelInitiatedBet(scid string, b int) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[CancelInitiatedBet]", err)
+		rpc.PrintError("%s Cancel: %s", tag, err)
 		return
 	}
 
-	if b == 0 {
-		logger.Println("[Predictions] Cancel TX:", txid)
-		rpc.AddLog("Cancel Prediction TX: " + txid.TXID)
-	} else {
-		logger.Println("[Sports] Cancel TX:", txid)
-		rpc.AddLog("Cancel Sports TX: " + txid.TXID)
-	}
+	rpc.PrintLog("%s Cancel TX: %s", tag, txid)
 }
 
 // Post mark to prediction SC
@@ -662,12 +651,11 @@ func PostPrediction(scid string, price int) (tx string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[PostPrediction]", err)
+		rpc.PrintError("[Predictions] Post: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Post TX:", txid)
-	rpc.AddLog("Post TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Post TX: %s", txid)
 
 	return txid.TXID
 }
@@ -696,12 +684,11 @@ func EndSports(scid, num, team string) (tx string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[EndSports]", err)
+		rpc.PrintError("[Sports] Payout: %s", err)
 		return
 	}
 
-	logger.Println("[Sports] Payout TX:", txid)
-	rpc.AddLog("Sports Payout TX: " + txid.TXID)
+	rpc.PrintLog("[Sports] Payout TX: %s", txid)
 
 	return txid.TXID
 }
@@ -729,12 +716,11 @@ func EndPrediction(scid string, price int) (tx string) {
 	}
 
 	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-		logger.Errorln("[EndPrediction]", err)
+		rpc.PrintError("[Predictions] Payout: %s", err)
 		return
 	}
 
-	logger.Println("[Predictions] Payout TX:", txid)
-	rpc.AddLog("Prediction Payout TX: " + txid.TXID)
+	rpc.PrintLog("[Predictions] Payout TX: %s", txid)
 
 	return txid.TXID
 }
@@ -915,14 +901,14 @@ func UploadBetContract(c bool, pub int) {
 			fee = 12500
 			code = GetPredictCode(pub)
 			if code == "" {
-				logger.Errorln("[UploadBetContract] Could not get SC code")
+				rpc.PrintError("[Predictions] Could not get SC code")
 				return
 			}
 		} else {
 			fee = 14500
 			code = GetSportsCode(pub)
 			if code == "" {
-				logger.Errorln("[UploadBetContract] Could not get SC code")
+				rpc.PrintError("[Sports] Could not get SC code")
 				return
 			}
 		}
@@ -940,16 +926,18 @@ func UploadBetContract(c bool, pub int) {
 		}
 
 		if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
-			logger.Errorln("[UploadBetContract]", err)
+			if c {
+				rpc.PrintError("[Predictions] Upload: %s", err)
+			} else {
+				rpc.PrintError("[Sports] Upload: %s", err)
+			}
 			return
 		}
 
 		if c {
-			logger.Println("[Predictions] Upload TX:", txid)
-			rpc.AddLog("Prediction Upload TX:" + txid.TXID)
+			rpc.PrintLog("[Predictions] Upload TX: %s", txid)
 		} else {
-			logger.Println("[Sports] Upload TX:", txid)
-			rpc.AddLog("Sports Upload TX:" + txid.TXID)
+			rpc.PrintLog("[Sports] Upload TX: %s", txid)
 		}
 	}
 }

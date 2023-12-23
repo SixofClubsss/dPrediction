@@ -11,6 +11,7 @@ import (
 	"github.com/SixofClubsss/dPrediction/prediction"
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
+	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
@@ -19,6 +20,7 @@ import (
 
 // Run dReamsService process from dReams prediction package
 
+var gnomon = gnomes.NewGnomes()
 var enable_transfers bool
 var logger = structures.Logger.WithFields(logrus.Fields{})
 var command_line string = `dService
@@ -38,11 +40,14 @@ Options:
   --fastsync=<true>	         Gnomon option,  true/false value to define loading at chain height on start up.
   --num-parallel-blocks=<5>      Gnomon option,  defines the number of parallel blocks to index.`
 
-// Set opts when starting dService
-func flags() (version string) {
-	version = rpc.DREAMSv
-	arguments, err := docopt.ParseArgs(command_line, nil, version)
+func main() {
+	n := runtime.NumCPU()
+	runtime.GOMAXPROCS(n)
 
+	v := prediction.Version().String()
+
+	// Flags when starting dService
+	arguments, err := docopt.ParseArgs(command_line, nil, v)
 	if err != nil {
 		logger.Fatalf("Error while parsing arguments: %s\n", err)
 	}
@@ -102,7 +107,7 @@ func flags() (version string) {
 	}
 
 	debug := true
-	if arguments["--debug-"] != nil {
+	if arguments["--debug"] != nil {
 		if arguments["--debug"].(string) == "false" {
 			debug = false
 		}
@@ -111,53 +116,26 @@ func flags() (version string) {
 	arguments["--debug"] = false
 	indexer.InitLog(arguments, os.Stderr)
 
-	prediction.Service.Start()
-	menu.Gnomes.Trim = true
-	enable_transfers = transfers
-	prediction.Service.Debug = debug
-	menu.Gnomes.Fast = fastsync
-	menu.Gnomes.Para = parallel
-	menu.Gnomes.Import = true
-
-	return
-}
-
-func init() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println()
-		menu.Gnomes.Stop("dService")
-		rpc.Wallet.Connected(false)
-		prediction.Service.Stop()
-		for prediction.Service.IsProcessing() {
-			logger.Println("[dService] Waiting for service to close")
-			time.Sleep(3 * time.Second)
-		}
-		logger.Println("[dService] Closing")
-		os.Exit(0)
-	}()
-}
-
-func main() {
-	n := runtime.NumCPU()
-	runtime.GOMAXPROCS(n)
-
-	v := flags()
-	logger.Println("[dService]", v, runtime.GOOS, runtime.GOARCH)
+	logger.Printf("[dService] %s  OS: %s  ARCH: %s  DREAMS: %s  GNOMON: %s\n", v, runtime.GOOS, runtime.GOARCH, rpc.Version(), structures.Version.String())
 
 	// Check for daemon connection
 	rpc.Ping()
-	if !rpc.Daemon.Connect {
+	if !rpc.Daemon.IsConnected() {
 		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Rpc)
 	}
 
 	// Check for wallet connection
 	rpc.GetAddress("dService")
-	if !rpc.Wallet.Connect {
-		os.Exit(1)
+	if !rpc.Wallet.IsConnected() {
+		logger.Fatalf("[dService] Wallet %s not connected\n", rpc.Wallet.Rpc)
 	}
+
+	prediction.Service.Start()
+	enable_transfers = transfers
+	prediction.Service.Debug = debug
+	gnomon.SetFastsync(fastsync, true, 10000)
+	gnomon.SetParallel(parallel)
+	prediction.Imported = true
 
 	// Start dService from last payload format height at minimum
 	height := prediction.PAYLOAD_FORMAT
@@ -174,30 +152,45 @@ func main() {
 		filter = append(filter, sports)
 	}
 
-	// Set up SCID rating map
-	menu.Control.Contract_rating = make(map[string]uint64)
+	// Handle ctrl+c close
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Println()
+		gnomon.Stop("dService")
+		rpc.Wallet.Connected(false)
+		prediction.Service.Stop()
+		menu.SetClose(true)
+		for prediction.Service.IsProcessing() {
+			logger.Println("[dService] Waiting for service to close")
+			time.Sleep(3 * time.Second)
+		}
+		logger.Println("[dService] Closing")
+		os.Exit(0)
+	}()
 
 	// Start Gnomon with search filters
-	go menu.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
+	go gnomes.StartGnomon("dService", "boltdb", filter, 0, 0, nil)
 
 	// Routine for checking daemon, wallet connection and Gnomon sync
 	go func() {
-		for !menu.Gnomes.IsInitialized() {
+		for !menu.IsClosing() && !gnomon.IsInitialized() {
 			time.Sleep(time.Second)
 		}
 
 		logger.Println("[dService] Starting when Gnomon is synced")
-		height = uint64(menu.Gnomes.Indexer.ChainHeight)
-		for menu.Gnomes.IsRunning() && rpc.IsReady() {
+		height = uint64(gnomon.GetChainHeight())
+		for !menu.IsClosing() && gnomon.IsRunning() && rpc.IsReady() {
 			rpc.Ping()
 			rpc.EchoWallet("dService")
-			menu.Gnomes.IndexContains()
-			if menu.Gnomes.Indexer.LastIndexedHeight >= menu.Gnomes.Indexer.ChainHeight-3 && menu.Gnomes.HasIndex(9) {
-				menu.Gnomes.Synced(true)
+			gnomon.IndexContains()
+			if gnomon.GetLastHeight() >= gnomon.GetChainHeight()-3 && gnomon.HasIndex(9) {
+				gnomon.Synced(true)
 			} else {
-				menu.Gnomes.Synced(false)
-				if !menu.Gnomes.Start && menu.Gnomes.IsInitialized() {
-					diff := menu.Gnomes.Indexer.ChainHeight - menu.Gnomes.Indexer.LastIndexedHeight
+				gnomon.Synced(false)
+				if !gnomon.IsStarting() && gnomon.IsInitialized() {
+					diff := gnomon.GetChainHeight() - gnomon.GetLastHeight()
 					if diff > 3 && prediction.Service.Debug {
 						logger.Printf("[dService] Gnomon has %d blocks to go\n", diff)
 					}
@@ -208,7 +201,7 @@ func main() {
 	}()
 
 	// Wait for Gnomon to sync
-	for !menu.Gnomes.IsSynced() && !menu.Gnomes.HasIndex(100) {
+	for !menu.IsClosing() && (!gnomon.IsSynced() || gnomon.IsStatus("fastsyncing")) {
 		time.Sleep(time.Second)
 	}
 

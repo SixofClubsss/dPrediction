@@ -30,19 +30,23 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 
 	check_box := container.NewVBox(PredictConnectedBox())
 
-	Predict.higher = widget.NewButton("Higher", nil)
+	Predict.higher = widget.NewButtonWithIcon("Higher", dreams.FyneIcon("arrowUp"), nil)
+	Predict.higher.Importance = widget.HighImportance
 	Predict.higher.Hide()
 
-	Predict.lower = widget.NewButton("Lower", nil)
+	Predict.lower = widget.NewButtonWithIcon("Lower", dreams.FyneIcon("arrowDown"), nil)
+	Predict.lower.Importance = widget.HighImportance
 	Predict.lower.Hide()
 
 	Predict.Container = container.NewVBox(Predict.higher, Predict.lower)
 	Predict.Container.Hide()
 
 	Predict.Contract.unlock = widget.NewButton("Unlock dPrediction Contract", nil)
+	Predict.Contract.unlock.Importance = widget.HighImportance
 	Predict.Contract.unlock.Hide()
 
 	Predict.Contract.new = widget.NewButton("New dPrediction Contract", nil)
+	Predict.Contract.new.Importance = widget.HighImportance
 	Predict.Contract.new.Hide()
 
 	unlock_cont := container.NewVBox(Predict.Contract.unlock, Predict.Contract.new)
@@ -50,18 +54,18 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 	Predict.Contract.menu = widget.NewButton("Owner Options", func() {
 		go ownersMenu()
 	})
+	Predict.Contract.menu.Importance = widget.HighImportance
 	Predict.Contract.menu.Hide()
 
-	owner_buttons := container.NewAdaptiveGrid(2, container.NewMax(Predict.Contract.menu), unlock_cont)
+	owner_buttons := container.NewAdaptiveGrid(2, container.NewStack(Predict.Contract.menu), unlock_cont)
 	owned_tab := container.NewBorder(nil, owner_buttons, nil, nil, PredictionOwned())
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Contracts", layout.NewSpacer()),
+		container.NewTabItem("Contracts", PredictionListings(d)),
 		container.NewTabItem("Favorites", PredictionFavorites()),
 		container.NewTabItem("Owned", owned_tab))
 
 	tabs.SelectIndex(0)
-	tabs.Selected().Content = PredictionListings(tabs)
 
 	tabs.OnSelected = func(ti *container.TabItem) {
 		switch ti.Text {
@@ -71,30 +75,26 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	max := container.NewMax(bundle.Alpha120, tabs)
+	max := container.NewStack(bundle.Alpha120, tabs)
 
 	Predict.higher.OnTapped = func() {
 		if len(Predict.Contract.SCID) == 64 {
-			max.Objects[1] = ConfirmAction(2, "", "", max.Objects, tabs)
-			max.Objects[1].Refresh()
+			ConfirmAction(2, "", "", d)
 		}
 	}
 
 	Predict.lower.OnTapped = func() {
 		if len(Predict.Contract.SCID) == 64 {
-			max.Objects[1] = ConfirmAction(1, "", "", max.Objects, tabs)
-			max.Objects[1].Refresh()
+			ConfirmAction(1, "", "", d)
 		}
 	}
 
 	Predict.Contract.unlock.OnTapped = func() {
-		max.Objects[1] = newPredictConfirm(1, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newPredictConfirm(1, d)
 	}
 
 	Predict.Contract.new.OnTapped = func() {
-		max.Objects[1] = newPredictConfirm(2, max.Objects, tabs)
-		max.Objects[1].Refresh()
+		newPredictConfirm(2, d)
 	}
 
 	contract_scroll := container.NewHScroll(PredictionContractEntry())
@@ -117,5 +117,5 @@ func LayoutPredictItems(d *dreams.AppObject) *fyne.Container {
 		nil,
 		predict_box)
 
-	return container.NewMax(P.DApp)
+	return container.NewStack(P.DApp)
 }

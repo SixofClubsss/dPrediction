@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/menu"
@@ -122,7 +123,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.amt = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.predict.amt.SetPlaceHolder("Minimum Amount:")
 	owner.predict.amt.AllowFloat = true
-	owner.predict.amt.Wrapping = fyne.TextTruncate
+	owner.predict.amt.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.predict.amt.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	feeds := []string{"dReams Client"}
@@ -132,7 +133,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.predict.deposit.SetPlaceHolder("Deposit Amount:")
 	owner.predict.deposit.AllowFloat = true
-	owner.predict.deposit.Wrapping = fyne.TextTruncate
+	owner.predict.deposit.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.predict.deposit.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	reset := window.Content().(*fyne.Container).Objects[2]
@@ -140,7 +141,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.set = widget.NewButton("Set Prediction", func() {
 		if owner.predict.deposit.Validate() == nil && owner.predict.amt.Validate() == nil && owner.predict.end.Validate() == nil && owner.predict.mark.Validate() == nil {
 			if len(Predict.Contract.SCID) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(2, 100, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(2, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
 				return
 			}
@@ -150,7 +151,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	})
 
 	owner.predict.cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(8, 0, window, reset))
+		window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(8, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -164,21 +165,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(6, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(4, a, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(4, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -195,21 +196,21 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 			switch onChainPrediction(prediction) {
 			case 1:
 				a = rpc.GetDifficulty(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			case 2:
 				a = rpc.GetBlockTime(Predict.feed)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			case 3:
 				d := rpc.DaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(7, a, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			default:
 
 			}
 
 		} else {
 			a, _ = menu.GetPrice(prediction, "Prediction")
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(5, a, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(5, a, window, reset))
 		}
 
 		window.Content().(*fyne.Container).Objects[2].Refresh()
@@ -300,7 +301,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.amt = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.sports.amt.SetPlaceHolder("Minimum Amount:")
 	owner.sports.amt.AllowFloat = true
-	owner.sports.amt.Wrapping = fyne.TextTruncate
+	owner.sports.amt.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.sports.amt.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	feeds := []string{"dReams Client"}
@@ -310,7 +311,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.deposit = dwidget.NewDeroEntry("", 0.1, 1)
 	owner.sports.deposit.SetPlaceHolder("Deposit Amount:")
 	owner.sports.deposit.AllowFloat = true
-	owner.sports.deposit.Wrapping = fyne.TextTruncate
+	owner.sports.deposit.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	owner.sports.deposit.Validator = validation.NewRegexp(`^\d{1,}\.\d{1,5}$|^[^0]\d{0,}$`, "Int or float required")
 
 	reset := window.Content().(*fyne.Container).Objects[2]
@@ -318,7 +319,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.set = widget.NewButton("Set Game", func() {
 		if owner.sports.deposit.Validate() == nil && owner.sports.amt.Validate() == nil && owner.sports.end.Validate() == nil {
 			if len(Sports.Contract.SCID) == 64 {
-				window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(1, 100, window, reset))
+				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(1, 100, window, reset))
 				window.Content().(*fyne.Container).Objects[2].Refresh()
 				return
 			}
@@ -328,7 +329,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	})
 
 	owner.sports.cancel = widget.NewButton("Cancel", func() {
-		window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(9, 0, window, reset))
+		window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(9, 0, window, reset))
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
@@ -339,7 +340,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 
 	sports_confirm := widget.NewButton("Sports Payout", func() {
 		if len(Sports.Contract.SCID) == 64 {
-			window.Content().(*fyne.Container).Objects[2] = container.NewMax(ownerConfirmAction(3, 100, window, reset))
+			window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(3, 100, window, reset))
 			window.Content().(*fyne.Container).Objects[2].Refresh()
 			return
 		}
@@ -424,7 +425,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 	entry := dwidget.NewDeroEntry("", 1, 0)
 	entry.SetPlaceHolder("Block #:")
 	entry.AllowFloat = false
-	entry.Wrapping = fyne.TextTruncate
+	entry.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	entry.Validator = validation.NewRegexp(`^[^0]\d{0,}$`, "Int required")
 
 	var start uint64
@@ -558,28 +559,28 @@ func updateOpts() fyne.CanvasObject {
 	a := dwidget.NewDeroEntry("", 1, 0)
 	a.SetPlaceHolder("Time A:")
 	a.AllowFloat = false
-	a.Wrapping = fyne.TextTruncate
+	a.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	a.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	b_label := widget.NewLabel("Time B         ")
 	b := dwidget.NewDeroEntry("", 1, 0)
 	b.SetPlaceHolder("Time B:")
 	b.AllowFloat = false
-	b.Wrapping = fyne.TextTruncate
+	b.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	b.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	c_label := widget.NewLabel("Time C         ")
 	c := dwidget.NewDeroEntry("", 1, 0)
 	c.SetPlaceHolder("Time C:")
 	c.AllowFloat = false
-	c.Wrapping = fyne.TextTruncate
+	c.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	c.Validator = validation.NewRegexp(`[^0]\d{1,}$`, "Int required")
 
 	hl_label := widget.NewLabel("Max Games")
 	hl := dwidget.NewDeroEntry("", 1, 0)
 	hl.SetPlaceHolder("Max Games:")
 	hl.AllowFloat = false
-	hl.Wrapping = fyne.TextTruncate
+	hl.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 	hl.Validator = validation.NewRegexp(`^[^0]\d{0,}$`, "Int required")
 
 	hl_box := container.NewBorder(nil, nil, hl_label, nil, hl)
@@ -623,7 +624,7 @@ func updateOpts() fyne.CanvasObject {
 	owner_num.SetPlaceHolder("Owner #:")
 	owner_num.AllowFloat = false
 	owner_num.Validator = validation.NewRegexp(`^[^0]\d{0,0}$`, "Int required")
-	owner_num.Wrapping = fyne.TextTruncate
+	owner_num.Wrapping = fyne.TextWrap(fyne.TextTruncateClip)
 
 	remove_owner := widget.NewButton("Remove Owner", func() {
 		switch sc.Selected {
@@ -670,15 +671,11 @@ func updateOpts() fyne.CanvasObject {
 // dSports and dPrediction action confirmation
 //   - i defines the action to be confirmed
 //   - teamA, teamB needed only for dSports confirmations
-//   - Pass main window obj and tabs to reset to
-func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var confirm_display = widget.NewLabel("")
-	confirm_display.Wrapping = fyne.TextWrapWord
-	confirm_display.Alignment = fyne.TextAlignCenter
-
+func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
+	var text string
 	p_scid := Predict.Contract.SCID
-
 	s_scid := Sports.Contract.SCID
+	game := Sports.gameSelect.Selected
 	split := strings.Split(Sports.gameSelect.Selected, "   ")
 	multi := Sports.multi.Selected
 
@@ -686,13 +683,12 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 	case 1:
 		float := float64(Predict.amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero", p_scid, amt))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nLower prediction for %.5f Dero", p_scid, amt)
 	case 2:
 		float := float64(Predict.amount)
 		amt := float / 100000
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nHigher prediction for %.5f Dero", p_scid, amt)
 	case 3:
-		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
 		var x string
 
@@ -705,9 +701,8 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamA, x)
 	case 4:
-		game := Sports.gameSelect.Selected
 		val := float64(GetSportsAmt(s_scid, split[0]))
 		var x string
 
@@ -720,49 +715,40 @@ func ConfirmAction(i int, teamA, teamB string, obj []fyne.CanvasObject, tabs *co
 			x = fmt.Sprintf("%.5f", val/100000)
 		}
 
-		confirm_display.SetText(fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x))
+		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x)
 	default:
 		logger.Errorln("[dService] No Confirm Input")
-		confirm_display.SetText("Error")
+		text = "Error"
 	}
 
-	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
-	})
+	done := make(chan struct{})
+	confirm := dialog.NewConfirm("Bet", text, func(b bool) {
+		if b {
+			switch i {
+			case 1:
+				tx := PredictLower(p_scid, "")
+				go menu.ShowTxDialog("Predict Lower", "Predictions", tx, 3*time.Second, d.Window)
 
-	confirm_button := widget.NewButton("Confirm", func() {
-		switch i {
-		case 1:
-			PredictLower(p_scid, "")
-		case 2:
-			PredictHigher(p_scid, "")
-		case 3:
-			PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
-		case 4:
-			PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
-		default:
+			case 2:
+				tx := PredictHigher(p_scid, "")
+				go menu.ShowTxDialog("Predict Higher", "Predictions", tx, 3*time.Second, d.Window)
 
+			case 3:
+				tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 0)
+				go menu.ShowTxDialog(game, "Sports", tx, 3*time.Second, d.Window)
+
+			case 4:
+				tx := PickTeam(s_scid, multi, split[0], GetSportsAmt(s_scid, split[0]), 1)
+				go menu.ShowTxDialog(game, "Sports", tx, 3*time.Second, d.Window)
+
+			default:
+
+			}
 		}
+		done <- struct{}{}
+	}, d.Window)
 
-		obj[1] = tabs
-		obj[1].Refresh()
-	})
-
-	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
-	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
-	content := container.NewBorder(nil, options, nil, nil, display)
-
-	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
-		}
-
-		obj[1] = tabs
-		obj[1].Refresh()
-	}()
-
-	return container.NewMax(bundle.Alpha120, content)
+	go menu.ShowConfirmDialog(done, confirm)
 }
 
 // dReam Service start confirmation
@@ -790,23 +776,24 @@ func serviceRunConfirm(start uint64, payout, transfers bool, window fyne.Window,
 	confirm_display.Wrapping = fyne.TextWrapWord
 	confirm_display.Alignment = fyne.TextAlignCenter
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		Service.Stop()
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
-	confirm_button := widget.NewButton("Confirm", func() {
+	confirm_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		go RunService(start, payout, transfers)
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
+	confirm_button.Importance = widget.HighImportance
 
 	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
 	content := container.NewBorder(nil, options, nil, nil, display)
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
 
 // Convert unix time to human readable time
@@ -832,11 +819,11 @@ func humanTimeConvert() fyne.CanvasObject {
 
 // Check dPrediction SCID for live status
 func CheckPredictionStatus() {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
-		_, ends := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "p_end_at")
-		_, time_a := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "time_a")
-		_, time_c := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "time_c")
-		_, mark := menu.Gnomes.GetSCIDValuesByKey(Predict.Contract.SCID, "mark")
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
+		_, ends := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "p_end_at")
+		_, time_a := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "time_a")
+		_, time_c := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "time_c")
+		_, mark := gnomon.GetSCIDValuesByKey(Predict.Contract.SCID, "mark")
 		if ends != nil && time_a != nil && time_c != nil {
 			now := uint64(time.Now().Unix())
 			if now >= ends[0] && now <= ends[0]+time_a[0] && mark == nil {
@@ -861,21 +848,21 @@ func CheckPredictionStatus() {
 
 // Check dSports SCID for active games
 func GetActiveGames() {
-	if rpc.Daemon.IsConnected() && menu.Gnomes.IsReady() {
+	if rpc.Daemon.IsConnected() && gnomon.IsReady() {
 		options := []string{}
-		contracts := menu.Gnomes.GetAllOwnersAndSCIDs()
+		contracts := gnomon.GetAllOwnersAndSCIDs()
 		for sc := range contracts {
-			owner, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "owner")
+			owner, _ := gnomon.GetSCIDValuesByKey(sc, "owner")
 			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(sc) {
 				if len(sc) == 64 {
-					_, init := menu.Gnomes.GetSCIDValuesByKey(sc, "s_init")
+					_, init := gnomon.GetSCIDValuesByKey(sc, "s_init")
 					if init != nil {
 						for ic := uint64(1); ic <= init[0]; ic++ {
 							num := strconv.Itoa(int(ic))
-							if game, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
-								league, _ := menu.Gnomes.GetSCIDValuesByKey(sc, "league_"+num)
-								_, end := menu.Gnomes.GetSCIDValuesByKey(sc, "s_end_at_"+num)
-								_, add := menu.Gnomes.GetSCIDValuesByKey(sc, "time_a")
+							if game, _ := gnomon.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
+								league, _ := gnomon.GetSCIDValuesByKey(sc, "league_"+num)
+								_, end := gnomon.GetSCIDValuesByKey(sc, "s_end_at_"+num)
+								_, add := gnomon.GetSCIDValuesByKey(sc, "time_a")
 								if league != nil && end != nil && add != nil {
 									if end[0]+add[0] < uint64(time.Now().Unix()) {
 										options = append(options, num+"   "+league[0]+"   "+game[0])
@@ -1016,8 +1003,7 @@ func ownersMenu() {
 	go func() {
 		time.Sleep(200 * time.Millisecond)
 		ow.SetContent(
-			container.New(
-				layout.NewMaxLayout(),
+			container.NewStack(
 				menu.BackgroundRast("ownersMenu"),
 				alpha,
 				border))
@@ -1031,7 +1017,7 @@ func ownersMenu() {
 
 		time.Sleep(time.Second)
 		markets := []string{}
-		if stored, ok := rpc.FindStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Rpc).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &markets); err == nil {
 					owner.predict.name.SetOptions(markets)
@@ -1040,7 +1026,7 @@ func ownersMenu() {
 		}
 
 		leagues := []string{}
-		if stored, ok := rpc.FindStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Rpc).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &leagues); err == nil {
 					owner.sports.league.SetOptions(leagues)
@@ -1110,11 +1096,20 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	var win, team, a_score, b_score, payout_str, err_string string
 	if i == 3 {
 		if len(n_split) > 1 {
+			end_diff := uint64(3)
+			var game_date string
+			if gnomon.IsReady() {
+				_, game_end := gnomon.GetSCIDValuesByKey(s_scid, "s_end_at_"+n_split[0])
+				if game_end != nil {
+					end_diff = (uint64(time.Now().Unix()) - game_end[0]) / 60 / 60 / 24
+					game_date = time.Unix(int64(game_end[0]), 0).UTC().Format("2006-01-02")
+				}
+			}
 			if n_split[1] == "Bellator" || n_split[1] == "UFC" {
-				win, team = GetMmaWinner(n_split[2], n_split[1])
+				win, team = GetMmaWinner(n_split[2], n_split[1], game_date, int(end_diff))
 				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nFight: %s\n\nWinner: %s", s_scid, owner.sports.payout.Text, team)
 			} else {
-				win, team, a_score, b_score = GetWinner(n_split[2], n_split[1])
+				win, team, a_score, b_score = GetWinner(n_split[2], n_split[1], game_date, int(end_diff))
 				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, owner.sports.payout.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
 			}
 		} else {
@@ -1197,12 +1192,12 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		confirm_display.SetText("Error\n\n" + err_string)
 	}
 
-	cancel_button := widget.NewButton("Cancel", func() {
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
 
-	confirm_button := widget.NewButton("Confirm", func() {
+	confirm_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		owner.sports.payout.SetText("")
 		switch i {
 		case 1:
@@ -1250,28 +1245,30 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 		window.Content().(*fyne.Container).Objects[2] = reset
 		window.Content().(*fyne.Container).Objects[2].Refresh()
 	})
+	confirm_button.Importance = widget.HighImportance
 
 	display := container.NewVBox(layout.NewSpacer(), confirm_display, layout.NewSpacer())
 	options := container.NewAdaptiveGrid(2, confirm_button, cancel_button)
 	content := container.NewBorder(nil, options, nil, nil, display)
 
-	return container.NewMax(content)
+	return container.NewStack(content)
 }
 
 // Confirmation for dPrediction contract installs
-func newPredictConfirm(c int, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var text string
+func newPredictConfirm(c int, d *dreams.AppObject) {
+	var text, title string
 	gas_fee := 0.125
 	unlock_fee := float64(rpc.UnlockFee) / 100000
 	switch c {
 	case 1:
+		title = "Unlock dPredictions & dSports"
 		text = `You are about to unlock and install your first dPrediction contract 
 		
 To help support the project, there is a ` + fmt.Sprintf("%.5f", unlock_fee) + ` DERO donation attached to preform this action
 
 Unlocking dPrediction or dSports gives you unlimited access to bet contract uploads and all base level owner features
 
-Total transaction will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO (0.12500 gas fee for contract install)
+Including gas fee, transaction total will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO
 
 
 Select a public or private contract
@@ -1280,6 +1277,7 @@ Public will show up in indexed list of contracts
 
 Private will not show up in the list`
 	case 2:
+		title = "New dPredictions"
 		text = `You are about to install a new dPrediction contract
 
 Gas fee to install contract is 0.12500 DERO
@@ -1298,15 +1296,15 @@ Private will not show up in the list`
 
 	var choice *widget.Select
 
-	pre_button := widget.NewButton("Install", func() {
+	done := make(chan struct{})
+	pre_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(true, choice.SelectedIndex())
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		done <- struct{}{}
 	})
-
+	pre_button.Importance = widget.HighImportance
 	pre_button.Hide()
 
 	options := []string{"Public", "Private"}
@@ -1318,45 +1316,38 @@ Private will not show up in the list`
 		}
 	})
 
-	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
+		done <- struct{}{}
 	})
 
 	left := container.NewVBox(pre_button)
 	right := container.NewVBox(cancel_button)
 	buttons := container.NewAdaptiveGrid(3, left, container.NewVBox(layout.NewSpacer()), right)
 	actions := container.NewVBox(choice, buttons)
-	info_box := container.NewVBox(layout.NewSpacer(), label, layout.NewSpacer())
 
-	content := container.NewBorder(nil, actions, nil, nil, info_box)
+	spacer := canvas.NewRectangle(color.Transparent)
+	spacer.SetMinSize(fyne.NewSize(420, 100))
 
-	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
-		}
-
-		obj[1] = tabs
-		obj[1].Refresh()
-	}()
-
-	return container.NewMax(content)
+	confirm := dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm.SetButtons([]fyne.CanvasObject{actions})
+	go menu.ShowConfirmDialog(done, confirm)
 }
 
 // Confirmation for dSports contract installs
-func newSportsConfirm(c int, obj []fyne.CanvasObject, tabs *container.AppTabs) fyne.CanvasObject {
-	var text string
+func newSportsConfirm(c int, d *dreams.AppObject) {
+	var text, title string
 	gas_fee := 0.14
 	unlock_fee := float64(rpc.UnlockFee) / 100000
 	switch c {
 	case 1:
+		title = "Unlock dPredictions & dSports"
 		text = `You are about to unlock and install your first dSports contract
 		
 To help support the project, there is a ` + fmt.Sprintf("%.5f", unlock_fee) + ` DERO donation attached to preform this action
 
 Unlocking dPrediction or dSports gives you unlimited access to bet contract uploads and all base level owner features
 
-Total transaction will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO (0.14000 gas fee for contract install)
+Including gas fee, transaction total will be ` + fmt.Sprintf("%0.5f", unlock_fee+gas_fee) + ` DERO
 
 
 Select a public or private contract
@@ -1365,6 +1356,7 @@ Public will show up in indexed list of contracts
 
 Private will not show up in the list`
 	case 2:
+		title = "New dSports"
 		text = `You are about to install a new dSports contract
 
 Gas fee to install contract is 0.14000 DERO
@@ -1383,15 +1375,15 @@ Private will not show up in the list`
 
 	var choice *widget.Select
 
-	sports_button := widget.NewButton("Install", func() {
+	done := make(chan struct{})
+	sports_button := widget.NewButtonWithIcon("Confirm", dreams.FyneIcon("confirm"), func() {
 		if choice.SelectedIndex() < 2 && choice.SelectedIndex() >= 0 {
 			UploadBetContract(false, choice.SelectedIndex())
 		}
 
-		obj[1] = tabs
-		obj[1].Refresh()
+		done <- struct{}{}
 	})
-
+	sports_button.Importance = widget.HighImportance
 	sports_button.Hide()
 
 	options := []string{"Public", "Private"}
@@ -1403,27 +1395,19 @@ Private will not show up in the list`
 		}
 	})
 
-	cancel_button := widget.NewButton("Cancel", func() {
-		obj[1] = tabs
-		obj[1].Refresh()
+	cancel_button := widget.NewButtonWithIcon("Cancel", dreams.FyneIcon("cancel"), func() {
+		done <- struct{}{}
 	})
 
 	left := container.NewVBox(sports_button)
 	right := container.NewVBox(cancel_button)
 	buttons := container.NewAdaptiveGrid(3, left, container.NewVBox(layout.NewSpacer()), right)
 	actions := container.NewVBox(choice, buttons)
-	info_box := container.NewVBox(layout.NewSpacer(), label, layout.NewSpacer())
 
-	content := container.NewBorder(nil, actions, nil, nil, info_box)
+	spacer := canvas.NewRectangle(color.Transparent)
+	spacer.SetMinSize(fyne.NewSize(420, 100))
 
-	go func() {
-		for rpc.IsReady() {
-			time.Sleep(time.Second)
-		}
-
-		obj[1] = tabs
-		obj[1].Refresh()
-	}()
-
-	return container.NewMax(content)
+	confirm := dialog.NewCustom(title, "", container.NewStack(spacer, label), d.Window)
+	confirm.SetButtons([]fyne.CanvasObject{actions})
+	go menu.ShowConfirmDialog(done, confirm)
 }

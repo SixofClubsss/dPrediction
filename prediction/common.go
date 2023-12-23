@@ -1,11 +1,17 @@
 package prediction
 
 import (
+	"image/color"
 	"strconv"
 	"time"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 	"github.com/civilware/Gnomon/structures"
 	dreams "github.com/dReam-dApps/dReams"
+	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/sirupsen/logrus"
@@ -82,8 +88,29 @@ func DreamsMenuIntro() (entries map[string][]string) {
 	return
 }
 
-// Do this when first connected
-func OnConnected() {
+// Splash screen for when both contract lists syncing
+func syncScreen() {
+	text := canvas.NewText("Syncing...", color.White)
+	text.Alignment = fyne.TextAlignCenter
+	text.TextSize = 21
+
+	img := canvas.NewImageFromResource(resourceDServiceCirclePng)
+	img.SetMinSize(fyne.NewSize(150, 150))
+
+	screen := container.NewStack(container.NewCenter(img, text), widget.NewProgressBarInfinite())
+
+	rSports := S.DApp.Objects[0]
+	rPredict := P.DApp.Objects[0]
+	S.DApp.Objects[0] = screen
+	P.DApp.Objects[0] = screen
+	contracts := gnomon.IndexContains()
+	CheckBetContractOwners(contracts)
+	PopulateSports(contracts)
+	PopulatePredictions(contracts)
+	owner.synced = true
+	S.DApp.Objects[0] = rSports
+	P.DApp.Objects[0] = rPredict
+
 	Predict.Contract.entry.CursorColumn = 1
 	Predict.Contract.entry.Refresh()
 	Sports.Contract.entry.CursorColumn = 1
@@ -107,13 +134,9 @@ func fetch(d *dreams.AppObject) {
 				continue
 			}
 
-			if !owner.synced && menu.GnomonScan(d.IsConfiguring()) {
+			if !owner.synced && gnomes.Scan(d.IsConfiguring()) {
 				logger.Println("[dPrediction] Syncing")
-				contracts := menu.Gnomes.IndexContains()
-				go CheckBetContractOwners(contracts)
-				go PopulateSports(contracts)
-				go PopulatePredictions(contracts)
-				owner.synced = true
+				syncScreen()
 			}
 
 			// dSports
@@ -215,9 +238,9 @@ func setBetOwner(owner string) {
 // Scan all bet contracts to verify if owner
 //   - Pass contracts from db store, can be nil arg
 func CheckBetContractOwners(contracts map[string]string) {
-	if menu.Gnomes.IsReady() {
+	if gnomon.IsReady() {
 		if contracts == nil {
-			contracts = menu.Gnomes.GetAllOwnersAndSCIDs()
+			contracts = gnomon.GetAllOwnersAndSCIDs()
 		}
 
 		for sc := range contracts {
@@ -233,10 +256,10 @@ func CheckBetContractOwners(contracts map[string]string) {
 // Verify if wallet is owner on bet contract
 //   - Passed t defines sports or prediction contract
 func verifyBetContractOwner(scid, t string) {
-	if menu.Gnomes.IsReady() {
-		if dev, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "dev"); dev != nil {
-			owner, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "owner")
-			_, init := menu.Gnomes.GetSCIDValuesByKey(scid, t+"_init")
+	if gnomon.IsReady() {
+		if dev, _ := gnomon.GetSCIDValuesByKey(scid, "dev"); dev != nil {
+			owner, _ := gnomon.GetSCIDValuesByKey(scid, "owner")
+			_, init := gnomon.GetSCIDValuesByKey(scid, t+"_init")
 
 			if owner != nil && init != nil {
 				if dev[0] == rpc.DevAddress && !Predict.owner {
@@ -249,13 +272,13 @@ func verifyBetContractOwner(scid, t string) {
 
 // Verify if wallet is a co owner on bet contract
 func VerifyBetSigner(scid string) bool {
-	if menu.Gnomes.IsReady() {
+	if gnomon.IsReady() {
 		for i := 2; i < 10; i++ {
-			if !menu.Gnomes.IsRunning() {
+			if !gnomon.IsRunning() {
 				break
 			}
 
-			signer_addr, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "co_signer"+strconv.Itoa(i))
+			signer_addr, _ := gnomon.GetSCIDValuesByKey(scid, "co_signer"+strconv.Itoa(i))
 			if signer_addr != nil {
 				if signer_addr[0] == rpc.Wallet.Address {
 					return true
@@ -271,39 +294,36 @@ func VerifyBetSigner(scid string) bool {
 //   - Passed t defines sports or prediction contract
 //   - Adding constructed header string to list, owned []string
 func checkBetContract(scid, t string, list, owned []string) ([]string, []string) {
-	if menu.Gnomes.IsReady() {
-		if dev, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "dev"); dev != nil {
-			owner, _ := menu.Gnomes.GetSCIDValuesByKey(scid, "owner")
-			_, init := menu.Gnomes.GetSCIDValuesByKey(scid, t+"_init")
+	if gnomon.IsReady() {
+		if dev, _ := gnomon.GetSCIDValuesByKey(scid, "dev"); dev != nil {
+			owner, _ := gnomon.GetSCIDValuesByKey(scid, "owner")
+			_, init := gnomon.GetSCIDValuesByKey(scid, t+"_init")
 
 			if owner != nil && init != nil {
 				if dev[0] == rpc.DevAddress {
-					headers := menu.GetSCHeaders(scid)
+					headers := gnomes.GetSCHeaders(scid)
 					name := "?"
 					desc := "?"
 					var hidden bool
-					_, restrict := menu.Gnomes.GetSCIDValuesByKey(rpc.RatingSCID, "restrict")
-					_, rating := menu.Gnomes.GetSCIDValuesByKey(rpc.RatingSCID, scid)
+					_, restrict := gnomon.GetSCIDValuesByKey(rpc.RatingSCID, "restrict")
+					_, rating := gnomon.GetSCIDValuesByKey(rpc.RatingSCID, scid)
 
 					if restrict != nil && rating != nil {
 						menu.Control.Lock()
-						menu.Control.Contract_rating[scid] = rating[0]
+						menu.Control.Ratings[scid] = rating[0]
 						menu.Control.Unlock()
 						if rating[0] <= restrict[0] {
 							hidden = true
 						}
 					}
 
-					if headers != nil {
-						if headers[1] != "" {
-							desc = headers[1]
+					if headers.Name != "" {
+						name = " " + headers.Name
+						if headers.Description != "" {
+							desc = headers.Description
 						}
 
-						if headers[0] != "" {
-							name = " " + headers[0]
-						}
-
-						if headers[0] == "-" {
+						if headers.Name == "-" {
 							hidden = true
 						}
 					}
@@ -311,7 +331,7 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 					var co_signer bool
 					if VerifyBetSigner(scid) {
 						co_signer = true
-						if !menu.Gnomes.Import {
+						if !Imported {
 							Predict.Contract.menu.Show()
 							Sports.Contract.menu.Show()
 						}
