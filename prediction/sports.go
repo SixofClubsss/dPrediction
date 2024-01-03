@@ -122,17 +122,37 @@ func setSportsControls(str string) (item string) {
 			go SetSportsInfo(trimmed)
 			item = str
 			Sports.Contract.entry.SetText(trimmed)
-			finals := FetchSportsFinal(trimmed)
-			Sports.payoutLog.SetText(formatFinals(trimmed, finals))
+			Sports.payoutLog.SetText(GetSportsFinals(trimmed))
 		}
 	}
 
 	return
 }
 
-// Format all dSports final results from SCID
-//   - Pass all final strings and splitting for formatting
-func formatFinals(scid string, finals []string) (text string) {
+func GetSportsFinals(scid string) (text string) {
+	var finals []string
+	if gnomon.IsReady() {
+		if _, played := gnomon.GetSCIDValuesByKey(scid, "s_played"); played != nil {
+			start := rpc.IntType(played[0]) - 4
+			i := start
+			for {
+				str := fmt.Sprint(i)
+				if game, _ := gnomon.GetSCIDValuesByKey(scid, "s_final_"+str); game != nil {
+					if s_txid, _ := gnomon.GetSCIDValuesByKey(scid, "s_final_txid_"+str); s_txid != nil {
+						final := str + "   " + string(game[0]) + "   " + fmt.Sprint(s_txid[0])
+						finals = append(finals, final)
+					}
+				}
+
+				i++
+				if i > start+4 {
+					break
+				}
+			}
+		}
+	}
+
+	// Format all dSports final results from SCID
 	text = "Last Payouts from SCID:\n\n" + scid
 	for i := range finals {
 		split := strings.Split(finals[i], "   ")

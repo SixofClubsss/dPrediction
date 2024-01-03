@@ -3,11 +3,11 @@ module github.com/SixofClubsss/dPrediction
 go 1.20
 
 require (
-	fyne.io/fyne/v2 v2.4.1
-	github.com/SixofClubsss/Holdero v0.3.0
+	fyne.io/fyne/v2 v2.4.4-0.20231224124904-a09bbd790b98
+	github.com/SixofClubsss/Holdero v0.3.1-0.20240103073854-2fbe0c751b18
 	github.com/blang/semver/v4 v4.0.0
-	github.com/civilware/Gnomon v0.0.0-20231218151558-0ee387e75195
-	github.com/dReam-dApps/dReams v0.10.2-0.20231223102408-bb16636e1a47
+	github.com/civilware/Gnomon v0.0.0-20240102201536-a5900d5a61da
+	github.com/dReam-dApps/dReams v0.11.1-0.20240103072854-974a28cc7e46
 	github.com/deroproject/derohe v0.0.0-20230604143809-765b2db1f482
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/sirupsen/logrus v1.9.3
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
+	fyne.io/systray v1.10.1-0.20231115130155-104f5ef7839e // indirect
 	fyne.io/x/fyne v0.0.0-20230411205836-1ca0ead20763 // indirect
 	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect

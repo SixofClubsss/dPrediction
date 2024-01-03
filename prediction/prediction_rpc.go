@@ -1,7 +1,6 @@
 package prediction
 
 import (
-	"encoding/hex"
 	"fmt"
 
 	"github.com/SixofClubsss/Holdero/holdero"
@@ -839,51 +838,6 @@ func GetSportsCode(pub int) string {
 		return result.Code
 	}
 	return ""
-}
-
-// Get recent dSports final results and TXIDs
-func FetchSportsFinal(scid string) (finals []string) {
-	if rpc.Daemon.IsConnected() {
-		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
-		defer cancel()
-
-		params := &dero.GetSC_Params{
-			SCID:      scid,
-			Code:      false,
-			Variables: true,
-		}
-
-		var result *dero.GetSC_Result
-		if err := rpcClientD.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
-			logger.Errorln("[FetchSportsFinal]", err)
-			return
-		}
-
-		played := result.VariableStringKeys["s_played"]
-		if played != nil {
-			start := rpc.IntType(played) - 4
-			i := start
-			for {
-				str := fmt.Sprint(i)
-				game := result.VariableStringKeys["s_final_"+str]
-				s_txid := result.VariableStringKeys["s_final_txid_"+str]
-
-				if s_txid != nil && game != nil {
-					if decode, err := hex.DecodeString(fmt.Sprint(game)); err == nil {
-						final := str + "   " + string(decode) + "   " + fmt.Sprint(s_txid)
-						finals = append(finals, final)
-					}
-				}
-
-				i++
-				if i > start+4 {
-					break
-				}
-			}
-		}
-	}
-
-	return
 }
 
 // Install new bet SC
