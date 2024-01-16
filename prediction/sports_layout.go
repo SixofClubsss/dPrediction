@@ -1,6 +1,7 @@
 package prediction
 
 import (
+	"fmt"
 	"strings"
 
 	dreams "github.com/dReam-dApps/dReams"
@@ -9,6 +10,7 @@ import (
 	"github.com/dReam-dApps/dReams/rpc"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -110,26 +112,41 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		container.NewTabItem("Bellator", bellator_scroll),
 		container.NewTabItem("UFC", ufc_scroll))
 
+	loading_img := canvas.NewImageFromResource(resourceDServiceCirclePng)
+	loading_img.SetMinSize(fyne.NewSize(140, 140))
+
 	score_tabs.OnSelected = func(ti *container.TabItem) {
-		switch ti.Text {
-		case "EPL":
-			go GetScores(epl, "EPL")
-		case "MLS":
-			go GetScores(mls, "MLS")
-		case "NBA":
-			go GetScores(nba, "NBA")
-		case "NFL":
-			go GetScores(nfl, "NFL")
-		case "NHL":
-			go GetScores(nhl, "NHL")
-		case "MLB":
-			go GetScores(mlb, "MLB")
-		case "Bellator":
-			go GetMmaResults(bellator, "Bellator")
-		case "UFC":
-			go GetMmaResults(ufc, "UFC")
-		default:
-		}
+		go func() {
+			ti.Content = container.NewStack(container.NewCenter(loading_img, dwidget.NewCanvasText(fmt.Sprintf("Loading %s...", ti.Text), 17, fyne.TextAlignCenter)), widget.NewProgressBarInfinite())
+			switch ti.Text {
+			case "EPL":
+				GetScores(epl, "EPL")
+				ti.Content = epl_scroll
+			case "MLS":
+				GetScores(mls, "MLS")
+				ti.Content = mls_scroll
+			case "NBA":
+				GetScores(nba, "NBA")
+				ti.Content = nba_scroll
+			case "NFL":
+				GetScores(nfl, "NFL")
+				ti.Content = nfl_scroll
+			case "NHL":
+				GetScores(nhl, "NHL")
+				ti.Content = nhl_scroll
+			case "MLB":
+				GetScores(mlb, "MLB")
+				ti.Content = mlb_scroll
+			case "Bellator":
+				GetMmaResults(bellator, "Bellator")
+				ti.Content = bellator_scroll
+			case "UFC":
+				GetMmaResults(ufc, "UFC")
+				ti.Content = ufc_scroll
+			default:
+
+			}
+		}()
 	}
 
 	Sports.Contract.unlock = widget.NewButton("Unlock dSports Contracts", nil)
