@@ -728,7 +728,7 @@ func runSportsPayouts(print bool) {
 //   - db is local db storage
 //   - print for debug
 func processBetTx(start uint64, db *bbolt.DB, print bool) {
-	rpcClient, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 
 	var p_contracts, s_contracts []string
 	for _, sc := range Predict.Owned.SCIDs {
@@ -768,7 +768,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	}
 
 	var outgoing dero.Get_Transfers_Result
-	err := rpcClient.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
+	err := client.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
 	if err != nil {
 		logger.Errorln("[viewProcessedTx]", err)
 		return
@@ -789,7 +789,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	}
 
 	var transfers dero.Get_Transfers_Result
-	err = rpcClient.CallFor(context.TODO(), &transfers, "GetTransfers", params)
+	err = client.CallFor(context.TODO(), &transfers, "GetTransfers", params)
 	if err != nil {
 		logger.Errorln("[processBetTx]", err)
 		return
@@ -1025,7 +1025,7 @@ func processSingleTx(txid string) {
 			return
 		}
 
-		rpcClient, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 
 		var p_contracts, s_contracts []string
 		for _, sc := range Predict.Owned.SCIDs {
@@ -1062,7 +1062,7 @@ func processSingleTx(txid string) {
 		}
 
 		var transfers dero.Get_Transfer_By_TXID_Result
-		err = rpcClient.CallFor(context.TODO(), &transfers, "GetTransferbyTXID", params)
+		err = client.CallFor(context.TODO(), &transfers, "GetTransferbyTXID", params)
 		if err != nil {
 			logger.Errorln("[processSingleTx]", err)
 			return
@@ -1270,7 +1270,7 @@ func viewProcessedTx(start uint64) {
 			return
 		}
 
-		rpcClient, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 
 		out_params := dero.Get_Transfers_Params{
 			Coinbase:   false,
@@ -1280,7 +1280,7 @@ func viewProcessedTx(start uint64) {
 		}
 
 		var outgoing dero.Get_Transfers_Result
-		err = rpcClient.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
+		err = client.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
 		if err != nil {
 			logger.Errorln("[viewProcessedTx]", err)
 			return
@@ -1297,7 +1297,7 @@ func viewProcessedTx(start uint64) {
 		}
 
 		var transfers dero.Get_Transfers_Result
-		err = rpcClient.CallFor(context.TODO(), &transfers, "GetTransfers", in_params)
+		err = client.CallFor(context.TODO(), &transfers, "GetTransfers", in_params)
 		if err != nil {
 			logger.Errorln("[ViewProcessedTx] Could not obtain gettransfers from wallet", err)
 			return

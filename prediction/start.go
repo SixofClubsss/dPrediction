@@ -28,7 +28,7 @@ import (
 
 const app_tag = "dPrediction"
 
-var version = semver.MustParse("0.3.0-dev.3")
+var version = semver.MustParse("0.3.0-dev.4")
 var gnomon = gnomes.NewGnomes()
 
 // Check prediction package version

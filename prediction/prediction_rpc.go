@@ -19,7 +19,7 @@ const (
 // Place higher prediction to SC
 //   - addr only needed if dService is placing prediction
 func PredictHigher(scid, addr string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	amt := uint64(Predict.amount)
@@ -46,7 +46,7 @@ func PredictHigher(scid, addr string) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Higher Prediction: %s", err)
 		return
 	}
@@ -59,7 +59,7 @@ func PredictHigher(scid, addr string) (tx string) {
 // Place lower prediction to SC
 //   - addr only needed if dService is placing prediction
 func PredictLower(scid, addr string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	amt := uint64(Predict.amount)
@@ -86,7 +86,7 @@ func PredictLower(scid, addr string) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Lower Prediction: %s", err)
 		return
 	}
@@ -102,7 +102,7 @@ func PredictLower(scid, addr string) (tx string) {
 //   - addr of placed bet and to send reply message
 //   - src and pre_tx used in reply message
 func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	var hl string
@@ -144,7 +144,7 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Auto Predict: %s", err)
 		return
 	}
@@ -159,7 +159,7 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 //   - addr to send refund to
 //   - src, msg and refund_tx used in reply message
 func ServiceRefund(amt, src uint64, scid, addr, msg, refund_tx string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	chopped_scid := scid[:6] + "..." + scid[58:]
@@ -185,7 +185,7 @@ func ServiceRefund(amt, src uint64, scid, addr, msg, refund_tx string) (tx strin
 		Ringsize:  16,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Refund: %s", err)
 		return
 	}
@@ -202,7 +202,7 @@ func ServiceRefund(amt, src uint64, scid, addr, msg, refund_tx string) (tx strin
 //   - addr of placed bet and to send reply message
 //   - src, abv and tx used in reply message
 func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	chopped_scid := scid[:6] + "..." + scid[58:]
@@ -237,7 +237,7 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Auto Book: %s", err)
 		return
 	}
@@ -252,7 +252,7 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 //   - l is the max bet limit per initialized bet
 //   - hl is the max amount of games that can be ran at once
 func VarUpdate(scid string, ta, tb, tc, l, hl int) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "VarUpdate"}
@@ -288,7 +288,7 @@ func VarUpdate(scid string, ta, tb, tc, l, hl int) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Var Update: %s", err)
 		return
 	}
@@ -299,7 +299,7 @@ func VarUpdate(scid string, ta, tb, tc, l, hl int) {
 // Owner can add new co-owner to bet SC
 //   - addr of new co-owner
 func AddOwner(scid, addr string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "AddSigner"}
@@ -323,7 +323,7 @@ func AddOwner(scid, addr string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Add Signer: %s", err)
 		return
 	}
@@ -334,7 +334,7 @@ func AddOwner(scid, addr string) {
 // Owner can remove co-owner from bet SC
 //   - num defines which co-owner to remove
 func RemoveOwner(scid string, num int) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "RemoveSigner"}
@@ -358,7 +358,7 @@ func RemoveOwner(scid string, num int) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Remove Signer: %s", err)
 		return
 	}
@@ -369,7 +369,7 @@ func RemoveOwner(scid string, num int) {
 // User can refund a void dPrediction payout from SC
 //   - tic is the prediction id string
 func PredictionRefund(scid, tic string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Refund"}
@@ -393,7 +393,7 @@ func PredictionRefund(scid, tic string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Refund: %s", err)
 		return
 	}
@@ -407,7 +407,7 @@ func PredictionRefund(scid, tic string) {
 //   - a is amount to book
 //   - pick is team to book
 func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	var amt uint64
@@ -445,7 +445,7 @@ func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Sports] Pick: %s", err)
 		return
 	}
@@ -459,7 +459,7 @@ func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 //   - tic is the bet id string
 //   - n is the game number
 func SportsRefund(scid, tic, n string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Refund"}
@@ -484,7 +484,7 @@ func SportsRefund(scid, tic, n string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Sports] Refund: %s", err)
 		return
 	}
@@ -499,7 +499,7 @@ func SportsRefund(scid, tic, n string) {
 //   - game is name of game, formatted TEAM--TEAM
 //   - feed defines where price api data is sourced from
 func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "S_start"}
@@ -527,7 +527,7 @@ func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx st
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Sports] Set: %s", err)
 		return
 	}
@@ -545,7 +545,7 @@ func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx st
 //   - predict is name of what is being predicted
 //   - feed defines where price api data is sourced from
 func SetPrediction(end, mark int, amt, dep uint64, scid, predict, feed string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "P_start"}
@@ -573,7 +573,7 @@ func SetPrediction(end, mark int, amt, dep uint64, scid, predict, feed string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Set: %s", err)
 		return
 	}
@@ -584,7 +584,7 @@ func SetPrediction(end, mark int, amt, dep uint64, scid, predict, feed string) {
 // Owner cancel for initiated bet for dSports and dPrediction contracts
 //   - b defines sports or prediction log print
 func CancelInitiatedBet(scid string, b int) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Cancel"}
@@ -614,7 +614,7 @@ func CancelInitiatedBet(scid string, b int) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("%s Cancel: %s", tag, err)
 		return
 	}
@@ -625,7 +625,7 @@ func CancelInitiatedBet(scid string, b int) {
 // Post mark to prediction SC
 //   - price is the posted mark for prediction
 func PostPrediction(scid string, price int) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Post"}
@@ -649,7 +649,7 @@ func PostPrediction(scid string, price int) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Post: %s", err)
 		return
 	}
@@ -663,7 +663,7 @@ func PostPrediction(scid string, price int) (tx string) {
 //   - num is game number
 //   - team is winning team for game number
 func EndSports(scid, num, team string) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "S_end"}
@@ -682,7 +682,7 @@ func EndSports(scid, num, team string) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Sports] Payout: %s", err)
 		return
 	}
@@ -695,7 +695,7 @@ func EndSports(scid, num, team string) (tx string) {
 // dPrediction SC payout
 //   - price is final prediction results
 func EndPrediction(scid string, price int) (tx string) {
-	rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 	defer cancel()
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "P_end"}
@@ -714,7 +714,7 @@ func EndPrediction(scid string, price int) (tx string) {
 		Fees:      fee,
 	}
 
-	if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+	if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 		rpc.PrintError("[Predictions] Payout: %s", err)
 		return
 	}
@@ -726,7 +726,7 @@ func EndPrediction(scid string, price int) (tx string) {
 
 // Check dSports/dPrediction SC for dev address
 func ValidBetContract(scid string) bool {
-	rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+	client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
 	defer cancel()
 
 	var result *dero.GetSC_Result
@@ -736,7 +736,7 @@ func ValidBetContract(scid string) bool {
 		Variables: true,
 	}
 
-	if err := rpcClientD.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
+	if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
 		logger.Errorln("[ValidBetContract]", err)
 		return false
 	}
@@ -749,7 +749,7 @@ func ValidBetContract(scid string) bool {
 // Get dPrediction final TXID
 func FetchPredictionFinal(scid string) (txid string) {
 	if rpc.Daemon.IsConnected() {
-		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
 		defer cancel()
 
 		params := &dero.GetSC_Params{
@@ -759,7 +759,7 @@ func FetchPredictionFinal(scid string) (txid string) {
 		}
 
 		var result *dero.GetSC_Result
-		if err := rpcClientD.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
+		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
 			logger.Errorln("[FetchPredictionFinal]", err)
 			return ""
 		}
@@ -778,7 +778,7 @@ func FetchPredictionFinal(scid string) (txid string) {
 //   - pub 1 defines private SC, else public
 func GetPredictCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
-		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
 		defer cancel()
 
 		var result *dero.GetSC_Result
@@ -797,7 +797,7 @@ func GetPredictCode(pub int) string {
 			}
 		}
 
-		if err := rpcClientD.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
+		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
 			logger.Errorln("[GetPredictCode]", err)
 			return ""
 		}
@@ -811,7 +811,7 @@ func GetPredictCode(pub int) string {
 //   - pub 1 defines private SC, else public
 func GetSportsCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
-		rpcClientD, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
 		defer cancel()
 
 		var result *dero.GetSC_Result
@@ -830,7 +830,7 @@ func GetSportsCode(pub int) string {
 			}
 		}
 
-		if err := rpcClientD.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
+		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
 			logger.Errorln("[GetSportsCode]", err)
 			return ""
 		}
@@ -845,7 +845,7 @@ func GetSportsCode(pub int) string {
 //   - pub defines public or private contract
 func UploadBetContract(c bool, pub int) {
 	if rpc.IsReady() {
-		rpcClientW, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, ctx, cancel := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
 		defer cancel()
 
 		var fee uint64
@@ -879,7 +879,7 @@ func UploadBetContract(c bool, pub int) {
 			Fees:      fee,
 		}
 
-		if err := rpcClientW.CallFor(ctx, &txid, "transfer", params); err != nil {
+		if err := client.CallFor(ctx, &txid, "transfer", params); err != nil {
 			if c {
 				rpc.PrintError("[Predictions] Upload: %s", err)
 			} else {
