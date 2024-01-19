@@ -2,6 +2,19 @@
 
 This file lists the changes to dPrediction repo with each version.
 
+## 0.3.1 - January 19 2024
+
+### Added
+* Scores loading transition 
+
+### Changed
+* Go 1.21.5
+* Fyne 2.4.3
+* dReams 0.11.1
+* GetSportsFinals to use Gnomon
+* Clean up `rpc` client var names
+
+
 ## 0.3.0 - December 23 2023
 
 ### Added
