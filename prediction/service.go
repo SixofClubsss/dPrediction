@@ -728,7 +728,7 @@ func runSportsPayouts(print bool) {
 //   - db is local db storage
 //   - print for debug
 func processBetTx(start uint64, db *bbolt.DB, print bool) {
-	client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 	var p_contracts, s_contracts []string
 	for _, sc := range Predict.Owned.SCIDs {
@@ -1025,7 +1025,7 @@ func processSingleTx(txid string) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 		var p_contracts, s_contracts []string
 		for _, sc := range Predict.Owned.SCIDs {
@@ -1270,7 +1270,7 @@ func viewProcessedTx(start uint64) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 		out_params := dero.Get_Transfers_Params{
 			Coinbase:   false,

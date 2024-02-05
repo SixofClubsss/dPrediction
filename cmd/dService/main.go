@@ -78,7 +78,7 @@ func main() {
 
 	// Set default rpc params
 	rpc.Daemon.Rpc = "127.0.0.1:10102"
-	rpc.Wallet.Rpc = "127.0.0.1:10103"
+	rpc.Wallet.RPC.Port = "127.0.0.1:10103"
 
 	if arguments["--daemon"] != nil {
 		if arguments["--daemon"].(string) != "" {
@@ -88,13 +88,13 @@ func main() {
 
 	if arguments["--wallet"] != nil {
 		if arguments["--wallet"].(string) != "" {
-			rpc.Wallet.Rpc = arguments["--wallet"].(string)
+			rpc.Wallet.RPC.Port = arguments["--wallet"].(string)
 		}
 	}
 
 	if arguments["--login"] != nil {
 		if arguments["--login"].(string) != "" {
-			rpc.Wallet.UserPass = arguments["--login"].(string)
+			rpc.Wallet.RPC.Auth = arguments["--login"].(string)
 		}
 	}
 
@@ -118,6 +118,9 @@ func main() {
 
 	logger.Printf("[dService] %s  OS: %s  ARCH: %s  DREAMS: %s  GNOMON: %s\n", v, runtime.GOOS, runtime.GOARCH, rpc.Version(), structures.Version.String())
 
+	// Initialize wallet RPC server connection
+	rpc.Wallet.RPC.Init()
+
 	// Check for daemon connection
 	rpc.Ping()
 	if !rpc.Daemon.IsConnected() {
@@ -127,7 +130,7 @@ func main() {
 	// Check for wallet connection
 	rpc.GetAddress("dService")
 	if !rpc.Wallet.IsConnected() {
-		logger.Fatalf("[dService] Wallet %s not connected\n", rpc.Wallet.Rpc)
+		logger.Fatalf("[dService] Wallet %s not connected\n", rpc.Wallet.RPC.Port)
 	}
 
 	prediction.Service.Start()
@@ -160,6 +163,7 @@ func main() {
 		fmt.Println()
 		gnomon.Stop("dService")
 		rpc.Wallet.Connected(false)
+		rpc.Wallet.CloseConnections("dService")
 		prediction.Service.Stop()
 		menu.SetClose(true)
 		for prediction.Service.IsProcessing() {
