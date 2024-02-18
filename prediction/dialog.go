@@ -245,13 +245,13 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	options := []string{}
 	owner.sports.game = widget.NewSelect(options, func(s string) {
-		var date string
 		game := strings.Split(s, "   ")
-		for i := range s {
-			if i > 3 {
-				date = s[0:10]
-			}
+		if len(s) < 11 {
+			logger.Errorln("[sportsOpts] wrong date len")
+			return
 		}
+
+		date := s[0:10]
 		comp := date[0:4] + date[5:7] + date[8:10]
 		GetGameEnd(comp, game[1], owner.sports.league.Text)
 	})
@@ -855,10 +855,9 @@ func GetActiveGames() {
 			owner, _ := gnomon.GetSCIDValuesByKey(sc, "owner")
 			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(sc) {
 				if len(sc) == 64 {
-					_, init := gnomon.GetSCIDValuesByKey(sc, "s_init")
-					if init != nil {
-						for ic := uint64(1); ic <= init[0]; ic++ {
-							num := strconv.Itoa(int(ic))
+					if _, init := gnomon.GetSCIDValuesByKey(sc, "s_init"); init != nil {
+						for i := 1; i <= int(init[0]); i++ {
+							num := strconv.Itoa(i)
 							if game, _ := gnomon.GetSCIDValuesByKey(sc, "game_"+num); game != nil {
 								league, _ := gnomon.GetSCIDValuesByKey(sc, "league_"+num)
 								_, end := gnomon.GetSCIDValuesByKey(sc, "s_end_at_"+num)
