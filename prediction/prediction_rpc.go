@@ -22,7 +22,7 @@ func PredictHigher(scid, addr string) (tx string) {
 	amt := uint64(Predict.amount)
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Predict"}
-	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: 1}
+	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: uint64(1)}
 	arg3 := dero.Argument{Name: "addr", DataType: "S", Value: addr}
 	args := dero.Arguments{arg1, arg2, arg3}
 	txid := dero.Transfer_Result{}
@@ -59,7 +59,7 @@ func PredictLower(scid, addr string) (tx string) {
 	amt := uint64(Predict.amount)
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Predict"}
-	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: 0}
+	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: uint64(0)}
 	arg3 := dero.Argument{Name: "addr", DataType: "S", Value: addr}
 	args := dero.Arguments{arg1, arg2, arg3}
 	txid := dero.Transfer_Result{}
@@ -107,7 +107,7 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 	}
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Predict"}
-	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: p}
+	arg2 := dero.Argument{Name: "pre", DataType: "U", Value: uint64(p)}
 	arg3 := dero.Argument{Name: "addr", DataType: "S", Value: addr}
 	args := dero.Arguments{arg1, arg2, arg3}
 	txid := dero.Transfer_Result{}
@@ -238,18 +238,18 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 //   - hl is the max amount of games that can be ran at once
 func VarUpdate(scid string, ta, tb, tc, l, hl int) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "VarUpdate"}
-	arg2 := dero.Argument{Name: "ta", DataType: "U", Value: ta}
-	arg3 := dero.Argument{Name: "tb", DataType: "U", Value: tb}
-	arg5 := dero.Argument{Name: "l", DataType: "U", Value: l}
+	arg2 := dero.Argument{Name: "ta", DataType: "U", Value: uint64(ta)}
+	arg3 := dero.Argument{Name: "tb", DataType: "U", Value: uint64(tb)}
+	arg5 := dero.Argument{Name: "l", DataType: "U", Value: uint64(l)}
 
 	var args dero.Arguments
 	var arg4, arg6 dero.Argument
 	if hl > 0 {
-		arg4 = dero.Argument{Name: "d", DataType: "U", Value: tc}
-		arg6 = dero.Argument{Name: "hl", DataType: "U", Value: hl}
+		arg4 = dero.Argument{Name: "d", DataType: "U", Value: uint64(tc)}
+		arg6 = dero.Argument{Name: "hl", DataType: "U", Value: uint64(hl)}
 		args = dero.Arguments{arg1, arg2, arg3, arg4, arg5, arg6}
 	} else {
-		arg4 = dero.Argument{Name: "tc", DataType: "U", Value: tc}
+		arg4 = dero.Argument{Name: "tc", DataType: "U", Value: uint64(tc)}
 		args = dero.Arguments{arg1, arg2, arg3, arg4, arg5}
 	}
 
@@ -314,7 +314,7 @@ func AddOwner(scid, addr string) {
 //   - num defines which co-owner to remove
 func RemoveOwner(scid string, num int) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "RemoveSigner"}
-	arg2 := dero.Argument{Name: "remove", DataType: "U", Value: num}
+	arg2 := dero.Argument{Name: "remove", DataType: "U", Value: uint64(num)}
 	args := dero.Arguments{arg1, arg2}
 	txid := dero.Transfer_Result{}
 
@@ -346,7 +346,7 @@ func RemoveOwner(scid string, num int) {
 //   - tic is the prediction id string
 func PredictionRefund(scid, tic string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Refund"}
-	arg2 := dero.Argument{Name: "tic", DataType: "S", Value: "p-1-1"}
+	arg2 := dero.Argument{Name: "tic", DataType: "S", Value: tic}
 	args := dero.Arguments{arg1, arg2}
 	txid := dero.Transfer_Result{}
 
@@ -394,7 +394,7 @@ func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Book"}
 	arg2 := dero.Argument{Name: "n", DataType: "S", Value: n}
-	arg3 := dero.Argument{Name: "pre", DataType: "U", Value: pick}
+	arg3 := dero.Argument{Name: "pre", DataType: "U", Value: uint64(pick)}
 	arg4 := dero.Argument{Name: "addr", DataType: "S", Value: rpc.Wallet.Address}
 	args := dero.Arguments{arg1, arg2, arg3, arg4}
 	txid := dero.Transfer_Result{}
@@ -467,7 +467,7 @@ func SportsRefund(scid, tic, n string) {
 //   - feed defines where price api data is sourced from
 func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "S_start"}
-	arg2 := dero.Argument{Name: "end", DataType: "U", Value: end}
+	arg2 := dero.Argument{Name: "end", DataType: "U", Value: uint64(end)}
 	arg3 := dero.Argument{Name: "amt", DataType: "U", Value: amt}
 	arg4 := dero.Argument{Name: "league", DataType: "S", Value: league}
 	arg5 := dero.Argument{Name: "game", DataType: "S", Value: game}
@@ -510,11 +510,11 @@ func SetSports(end int, amt, dep uint64, scid, league, game, feed string) (tx st
 //   - feed defines where price api data is sourced from
 func SetPrediction(end, mark int, amt, dep uint64, scid, predict, feed string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "P_start"}
-	arg2 := dero.Argument{Name: "end", DataType: "U", Value: end}
+	arg2 := dero.Argument{Name: "end", DataType: "U", Value: uint64(end)}
 	arg3 := dero.Argument{Name: "amt", DataType: "U", Value: amt}
 	arg4 := dero.Argument{Name: "predict", DataType: "S", Value: predict}
 	arg5 := dero.Argument{Name: "feed", DataType: "S", Value: feed}
-	arg6 := dero.Argument{Name: "mark", DataType: "U", Value: mark}
+	arg6 := dero.Argument{Name: "mark", DataType: "U", Value: uint64(mark)}
 	args := dero.Arguments{arg1, arg2, arg3, arg4, arg5, arg6}
 	txid := dero.Transfer_Result{}
 
@@ -584,7 +584,7 @@ func CancelInitiatedBet(scid string, b int) {
 //   - price is the posted mark for prediction
 func PostPrediction(scid string, price int) (tx string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Post"}
-	arg2 := dero.Argument{Name: "price", DataType: "U", Value: price}
+	arg2 := dero.Argument{Name: "price", DataType: "U", Value: uint64(price)}
 	args := dero.Arguments{arg1, arg2}
 	txid := dero.Transfer_Result{}
 
@@ -648,7 +648,7 @@ func EndSports(scid, num, team string) (tx string) {
 //   - price is final prediction results
 func EndPrediction(scid string, price int) (tx string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "P_end"}
-	arg2 := dero.Argument{Name: "price", DataType: "U", Value: price}
+	arg2 := dero.Argument{Name: "price", DataType: "U", Value: uint64(price)}
 	args := dero.Arguments{arg1, arg2, arg2}
 	txid := dero.Transfer_Result{}
 
