@@ -128,8 +128,8 @@ func fetch(d *dreams.AppObject) {
 			if !rpc.Wallet.IsConnected() || !rpc.Daemon.IsConnected() {
 				disableActions()
 				owner.synced = false
-				S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
-				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+				S.Right.UpdateText()
+				P.Right.UpdateText()
 				d.WorkDone()
 				continue
 			}
@@ -145,7 +145,7 @@ func fetch(d *dreams.AppObject) {
 					go SetSportsInfo(Sports.Contract.SCID)
 				}
 			}
-			S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+			S.Right.UpdateText()
 
 			//dPrediction
 			if d.OnTab("Predict") {
@@ -157,7 +157,7 @@ func fetch(d *dreams.AppObject) {
 					go SetPredictionPrices(rpc.Daemon.Connect)
 				}
 
-				P.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+				P.Right.UpdateText()
 
 				if CheckActivePrediction(Predict.Contract.SCID) {
 					go ShowPredictionControls()
@@ -206,6 +206,8 @@ func disableActions() {
 	Sports.Public.SCIDs = []string{}
 	Predict.Owned.SCIDs = []string{}
 	Sports.Owned.SCIDs = []string{}
+	Predict.Favorites.SCIDs = []string{}
+	Sports.Favorites.SCIDs = []string{}
 
 	Predict.Contract.check.SetChecked(false)
 	disablePredictions(true)

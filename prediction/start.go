@@ -2,15 +2,12 @@ package prediction
 
 import (
 	"fmt"
-	"image/color"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
 	"time"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -26,7 +23,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const app_tag = "dPrediction"
+const (
+	appName = "dPrediction"
+	appID   = "dreamdapps.io.dprediction"
+)
 
 var version = semver.MustParse("0.3.1-dev.x")
 var gnomon = gnomes.NewGnomes()
@@ -40,32 +40,33 @@ func Version() semver.Version {
 func StartApp() {
 	n := runtime.NumCPU()
 	runtime.GOMAXPROCS(n)
+
+	// Initialize logrus logger to stdout
 	gnomes.InitLogrusLog(logrus.InfoLevel)
-	config := menu.ReadDreamsConfig(app_tag)
 
-	// Initialize Fyne app and window
-	a := app.NewWithID("dPrediction Desktop Client")
-	a.Settings().SetTheme(bundle.DeroTheme(config.Skin))
-	w := a.NewWindow(app_tag)
-	w.SetIcon(resourceDServiceIconPng)
-	w.Resize(fyne.NewSize(1400, 800))
-	w.SetMaster()
-	done := make(chan struct{})
+	// Read config.json file
+	config := menu.GetSettings(appName)
 
-	// Initialize dReams AppObject and close func
-	menu.Theme.Img = *canvas.NewImageFromResource(menu.DefaultThemeResource())
-	d := dreams.AppObject{
-		App:        a,
-		Window:     w,
-		Background: container.NewStack(&menu.Theme.Img),
-	}
+	// Initialize Fyne app and window as dreams.AppObject
+	d := dreams.NewFyneApp(
+		appID,
+		appName,
+		bundle.DeroTheme(config.Skin),
+		resourceDServiceIconPng,
+		menu.DefaultBackgroundResource(),
+		rpc.NewXSWDApplicationData(appName, "P2P Predictions and Sports Bet", appID, true))
+
+	// Set one channel for dPrediction routine
 	d.SetChannels(1)
+
+	// Initialize closing channels and func
+	done := make(chan struct{})
 
 	closeFunc := func() {
 		save := dreams.SaveData{
 			Skin:   config.Skin,
 			DBtype: gnomon.DBStorageType(),
-			Theme:  menu.Theme.Name,
+			Theme:  dreams.Theme.Name,
 		}
 
 		if rpc.Daemon.Rpc == "" {
@@ -74,14 +75,14 @@ func StartApp() {
 			save.Daemon = []string{rpc.Daemon.Rpc}
 		}
 
-		menu.WriteDreamsConfig(save)
+		menu.StoreSettings(save)
 		menu.SetClose(true)
-		gnomon.Stop(app_tag)
+		gnomon.Stop(appName)
 		d.StopProcess()
-		w.Close()
+		d.Window.Close()
 	}
 
-	w.SetCloseIntercept(closeFunc)
+	d.Window.SetCloseIntercept(closeFunc)
 
 	// Handle ctrl-c close
 	c := make(chan os.Signal, 1)
@@ -92,38 +93,34 @@ func StartApp() {
 		closeFunc()
 	}()
 
-	// Initialize vars
+	// Initialize Gnomon vars
 	gnomon.SetDBStorageType("boltdb")
 	gnomon.SetFastsync(true, true, 10000)
 
-	// Initialize asset widgets
-	//asset_selects := []fyne.Widget{}
+	// Create dwidget connection box, using default OnTapped for connections
+	connection := dwidget.NewHorizontalEntries(appName, 1, &d)
 
-	// Create dwidget connection box with controls
-	connect_box := dwidget.NewHorizontalEntries(app_tag, 1)
-	connect_box.Button.OnTapped = func() {
-		rpc.GetAddress(app_tag)
-		rpc.Ping()
-		if rpc.Daemon.IsConnected() && !gnomon.IsInitialized() && !gnomon.IsStarting() {
-			filter := []string{
-				GetPredictCode(0),
-				GetSportsCode(0),
-				rpc.GetSCCode(rpc.GnomonSCID),
-				rpc.GetSCCode(rpc.RatingSCID)}
+	connection.Connected.OnChanged = func(b bool) {
+		if b {
+			if rpc.Daemon.IsConnected() && !gnomon.IsInitialized() && !gnomon.IsStarting() {
+				filter := []string{
+					GetPredictCode(0),
+					GetSportsCode(0),
+					rpc.GetSCCode(rpc.GnomonSCID),
+					rpc.GetSCCode(rpc.RatingSCID)}
 
-			go gnomes.StartGnomon(app_tag, gnomon.DBStorageType(), filter, 0, 0, nil)
+				go gnomes.StartGnomon(appName, gnomon.DBStorageType(), filter, 0, 0, nil)
+			}
+		} else {
+			gnomon.Stop(appName)
 		}
 	}
 
-	connect_box.Disconnect.OnChanged = func(b bool) {
-		if !b {
-			gnomon.Stop(app_tag)
-		}
-	}
+	// Set any saved daemon configs
+	connection.AddDaemonOptions(config.Daemon)
 
-	connect_box.AddDaemonOptions(config.Daemon)
-
-	connect_box.Container.Objects[0].(*fyne.Container).Add(menu.StartIndicators())
+	// Adding dReams indicator panel for wallet, daemon and Gnomon
+	connection.AddIndicator(menu.StartIndicators(nil))
 
 	// Initialize profile widgets
 	line := canvas.NewLine(bundle.TextColor)
@@ -136,18 +133,14 @@ func StartApp() {
 	form = append(form, widget.NewFormItem("", layout.NewSpacer()))
 	form = append(form, widget.NewFormItem("", container.NewVBox(line)))
 
-	profile_spacer := canvas.NewRectangle(color.Transparent)
-	profile_spacer.SetMinSize(fyne.NewSize(450, 0))
-
-	profile := container.NewCenter(container.NewBorder(profile_spacer, nil, nil, nil, widget.NewForm(form...)))
+	profile := container.NewCenter(container.NewBorder(dwidget.NewSpacer(450, 0), nil, nil, nil, widget.NewForm(form...)))
 
 	// Layout tabs
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Predict", LayoutPredictItems(&d)),
-		container.NewTabItem("Sports", LayoutSportsItems(&d)),
-		// TODO profile
-		container.NewTabItem("Assets", menu.PlaceAssets(app_tag, profile, nil, resourceDServiceCirclePng, &d)),
-		container.NewTabItem("Log", rpc.SessionLog(app_tag, version)))
+		container.NewTabItem("Predict", LayoutPredictions(&d)),
+		container.NewTabItem("Sports", LayoutSports(&d)),
+		container.NewTabItem("Assets", menu.PlaceAssets(appName, profile, nil, resourceDServiceCirclePng, &d)),
+		container.NewTabItem("Log", rpc.SessionLog(appName, version)))
 
 	tabs.SetTabLocation(container.TabLocationBottom)
 	d.SetTab("Predict")
@@ -172,18 +165,14 @@ func StartApp() {
 			select {
 			case <-ticker.C: // do on interval
 				rpc.Ping()
-				rpc.EchoWallet(app_tag)
-				rpc.GetDreamsBalances(rpc.SCIDs)
-				rpc.GetWalletHeight(app_tag)
+				rpc.Wallet.Sync()
 
-				connect_box.RefreshBalance()
-				if !rpc.Startup {
-					gnomes.EndPoint()
-				}
+				connection.RefreshBalance()
 
-				if rpc.Daemon.IsConnected() && gnomon.IsInitialized() {
-					connect_box.Disconnect.SetChecked(true)
+				if rpc.Daemon.IsConnected() {
+					connection.Connected.SetChecked(true)
 					if gnomon.IsRunning() {
+						gnomes.EndPoint()
 						menu.DisableIndexControls(false)
 						gnomon.IndexContains()
 						menu.Info.RefreshIndexed()
@@ -202,18 +191,14 @@ func StartApp() {
 					}
 				} else {
 					menu.DisableIndexControls(true)
-					connect_box.Disconnect.SetChecked(false)
+					connection.Connected.SetChecked(false)
 					Disconnected()
-				}
-
-				if rpc.Daemon.IsConnected() {
-					rpc.Startup = false
 				}
 
 				d.SignalChannel()
 
 			case <-d.Closing(): // exit
-				logger.Printf("[%s] Closing...", app_tag)
+				logger.Printf("[%s] Closing...", appName)
 				if gnomes.Indicator.Icon != nil {
 					gnomes.Indicator.Icon.Stop()
 				}
@@ -226,11 +211,12 @@ func StartApp() {
 		}
 	}()
 
+	// Start app and place layout
 	go func() {
 		time.Sleep(450 * time.Millisecond)
-		w.SetContent(container.NewStack(d.Background, container.NewStack(bundle.NewAlpha180(), tabs), container.NewVBox(layout.NewSpacer(), connect_box.Container)))
+		d.Window.SetContent(container.NewStack(d.Background, container.NewStack(bundle.NewAlpha180(), tabs), container.NewVBox(layout.NewSpacer(), connection.Container)))
 	}()
-	w.ShowAndRun()
+	d.Window.ShowAndRun()
 	<-done
-	logger.Printf("[%s] Closed", app_tag)
+	logger.Printf("[%s] Closed", appName)
 }

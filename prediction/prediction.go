@@ -202,8 +202,17 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
-		sort.Strings(Predict.Favorites.SCIDs)
+		var have bool
+		for _, f := range Predict.Favorites.SCIDs {
+			if item == f {
+				have = true
+			}
+		}
+
+		if !have {
+			Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
+			sort.Strings(Predict.Favorites.SCIDs)
+		}
 	})
 	save.Importance = widget.LowImportance
 
@@ -306,13 +315,13 @@ func PredictionOwned() fyne.CanvasObject {
 }
 
 // Refresh all dPrediction objects
-func PredictionRefresh(p *dreams.ContainerStack, d *dreams.AppObject) {
+func PredictionRefresh(p *dwidget.ContainerStack, d *dreams.AppObject) {
 	if d.OnTab("Predict") {
 		if Predict.prices.Text == "" {
 			go SetPredictionPrices(rpc.Daemon.Connect)
 		}
 
-		p.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+		p.Right.UpdateText()
 
 		if CheckActivePrediction(Predict.Contract.SCID) {
 			go ShowPredictionControls()

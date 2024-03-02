@@ -115,7 +115,7 @@ func AutoPredict(p int, amt, src uint64, scid, addr, pre_tx string) (tx string) 
 	response := dero.Arguments{
 		{Name: dero.RPC_DESTINATION_PORT, DataType: dero.DataUint64, Value: uint64(0)},
 		{Name: dero.RPC_SOURCE_PORT, DataType: dero.DataUint64, Value: src},
-		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: fmt.Sprintf("Placed a %s %s bet on %s at height %s,  %s", walletapi.FormatMoney(amt), hl, chopped_scid, rpc.Wallet.Display.Height, chopped_txid)},
+		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: fmt.Sprintf("Placed a %s %s bet on %s at height %d,  %s", walletapi.FormatMoney(amt), hl, chopped_scid, rpc.Wallet.Height(), chopped_txid)},
 	}
 
 	t1 := dero.Transfer{
@@ -155,7 +155,7 @@ func ServiceRefund(amt, src uint64, scid, addr, msg, refund_tx string) (tx strin
 	response := dero.Arguments{
 		{Name: dero.RPC_DESTINATION_PORT, DataType: dero.DataUint64, Value: uint64(0)},
 		{Name: dero.RPC_SOURCE_PORT, DataType: dero.DataUint64, Value: src},
-		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: msg + fmt.Sprintf(", refunded %s bet on %s at height %s,  %s", walletapi.FormatMoney(amt), chopped_scid, rpc.Wallet.Display.Height, chopped_txid)},
+		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: msg + fmt.Sprintf(", refunded %s bet on %s at height %d,  %s", walletapi.FormatMoney(amt), chopped_scid, rpc.Wallet.Height(), chopped_txid)},
 	}
 
 	t1 := dero.Transfer{
@@ -202,7 +202,7 @@ func AutoBook(amt, pre, src uint64, n, abv, scid, addr, book_tx string) (tx stri
 	response := dero.Arguments{
 		{Name: dero.RPC_DESTINATION_PORT, DataType: dero.DataUint64, Value: uint64(0)},
 		{Name: dero.RPC_SOURCE_PORT, DataType: dero.DataUint64, Value: src},
-		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: fmt.Sprintf("Placed a %s %s bet on %s at height %s,  %s", walletapi.FormatMoney(amt), abv, chopped_scid, rpc.Wallet.Display.Height, chopped_txid)},
+		{Name: dero.RPC_COMMENT, DataType: dero.DataString, Value: fmt.Sprintf("Placed a %s %s bet on %s at height %d,  %s", walletapi.FormatMoney(amt), abv, chopped_scid, rpc.Wallet.Height(), chopped_txid)},
 	}
 
 	t1 := dero.Transfer{

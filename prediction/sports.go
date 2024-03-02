@@ -235,8 +235,17 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
-		sort.Strings(Sports.Favorites.SCIDs)
+		var have bool
+		for _, f := range Sports.Favorites.SCIDs {
+			if item == f {
+				have = true
+			}
+		}
+
+		if !have {
+			Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
+			sort.Strings(Sports.Favorites.SCIDs)
+		}
 	})
 	save.Importance = widget.LowImportance
 

@@ -187,7 +187,7 @@ func main() {
 		height = uint64(gnomon.GetChainHeight())
 		for !menu.IsClosing() && gnomon.IsRunning() && rpc.IsReady() {
 			rpc.Ping()
-			rpc.EchoWallet("dService")
+			rpc.Wallet.Echo()
 			gnomon.IndexContains()
 			if gnomon.GetLastHeight() >= gnomon.GetChainHeight()-3 && gnomon.HasIndex(9) {
 				gnomon.Synced(true)
