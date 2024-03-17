@@ -222,7 +222,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 				menu.RateConfirm(Predict.Contract.SCID, d)
 			} else {
 				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
-				logger.Warnln("[dPrediction] Can't rate, you own this contract")
+				logger.Warnln("[Predictions] Can't rate, you own this contract")
 			}
 		}
 	})
