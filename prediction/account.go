@@ -6,8 +6,8 @@ import (
 
 // dSports and dPredictions account data
 type accountData struct {
-	Predict []string `json:"predict"`
-	Sports  []string `json:"sports"`
+	Predict []string `json:"predict,omitempty"`
+	Sports  []string `json:"sports,omitempty"`
 }
 
 // Get account data for dSports and dPredictions
@@ -23,7 +23,6 @@ func SetAccount(ad interface{}) (err error) {
 	var account accountData
 	err = dreams.SetAccount(ad, &account)
 	if err != nil {
-		logger.Errorln("[SetAccount]", err)
 		clearAccountData()
 		return
 	}

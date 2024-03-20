@@ -51,10 +51,11 @@ func StartApp() {
 	d := dreams.NewFyneApp(
 		appID,
 		appName,
+		"P2P Predictions and Sports Bet",
 		bundle.DeroTheme(config.Skin),
 		resourceDServiceIconPng,
 		menu.DefaultBackgroundResource(),
-		rpc.NewXSWDApplicationData(appName, "P2P Predictions and Sports Bet", appID, true))
+		true)
 
 	// Set one channel for dPrediction routine
 	d.SetChannels(1)
