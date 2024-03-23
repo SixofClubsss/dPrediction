@@ -153,8 +153,8 @@ func fetch(d *dreams.AppObject) {
 					go SetPredictionInfo(Predict.Contract.SCID)
 				}
 
-				if offset == 11 || Predict.prices.Text == "" {
-					go SetPredictionPrices(rpc.Daemon.Connect)
+				if offset == 20 || Predict.prices.Text == "" {
+					go SetPredictionPrices()
 				}
 
 				P.Right.UpdateText()
@@ -167,7 +167,7 @@ func fetch(d *dreams.AppObject) {
 			}
 
 			offset++
-			if offset >= 21 {
+			if offset >= 26 {
 				offset = 0
 			}
 

@@ -158,7 +158,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.cancel.Hide()
 
 	owner.predict.post = widget.NewButton("Post", func() {
-		go SetPredictionPrices(rpc.Daemon.Connect)
+		go SetPredictionPrices()
 		var a float64
 		prediction := Predict.prediction
 		if isOnChainPrediction(prediction) {
@@ -189,7 +189,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 	owner.predict.post.Hide()
 
 	owner.predict.pay = widget.NewButton("Prediction Payout", func() {
-		go SetPredictionPrices(rpc.Daemon.Connect)
+		go SetPredictionPrices()
 		var a float64
 		prediction := Predict.prediction
 		if isOnChainPrediction(prediction) {

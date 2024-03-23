@@ -149,8 +149,8 @@ func SetPredictionInfo(scid string) {
 }
 
 // Update price feed for dPrediction display
-func SetPredictionPrices(d bool) {
-	if d {
+func SetPredictionPrices() {
+	if rpc.Daemon.IsConnected() {
 		_, btc := menu.GetPrice("BTC-USDT", "Prediction")
 		_, dero := menu.GetPrice("DERO-USDT", "Prediction")
 		_, xmr := menu.GetPrice("XMR-USDT", "Prediction")
@@ -312,23 +312,6 @@ func PredictionOwned() fyne.CanvasObject {
 	}
 
 	return Predict.Owned.List
-}
-
-// Refresh all dPrediction objects
-func PredictionRefresh(p *dwidget.ContainerStack, d *dreams.AppObject) {
-	if d.OnTab("Predict") {
-		if Predict.prices.Text == "" {
-			go SetPredictionPrices(rpc.Daemon.Connect)
-		}
-
-		p.Right.UpdateText()
-
-		if CheckActivePrediction(Predict.Contract.SCID) {
-			go ShowPredictionControls()
-		} else {
-			disablePredictions(true)
-		}
-	}
 }
 
 // Formats initialized dPrediction info string
