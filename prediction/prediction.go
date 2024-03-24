@@ -212,6 +212,9 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 		if !have {
 			Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
 			sort.Strings(Predict.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Predictions] storing account", err)
+			}
 		}
 	})
 	save.Importance = widget.LowImportance
@@ -274,9 +277,13 @@ func PredictionFavorites() fyne.CanvasObject {
 					break
 				}
 			}
+
+			Predict.Favorites.List.Refresh()
+			sort.Strings(Predict.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Predictions] storing account", err)
+			}
 		}
-		Predict.Favorites.List.Refresh()
-		sort.Strings(Predict.Favorites.SCIDs)
 	})
 	remove.Importance = widget.LowImportance
 
