@@ -235,8 +235,20 @@ func SportsListings(d *dreams.AppObject) fyne.CanvasObject {
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
-		sort.Strings(Sports.Favorites.SCIDs)
+		var have bool
+		for _, f := range Sports.Favorites.SCIDs {
+			if item == f {
+				have = true
+			}
+		}
+
+		if !have {
+			Sports.Favorites.SCIDs = append(Sports.Favorites.SCIDs, item)
+			sort.Strings(Sports.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Sports] storing account", err)
+			}
+		}
 	})
 	save.Importance = widget.LowImportance
 
@@ -298,9 +310,13 @@ func SportsFavorites() fyne.CanvasObject {
 					break
 				}
 			}
+
+			Sports.Favorites.List.Refresh()
+			sort.Strings(Sports.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Sports] storing account", err)
+			}
 		}
-		Sports.Favorites.List.Refresh()
-		sort.Strings(Sports.Favorites.SCIDs)
 	})
 	remove.Importance = widget.LowImportance
 

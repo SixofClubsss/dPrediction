@@ -149,8 +149,8 @@ func SetPredictionInfo(scid string) {
 }
 
 // Update price feed for dPrediction display
-func SetPredictionPrices(d bool) {
-	if d {
+func SetPredictionPrices() {
+	if rpc.Daemon.IsConnected() {
 		_, btc := menu.GetPrice("BTC-USDT", "Prediction")
 		_, dero := menu.GetPrice("DERO-USDT", "Prediction")
 		_, xmr := menu.GetPrice("XMR-USDT", "Prediction")
@@ -202,8 +202,20 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 	}
 
 	save := widget.NewButton("Favorite", func() {
-		Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
-		sort.Strings(Predict.Favorites.SCIDs)
+		var have bool
+		for _, f := range Predict.Favorites.SCIDs {
+			if item == f {
+				have = true
+			}
+		}
+
+		if !have {
+			Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
+			sort.Strings(Predict.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Predictions] storing account", err)
+			}
+		}
 	})
 	save.Importance = widget.LowImportance
 
@@ -213,7 +225,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 				menu.RateConfirm(Predict.Contract.SCID, d)
 			} else {
 				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
-				logger.Warnln("[dPrediction] Can't rate, you own this contract")
+				logger.Warnln("[Predictions] Can't rate, you own this contract")
 			}
 		}
 	})
@@ -265,9 +277,13 @@ func PredictionFavorites() fyne.CanvasObject {
 					break
 				}
 			}
+
+			Predict.Favorites.List.Refresh()
+			sort.Strings(Predict.Favorites.SCIDs)
+			if err := dreams.StoreAccount(saveAccount()); err != nil {
+				logger.Errorln("[Predictions] storing account", err)
+			}
 		}
-		Predict.Favorites.List.Refresh()
-		sort.Strings(Predict.Favorites.SCIDs)
 	})
 	remove.Importance = widget.LowImportance
 
@@ -303,23 +319,6 @@ func PredictionOwned() fyne.CanvasObject {
 	}
 
 	return Predict.Owned.List
-}
-
-// Refresh all dPrediction objects
-func PredictionRefresh(p *dreams.ContainerStack, d *dreams.AppObject) {
-	if d.OnTab("Predict") {
-		if Predict.prices.Text == "" {
-			go SetPredictionPrices(rpc.Daemon.Connect)
-		}
-
-		p.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
-
-		if CheckActivePrediction(Predict.Contract.SCID) {
-			go ShowPredictionControls()
-		} else {
-			disablePredictions(true)
-		}
-	}
 }
 
 // Formats initialized dPrediction info string

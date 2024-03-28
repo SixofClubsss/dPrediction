@@ -7,7 +7,6 @@ import (
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
-	"github.com/dReam-dApps/dReams/rpc"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -16,13 +15,14 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var S dreams.ContainerStack
+var S dwidget.ContainerStack
 
 // dSports tab layout
-func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
-	S.LeftLabel = widget.NewLabel("")
-	S.RightLabel = widget.NewLabel("")
-	S.RightLabel.SetText("dReams Balance: " + rpc.DisplayBalance("dReams") + "      Dero Balance: " + rpc.DisplayBalance("Dero") + "      Height: " + rpc.Wallet.Display.Height)
+func LayoutSports(d *dreams.AppObject) *fyne.Container {
+	S.Left.Label = widget.NewLabel("")
+
+	S.Right.Label = widget.NewLabel("")
+	S.Right.SetUpdate(dreams.SetBalanceLabelText)
 
 	Sports.info = widget.NewLabel("SCID:\n\n" + Sports.Contract.SCID + "\n")
 	Sports.info.Wrapping = fyne.TextWrapWord
@@ -220,7 +220,7 @@ func LayoutSportsItems(d *dreams.AppObject) *fyne.Container {
 		layout.NewSpacer(),
 		Sports.Container)
 
-	sports_label := container.NewHBox(S.LeftLabel, layout.NewSpacer(), S.RightLabel)
+	sports_label := container.NewHBox(S.Left.Label, layout.NewSpacer(), S.Right.Label)
 	sports_box := container.NewHSplit(sports_left, max)
 
 	S.DApp = container.NewBorder(

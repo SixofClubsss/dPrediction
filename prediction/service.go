@@ -29,7 +29,7 @@ type service struct {
 	Init       bool
 	Debug      bool
 	Processing bool
-	Last_block int
+	Last_block uint64
 	sync.RWMutex
 }
 
@@ -94,28 +94,30 @@ func (s *service) IsStopped() {
 }
 
 // Ui indictor when dService is running
-func ServiceIndicator() (ind menu.DreamsIndicator) {
+func ServiceIndicator() (ind *menu.DreamsIndicator) {
 	purple := color.RGBA{105, 90, 205, 210}
 	blue := color.RGBA{31, 150, 200, 210}
 	alpha := &color.RGBA{0, 0, 0, 0}
 
-	ind.Img = canvas.NewImageFromResource(resourceDServiceCirclePng)
-	ind.Img.SetMinSize(fyne.NewSize(30, 30))
-	ind.Rect = canvas.NewRectangle(alpha)
-	ind.Rect.SetMinSize(fyne.NewSize(36, 36))
+	ind = &menu.DreamsIndicator{
+		Img:  canvas.NewImageFromResource(resourceDServiceCirclePng),
+		Rect: canvas.NewRectangle(alpha),
+		Animation: canvas.NewColorRGBAAnimation(purple, blue,
+			time.Second*3, func(c color.Color) {
+				if Service.IsRunning() {
+					ind.Rect.FillColor = c
+					ind.Img.Show()
+					canvas.Refresh(ind.Rect)
+				} else {
+					ind.Rect.FillColor = alpha
+					ind.Img.Hide()
+					canvas.Refresh(ind.Rect)
+				}
+			}),
+	}
 
-	ind.Animation = canvas.NewColorRGBAAnimation(purple, blue,
-		time.Second*3, func(c color.Color) {
-			if Service.IsRunning() {
-				ind.Rect.FillColor = c
-				ind.Img.Show()
-				canvas.Refresh(ind.Rect)
-			} else {
-				ind.Rect.FillColor = alpha
-				ind.Img.Hide()
-				canvas.Refresh(ind.Rect)
-			}
-		})
+	ind.Img.SetMinSize(fyne.NewSize(30, 30))
+	ind.Rect.SetMinSize(fyne.NewSize(36, 36))
 
 	ind.Animation.RepeatCount = fyne.AnimationRepeatForever
 	ind.Animation.AutoReverse = true
@@ -588,7 +590,7 @@ func runPredictionPayouts(print bool) {
 		}
 
 		if sent {
-			Service.Last_block = rpc.Wallet.Height
+			Service.Last_block = rpc.Wallet.Height()
 			time.Sleep(time.Second)
 			rpc.ConfirmTx(tx, "runPredictionPayouts", 36)
 		}
@@ -644,7 +646,7 @@ func runPredictionPayouts(print bool) {
 		}
 
 		if sent {
-			Service.Last_block = rpc.Wallet.Height
+			Service.Last_block = rpc.Wallet.Height()
 			time.Sleep(time.Second)
 			rpc.ConfirmTx(tx, "runPredictionPayouts", 36)
 		}
@@ -706,7 +708,7 @@ func runSportsPayouts(print bool) {
 								}
 
 								if sent {
-									Service.Last_block = rpc.Wallet.Height
+									Service.Last_block = rpc.Wallet.Height()
 									time.Sleep(time.Second)
 									rpc.ConfirmTx(tx, "runSportsPayouts", 36)
 								}
@@ -728,7 +730,7 @@ func runSportsPayouts(print bool) {
 //   - db is local db storage
 //   - print for debug
 func processBetTx(start uint64, db *bbolt.DB, print bool) {
-	client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+	client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 	var p_contracts, s_contracts []string
 	for _, sc := range Predict.Owned.SCIDs {
@@ -833,7 +835,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 					}
 
 					if len(reply_txid) != 64 {
-						serviceDebug(print, "[processBetTx]", fmt.Sprintf(PrintColor.Red+"Reply missing for %d blocks"+PrintColor.Reset, rpc.Wallet.Height-int(e.Height)))
+						serviceDebug(print, "[processBetTx]", fmt.Sprintf(PrintColor.Red+"Reply missing for %d blocks"+PrintColor.Reset, rpc.Wallet.Height()-e.Height))
 					}
 				}
 			}
@@ -1025,7 +1027,7 @@ func processSingleTx(txid string) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 		var p_contracts, s_contracts []string
 		for _, sc := range Predict.Owned.SCIDs {
@@ -1270,7 +1272,7 @@ func viewProcessedTx(start uint64) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.Rpc, rpc.Wallet.UserPass)
+		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
 
 		out_params := dero.Get_Transfers_Params{
 			Coinbase:   false,
@@ -1409,7 +1411,7 @@ func sendToPrediction(pre int, scid, destination_expected string, e dero.Entry) 
 		tx = AutoPredict(pre, e.Amount, e.SourcePort, scid, destination_expected, e.TXID)
 	}
 
-	Service.Last_block = rpc.Wallet.Height
+	Service.Last_block = rpc.Wallet.Height()
 
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendToPrediction", 36)
@@ -1451,7 +1453,7 @@ func sendToSports(n, abv, team, scid, destination_expected string, e dero.Entry)
 		tx = AutoBook(e.Amount, pre, e.SourcePort, n, abv, scid, destination_expected, e.TXID)
 	}
 
-	Service.Last_block = rpc.Wallet.Height
+	Service.Last_block = rpc.Wallet.Height()
 
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendToSports", 36)
@@ -1465,7 +1467,7 @@ func sendToSports(n, abv, team, scid, destination_expected string, e dero.Entry)
 func sendRefund(scid, addr, msg string, e dero.Entry) {
 	waitForBlock()
 	tx := ServiceRefund(e.Amount, e.SourcePort, scid, addr, msg, e.TXID)
-	Service.Last_block = rpc.Wallet.Height
+	Service.Last_block = rpc.Wallet.Height()
 
 	time.Sleep(time.Second)
 	rpc.ConfirmTx(tx, "sendRefund", 36)
@@ -1474,11 +1476,11 @@ func sendRefund(scid, addr, msg string, e dero.Entry) {
 // Pause dService if last tx was within 3 blocks
 func waitForBlock() {
 	i := 0
-	if Service.Debug && rpc.Wallet.Height < Service.Last_block+3 {
+	if Service.Debug && rpc.Wallet.Height() < Service.Last_block+3 {
 		logger.Println("[waitForBlock] Waiting for block")
 	}
 
-	for rpc.Wallet.Height < Service.Last_block+3 && i < 20 {
+	for rpc.Wallet.Height() < Service.Last_block+3 && i < 20 {
 		i++
 		time.Sleep(3 * time.Second)
 	}
