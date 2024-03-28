@@ -2,6 +2,25 @@
 
 This file lists the changes to dPrediction repo with each version.
 
+## 0.x.x - In progress
+
+### Added
+
+* XSWD and DERO connections and calls
+* Account for local DB storage
+
+### Changed
+
+* Fyne 2.4.4
+* dReams 0.12.0
+* Update StartApp with upstream functions
+* `dreams` UpdateText and SetUpdate for labels
+
+### Fixed
+
+* Don't add favorite if exists
+
+
 ## 0.3.1 - January 19 2024
 
 ### Added
