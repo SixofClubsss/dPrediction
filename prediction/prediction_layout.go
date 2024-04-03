@@ -75,7 +75,7 @@ func LayoutPredictions(d *dreams.AppObject) *fyne.Container {
 		}
 	}
 
-	max := container.NewStack(bundle.Alpha120, tabs)
+	max := container.NewStack(bundle.NewAlpha120(0, 0), tabs)
 
 	Predict.higher.OnTapped = func() {
 		if len(Predict.Contract.SCID) == 64 {
