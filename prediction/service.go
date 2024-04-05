@@ -1,11 +1,12 @@
 package prediction
 
 import (
-	"context"
 	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
 	"image/color"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -730,8 +731,6 @@ func runSportsPayouts(print bool) {
 //   - db is local db storage
 //   - print for debug
 func processBetTx(start uint64, db *bbolt.DB, print bool) {
-	client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
-
 	var p_contracts, s_contracts []string
 	for _, sc := range Predict.Owned.SCIDs {
 		split := strings.Split(sc, "   ")
@@ -762,7 +761,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 		}
 	}
 
-	out_params := dero.Get_Transfers_Params{
+	out_params := &dero.Get_Transfers_Params{
 		Coinbase:   false,
 		In:         false,
 		Out:        true,
@@ -770,7 +769,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	}
 
 	var outgoing dero.Get_Transfers_Result
-	err := client.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
+	err := rpc.Wallet.CallFor(&outgoing, "GetTransfers", out_params)
 	if err != nil {
 		logger.Errorln("[viewProcessedTx]", err)
 		return
@@ -782,7 +781,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 		start = PAYLOAD_FORMAT
 	}
 
-	params := dero.Get_Transfers_Params{
+	params := &dero.Get_Transfers_Params{
 		Coinbase:        false,
 		In:              true,
 		Out:             false,
@@ -791,7 +790,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	}
 
 	var transfers dero.Get_Transfers_Result
-	err = client.CallFor(context.TODO(), &transfers, "GetTransfers", params)
+	err = rpc.Wallet.CallFor(&transfers, "GetTransfers", params)
 	if err != nil {
 		logger.Errorln("[processBetTx]", err)
 		return
@@ -1027,8 +1026,6 @@ func processSingleTx(txid string) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
-
 		var p_contracts, s_contracts []string
 		for _, sc := range Predict.Owned.SCIDs {
 			split := strings.Split(sc, "   ")
@@ -1059,12 +1056,12 @@ func processSingleTx(txid string) {
 			}
 		}
 
-		params := dero.Get_Transfer_By_TXID_Params{
+		params := &dero.Get_Transfer_By_TXID_Params{
 			TXID: txid,
 		}
 
 		var transfers dero.Get_Transfer_By_TXID_Result
-		err = client.CallFor(context.TODO(), &transfers, "GetTransferbyTXID", params)
+		err = rpc.Wallet.CallFor(&transfers, "GetTransferbyTXID", params)
 		if err != nil {
 			logger.Errorln("[processSingleTx]", err)
 			return
@@ -1272,9 +1269,7 @@ func viewProcessedTx(start uint64) {
 			return
 		}
 
-		client, _, _ := rpc.SetWalletClient(rpc.Wallet.RPC.Port, rpc.Wallet.RPC.Auth)
-
-		out_params := dero.Get_Transfers_Params{
+		out_params := &dero.Get_Transfers_Params{
 			Coinbase:   false,
 			In:         false,
 			Out:        true,
@@ -1282,7 +1277,7 @@ func viewProcessedTx(start uint64) {
 		}
 
 		var outgoing dero.Get_Transfers_Result
-		err = client.CallFor(context.TODO(), &outgoing, "GetTransfers", out_params)
+		err = rpc.Wallet.CallFor(&outgoing, "GetTransfers", out_params)
 		if err != nil {
 			logger.Errorln("[viewProcessedTx]", err)
 			return
@@ -1290,7 +1285,7 @@ func viewProcessedTx(start uint64) {
 
 		reply_id := checkReplies(outgoing)
 
-		in_params := dero.Get_Transfers_Params{
+		in_params := &dero.Get_Transfers_Params{
 			Coinbase:        false,
 			In:              true,
 			Out:             false,
@@ -1299,9 +1294,9 @@ func viewProcessedTx(start uint64) {
 		}
 
 		var transfers dero.Get_Transfers_Result
-		err = client.CallFor(context.TODO(), &transfers, "GetTransfers", in_params)
+		err = rpc.Wallet.CallFor(&transfers, "GetTransfers", in_params)
 		if err != nil {
-			logger.Errorln("[ViewProcessedTx] Could not obtain gettransfers from wallet", err)
+			logger.Errorln("[ViewProcessedTx] Could not obtain GetTransfers from wallet", err)
 			return
 		}
 
@@ -1348,10 +1343,31 @@ func viewProcessedTx(start uint64) {
 
 // Create a new bbolt.DB for dService
 func boltDB() *bbolt.DB {
-	db_name := fmt.Sprintf("config/dService_%s.bbolt.db", rpc.Wallet.Address)
-	db, err := bbolt.Open(db_name, 0600, nil)
+	dir, err := os.Getwd()
 	if err != nil {
-		logger.Errorf("[dService] could not open db err:%s\n", err)
+		logger.Errorf("[dService] Getwd: %s\n", err)
+		return nil
+	}
+
+	// TODO put this into main DB?
+	var shard string
+	if !rpc.Wallet.File.IsNil() {
+		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address)))
+	} else {
+		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address+"1")))
+	}
+
+	path := filepath.Join(dir, "datashards", shard)
+
+	err = os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		logger.Errorf("[dService] MkdirAll: %s\n", err)
+		return nil
+	}
+
+	db, err := bbolt.Open(filepath.Join(path, "dService.db"), 0600, nil)
+	if err != nil {
+		logger.Errorf("[dService] Open: %s\n", err)
 		return nil
 	}
 
