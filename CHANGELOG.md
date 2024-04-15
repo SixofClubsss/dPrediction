@@ -11,7 +11,7 @@ This file lists the changes to dPrediction repo with each version.
 
 ### Changed
 
-* Fyne 2.4.4
+* Fyne 2.4.5
 * dReams 0.12.0
 * Update StartApp with upstream functions
 * `dreams` UpdateText and SetUpdate for labels
