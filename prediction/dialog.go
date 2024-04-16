@@ -170,7 +170,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 				a = rpc.GetBlockTime(Predict.feed)
 				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			case 3:
-				d := rpc.DaemonHeight("Prediction", Predict.feed)
+				d := rpc.GetDaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
 				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(6, a, window, reset))
 			default:
@@ -201,7 +201,7 @@ func predictionOpts(window fyne.Window) fyne.CanvasObject {
 				a = rpc.GetBlockTime(Predict.feed)
 				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			case 3:
-				d := rpc.DaemonHeight("Prediction", Predict.feed)
+				d := rpc.GetDaemonHeight("Prediction", Predict.feed)
 				a = float64(d)
 				window.Content().(*fyne.Container).Objects[2] = container.NewStack(ownerConfirmAction(7, a, window, reset))
 			default:
@@ -431,7 +431,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 	var start uint64
 	height := widget.NewCheck("Start from current height", func(b bool) {
 		if b {
-			start = rpc.DaemonHeight("Prediction", rpc.Daemon.Rpc)
+			start = rpc.Daemon.GetHeight("Prediction")
 			entry.SetText(strconv.Itoa(int(start)))
 			entry.Disable()
 		} else {
@@ -1016,7 +1016,7 @@ func ownersMenu() {
 
 		time.Sleep(time.Second)
 		markets := []string{}
-		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "prediction_markets", rpc.Daemon.Endpoint).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &markets); err == nil {
 					owner.predict.name.SetOptions(markets)
@@ -1025,7 +1025,7 @@ func ownersMenu() {
 		}
 
 		leagues := []string{}
-		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Rpc).(string); ok {
+		if stored, ok := rpc.GetStringKey(rpc.RatingSCID, "sports_leagues", rpc.Daemon.Endpoint).(string); ok {
 			if h, err := hex.DecodeString(stored); err == nil {
 				if err = json.Unmarshal(h, &leagues); err == nil {
 					owner.sports.league.SetOptions(leagues)

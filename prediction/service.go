@@ -457,7 +457,7 @@ func RunService(start uint64, payouts, transfers bool) {
 		}
 
 		if start == 0 {
-			start = rpc.DaemonHeight("dService", rpc.Daemon.Rpc)
+			start = rpc.Daemon.GetHeight("dService")
 		}
 
 		if start > 0 {
@@ -557,7 +557,7 @@ func runPredictionPayouts(print bool) {
 			case 2:
 				value = rpc.GetBlockTime(Predict.feed)
 			case 3:
-				d := rpc.DaemonHeight("dService", Predict.feed)
+				d := rpc.GetDaemonHeight("dService", Predict.feed)
 				value = float64(d)
 			default:
 
@@ -612,7 +612,7 @@ func runPredictionPayouts(print bool) {
 			case 2:
 				amt = rpc.GetBlockTime(Predict.feed)
 			case 3:
-				d := rpc.DaemonHeight("dService", Predict.feed)
+				d := rpc.GetDaemonHeight("dService", Predict.feed)
 				amt = float64(d)
 			default:
 				sent = false

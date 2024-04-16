@@ -675,7 +675,7 @@ func EndPrediction(scid string, price int) (tx string) {
 
 // Check dSports/dPrediction SC for dev address
 func ValidBetContract(scid string) bool {
-	client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+	client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Endpoint)
 	defer cancel()
 
 	var result *dero.GetSC_Result
@@ -698,7 +698,7 @@ func ValidBetContract(scid string) bool {
 // Get dPrediction final TXID
 func FetchPredictionFinal(scid string) (txid string) {
 	if rpc.Daemon.IsConnected() {
-		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Endpoint)
 		defer cancel()
 
 		params := &dero.GetSC_Params{
@@ -727,7 +727,7 @@ func FetchPredictionFinal(scid string) (txid string) {
 //   - pub 1 defines private SC, else public
 func GetPredictCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
-		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Endpoint)
 		defer cancel()
 
 		var result *dero.GetSC_Result
@@ -760,7 +760,7 @@ func GetPredictCode(pub int) string {
 //   - pub 1 defines private SC, else public
 func GetSportsCode(pub int) string {
 	if rpc.Daemon.IsConnected() {
-		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Rpc)
+		client, ctx, cancel := rpc.SetDaemonClient(rpc.Daemon.Endpoint)
 		defer cancel()
 
 		var result *dero.GetSC_Result

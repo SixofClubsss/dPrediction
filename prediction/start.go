@@ -28,7 +28,7 @@ const (
 	appID   = "dreamdapps.io.dprediction"
 )
 
-var version = semver.MustParse("0.3.1-dev.9")
+var version = semver.MustParse("0.3.1-dev.10")
 var gnomon = gnomes.NewGnomes()
 
 // Check prediction package version
@@ -70,10 +70,10 @@ func StartApp() {
 			Theme:  dreams.Theme.Name,
 		}
 
-		if rpc.Daemon.Rpc == "" {
+		if rpc.Daemon.Endpoint == "" {
 			save.Daemon = config.Daemon
 		} else {
-			save.Daemon = []string{rpc.Daemon.Rpc}
+			save.Daemon = []string{rpc.Daemon.Endpoint}
 		}
 
 		menu.StoreSettings(save)
@@ -165,7 +165,7 @@ func StartApp() {
 		for {
 			select {
 			case <-ticker.C: // do on interval
-				rpc.Ping()
+				rpc.Daemon.Ping()
 				rpc.Wallet.Sync()
 
 				connection.RefreshBalance()
