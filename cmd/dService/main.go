@@ -122,8 +122,7 @@ func main() {
 	rpc.Wallet.RPC.Init()
 
 	// Check for daemon connection
-	rpc.Daemon.Ping()
-	if !rpc.Daemon.IsConnected() {
+	if !rpc.Daemon.Ping() {
 		logger.Fatalf("[dService] Daemon %s not connected\n", rpc.Daemon.Endpoint)
 	}
 

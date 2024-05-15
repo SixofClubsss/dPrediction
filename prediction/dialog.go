@@ -853,7 +853,7 @@ func GetActiveGames() {
 		contracts := gnomon.GetAllOwnersAndSCIDs()
 		for sc := range contracts {
 			owner, _ := gnomon.GetSCIDValuesByKey(sc, "owner")
-			if (owner != nil && owner[0] == rpc.Wallet.Address) || VerifyBetSigner(sc) {
+			if (owner != nil && rpc.Wallet.IsAddress(owner[0])) || VerifyBetSigner(sc) {
 				if len(sc) == 64 {
 					if _, init := gnomon.GetSCIDValuesByKey(sc, "s_init"); init != nil {
 						for i := 1; i <= int(init[0]); i++ {

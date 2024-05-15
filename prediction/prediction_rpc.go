@@ -395,7 +395,7 @@ func PickTeam(scid, multi, n string, a uint64, pick int) (tx string) {
 	arg1 := dero.Argument{Name: "entrypoint", DataType: "S", Value: "Book"}
 	arg2 := dero.Argument{Name: "n", DataType: "S", Value: n}
 	arg3 := dero.Argument{Name: "pre", DataType: "U", Value: uint64(pick)}
-	arg4 := dero.Argument{Name: "addr", DataType: "S", Value: rpc.Wallet.Address}
+	arg4 := dero.Argument{Name: "addr", DataType: "S", Value: rpc.Wallet.Address()}
 	args := dero.Arguments{arg1, arg2, arg3, arg4}
 	txid := dero.Transfer_Result{}
 

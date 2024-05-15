@@ -134,7 +134,7 @@ func fetch(d *dreams.AppObject) {
 				continue
 			}
 
-			if !owner.synced && gnomes.Scan(d.IsConfiguring()) {
+			if !owner.synced && gnomes.Scan() {
 				logger.Println("[dPrediction] Syncing")
 				syncScreen()
 			}
@@ -173,6 +173,7 @@ func fetch(d *dreams.AppObject) {
 
 			d.WorkDone()
 		case <-d.CloseDapp():
+			Service.IsStopped()
 			logger.Println("[dPrediction] Done")
 			return
 		}
@@ -218,7 +219,7 @@ func disableActions() {
 
 // Set objects if bet owner
 func setBetOwner(owner string) {
-	if owner == rpc.Wallet.Address {
+	if rpc.Wallet.IsAddress(owner) {
 		Predict.owner = true
 		Predict.Contract.new.Show()
 		Sports.Contract.new.Show()
@@ -282,7 +283,7 @@ func VerifyBetSigner(scid string) bool {
 
 			signer_addr, _ := gnomon.GetSCIDValuesByKey(scid, "co_signer"+strconv.Itoa(i))
 			if signer_addr != nil {
-				if signer_addr[0] == rpc.Wallet.Address {
+				if rpc.Wallet.IsAddress(signer_addr[0]) {
 					return true
 				}
 			}
@@ -339,7 +340,7 @@ func checkBetContract(scid, t string, list, owned []string) ([]string, []string)
 						}
 					}
 
-					if owner[0] == rpc.Wallet.Address || co_signer {
+					if rpc.Wallet.IsAddress(owner[0]) || co_signer {
 						owned = append(owned, name+"   "+desc+"   "+scid)
 					}
 

@@ -28,7 +28,7 @@ const (
 	appID   = "dreamdapps.io.dprediction"
 )
 
-var version = semver.MustParse("0.3.1-dev.10")
+var version = semver.MustParse("0.3.1-dev.11")
 var gnomon = gnomes.NewGnomes()
 
 // Check prediction package version
@@ -54,8 +54,7 @@ func StartApp() {
 		"P2P Predictions and Sports Bet",
 		bundle.DeroTheme(config.Skin),
 		resourceDServiceIconPng,
-		menu.DefaultBackgroundResource(),
-		true)
+		menu.DefaultBackgroundResource())
 
 	// Set one channel for dPrediction routine
 	d.SetChannels(1)

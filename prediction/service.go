@@ -140,7 +140,7 @@ func SetPrintColors(os string) {
 func integratedAddress() (uint64, *dero.Address) {
 	var err error
 	var addr *dero.Address
-	if addr, err = dero.NewAddress(rpc.Wallet.Address); err != nil {
+	if addr, err = dero.NewAddress(rpc.Wallet.Address()); err != nil {
 		logger.Errorf("\n[integratedAddress] address could not be parsed: addr:%s err:%s\n", rpc.Wallet.Address, err)
 		return 0, nil
 	}
@@ -1352,9 +1352,9 @@ func boltDB() *bbolt.DB {
 	// TODO put this into main DB?
 	var shard string
 	if !rpc.Wallet.File.IsNil() {
-		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address)))
+		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address())))
 	} else {
-		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address+"1")))
+		shard = fmt.Sprintf("%x", sha1.Sum([]byte(rpc.Wallet.Address()+"1")))
 	}
 
 	path := filepath.Join(dir, "datashards", shard)
