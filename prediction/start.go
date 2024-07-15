@@ -28,7 +28,7 @@ const (
 	appID   = "dreamdapps.io.dprediction"
 )
 
-var version = semver.MustParse("0.3.1-dev.11")
+var version = semver.MustParse("0.3.1-dev.12")
 var gnomon = gnomes.NewGnomes()
 
 // Check prediction package version
