@@ -4,7 +4,7 @@ go 1.21.5
 
 require (
 	fyne.io/fyne/v2 v2.5.2
-	github.com/SixofClubsss/Holdero v0.3.2-0.20240715183116-838db8b6ed6e
+	github.com/SixofClubsss/Holdero v0.3.2-0.20241130234241-d717728763cc
 	github.com/blang/semver/v4 v4.0.0
 	github.com/civilware/Gnomon v0.0.0-20240403103529-8b2fdb2b3106
 	github.com/civilware/tela v0.0.0-20241112035835-6f5b3bf03ff0
