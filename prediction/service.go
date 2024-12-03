@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/civilware/tela/logger"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	dero "github.com/deroproject/derohe/rpc"
@@ -89,7 +90,7 @@ func (s *service) IsStopped() {
 
 	s.Init = false
 	for s.Processing {
-		logger.Println("[dPrediction] Waiting for service to close")
+		logger.Printf("[dPrediction] Waiting for service to close\n")
 		time.Sleep(3 * time.Second)
 	}
 }
@@ -141,7 +142,7 @@ func integratedAddress() (uint64, *dero.Address) {
 	var err error
 	var addr *dero.Address
 	if addr, err = dero.NewAddress(rpc.Wallet.Address()); err != nil {
-		logger.Errorf("\n[integratedAddress] address could not be parsed: addr:%s err:%s\n", rpc.Wallet.Address, err)
+		logger.Errorf("[integratedAddress] address could not be parsed: addr: %s err: %s\n", rpc.Wallet.Address(), err)
 		return 0, nil
 	}
 
@@ -157,7 +158,7 @@ func integratedAddress() (uint64, *dero.Address) {
 //   - str to be printed
 func serviceDebug(print bool, tag, str string) {
 	if print && Service.Debug {
-		logger.Println(tag, str)
+		logger.Printf("%s %s\n", tag, str)
 	}
 }
 
@@ -361,7 +362,7 @@ func MakeIntegratedAddr(print bool) {
 	var addr *dero.Address
 	Service.Dest_port, addr = integratedAddress()
 	if addr == nil {
-		logger.Errorln("[MakeIntegratedAddr] Could not make addresses")
+		logger.Errorf("[MakeIntegratedAddr] Could not make addresses\n")
 		return
 	}
 
@@ -387,19 +388,19 @@ func MakeIntegratedAddr(print bool) {
 		higher, lower := intgPredictionArgs(sc, print)
 		if higher != nil && lower != nil {
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%d DST Port", higher.Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
+				logger.Printf("[MakeIntegratedAddr] %d DST Port\n", higher.Value(dero.RPC_DESTINATION_PORT, dero.DataUint64))
 			}
 
 			service_address.Arguments = higher
 			comment := higher.Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(higher.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				logger.Printf("[MakeIntegratedAddr] %s %s \n%s\n\n", walletapi.FormatMoney(higher.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String())
 			}
 
 			service_address.Arguments = lower
 			comment = lower.Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(lower.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				logger.Printf("[MakeIntegratedAddr] %s %s \n%s\n\n", walletapi.FormatMoney(lower.Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String())
 			}
 			live = true
 		}
@@ -409,19 +410,19 @@ func MakeIntegratedAddr(print bool) {
 		all_args := intgSportsArgs(sc, true)
 		for _, arg := range all_args {
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%d DST Port", arg[0].Value(dero.RPC_DESTINATION_PORT, dero.DataUint64)))
+				logger.Printf("[MakeIntegratedAddr] %d DST Port\n", arg[0].Value(dero.RPC_DESTINATION_PORT, dero.DataUint64))
 			}
 
 			service_address.Arguments = arg[0]
 			comment := arg[0].Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[0].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				logger.Printf("[MakeIntegratedAddr] %s %s \n%s\n\n", walletapi.FormatMoney(arg[0].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String())
 			}
 
 			service_address.Arguments = arg[1]
 			comment = arg[1].Value(dero.RPC_COMMENT, dero.DataString)
 			if print {
-				logger.Println("[MakeIntegratedAddr]", fmt.Sprintf("%s %s \n%s\n", walletapi.FormatMoney(arg[1].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String()))
+				logger.Printf("[MakeIntegratedAddr] %s %s \n%s\n\n", walletapi.FormatMoney(arg[1].Value(dero.RPC_VALUE_TRANSFER, dero.DataUint64).(uint64)), comment, service_address.String())
 			}
 			live = true
 		}
@@ -429,7 +430,7 @@ func MakeIntegratedAddr(print bool) {
 
 	if !live {
 		if print {
-			logger.Warnln("[MakeIntegratedAddr]", "No addresses")
+			logger.Warnf("[MakeIntegratedAddr] No addresses\n")
 		}
 	}
 }
@@ -441,7 +442,7 @@ func RunService(start uint64, payouts, transfers bool) {
 	if rpc.IsReady() {
 		db := boltDB()
 		if db == nil {
-			logger.Println("[dService] Closing")
+			logger.Printf("[dService] Closing\n")
 			return
 		}
 		defer db.Close()
@@ -461,17 +462,17 @@ func RunService(start uint64, payouts, transfers bool) {
 		}
 
 		if start > 0 {
-			logger.Println("[dService] Processing from height", start)
+			logger.Printf("[dService] Processing from height %d\n", start)
 			for i := 5; i > 0; i-- {
 				if !Service.IsRunning() {
 					break
 				}
-				logger.Println("[dService] Starting in", i)
+				logger.Printf("[dService] Starting in %d\n", i)
 				time.Sleep(1 * time.Second)
 			}
 
 			if Service.IsRunning() {
-				logger.Println("[dService] Starting")
+				logger.Printf("[dService] Starting\n")
 			}
 
 			for Service.IsRunning() && rpc.IsReady() {
@@ -493,11 +494,11 @@ func RunService(start uint64, payouts, transfers bool) {
 				}
 			}
 			Service.SetProcessing(false)
-			logger.Println("[dService] Shutting down")
+			logger.Printf("[dService] Shutting down\n")
 		} else {
-			logger.Warnln("[dService] Not starting from 0 height")
+			logger.Warnf("[dService] Not starting from 0 height\n")
 		}
-		logger.Println("[dService] Done")
+		logger.Printf("[dService] Done\n")
 	}
 	Service.Stop()
 }
@@ -771,7 +772,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	var outgoing dero.Get_Transfers_Result
 	err := rpc.Wallet.CallFor(&outgoing, "GetTransfers", out_params)
 	if err != nil {
-		logger.Errorln("[viewProcessedTx]", err)
+		logger.Errorf("[viewProcessedTx] %s\n", err)
 		return
 	}
 
@@ -792,7 +793,7 @@ func processBetTx(start uint64, db *bbolt.DB, print bool) {
 	var transfers dero.Get_Transfers_Result
 	err = rpc.Wallet.CallFor(&transfers, "GetTransfers", params)
 	if err != nil {
-		logger.Errorln("[processBetTx]", err)
+		logger.Errorf("[processBetTx] %s\n", err)
 		return
 	}
 
@@ -1022,7 +1023,7 @@ func processSingleTx(txid string) {
 		})
 
 		if err != nil {
-			logger.Errorf("[dService] err creating bucket. err %s\n", err)
+			logger.Errorf("[dService] err creating bucket: %s\n", err)
 			return
 		}
 
@@ -1063,16 +1064,16 @@ func processSingleTx(txid string) {
 		var transfers dero.Get_Transfer_By_TXID_Result
 		err = rpc.Wallet.CallFor(&transfers, "GetTransferbyTXID", params)
 		if err != nil {
-			logger.Errorln("[processSingleTx]", err)
+			logger.Errorf("[processSingleTx] %s\n", err)
 			return
 		}
 
-		logger.Println("[processSingleTx] Processing", txid)
+		logger.Printf("[processSingleTx] Processing %s\n", txid)
 
 		e := transfers.Entry
 
 		if e.Coinbase || !e.Incoming {
-			logger.Println("[processSingleTx]", e.TXID, "coinbase or outgoing")
+			logger.Printf("[processSingleTx] %s coinbase or outgoing\n", e.TXID)
 			return
 		}
 
@@ -1087,17 +1088,17 @@ func processSingleTx(txid string) {
 		})
 
 		if already_processed {
-			logger.Println("[processSingleTx]", fmt.Sprintf(PrintColor.Green+"%s Received: %d Already processed"+PrintColor.Reset, e.TXID, e.Height))
+			logger.Printf("[processSingleTx] %s%s Received: %d Already processed%s\n", PrintColor.Green, e.TXID, e.Height, PrintColor.Reset)
 			return
 		}
 
 		if !e.Payload_RPC.Has(dero.RPC_DESTINATION_PORT, dero.DataUint64) {
-			logger.Println("[processSingleTx]", fmt.Sprintf(PrintColor.Red+"%s No DST Port"+PrintColor.Reset, e.TXID))
+			logger.Printf("[processSingleTx] %s%s No DST Port%s\n", PrintColor.Red, e.TXID, PrintColor.Reset)
 			return
 		}
 
 		if Service.Dest_port != e.Payload_RPC.Value(dero.RPC_DESTINATION_PORT, dero.DataUint64).(uint64) {
-			logger.Println("[processSingleTx]", fmt.Sprintf(PrintColor.Red+"%s Bad DST port"+PrintColor.Reset, e.TXID))
+			logger.Printf("[processSingleTx] %s%s Bad DST port%s\n", PrintColor.Red, e.TXID, PrintColor.Reset)
 			return
 		}
 
@@ -1105,7 +1106,7 @@ func processSingleTx(txid string) {
 			destination_expected := e.Payload_RPC.Value(dero.RPC_REPLYBACK_ADDRESS, dero.DataAddress).(dero.Address).String()
 			addr, err := dero.NewAddress(destination_expected)
 			if err != nil {
-				logger.Errorln("[processSingleTx] err while while parsing incoming addr", err)
+				logger.Errorf("[processSingleTx] err while while parsing incoming addr: %s\n", err)
 				storeTx("BET", "done", db, e)
 				return
 			}
@@ -1115,8 +1116,8 @@ func processSingleTx(txid string) {
 			payload := e.Payload_RPC.Value(dero.RPC_COMMENT, dero.DataString).(string)
 			split := strings.Split(payload, "  ")
 			if len(split) > 4 {
-				logger.Println("[processSingleTx] Payload", payload)
-				logger.Println("[processSingleTx] Reply addr", destination_expected)
+				logger.Printf("[processSingleTx] Payload %s\n", payload)
+				logger.Printf("[processSingleTx] Reply addr %s\n", destination_expected)
 
 				var scid string
 				contracts := append(p_contracts, s_contracts...)
@@ -1124,7 +1125,7 @@ func processSingleTx(txid string) {
 				for _, sc := range contracts {
 					check := sc[:6] + "..." + sc[58:]
 					if check == split[len(split)-2] {
-						logger.Println("[processSingleTx] Found Scid", sc)
+						logger.Printf("[processSingleTx] Found SCID %s\n", sc)
 						found = true
 						scid = sc
 						break
@@ -1140,7 +1141,7 @@ func processSingleTx(txid string) {
 					} else if prefix == "s" {
 						game_num = strings.Trim(full_prefix, "s")
 						if rpc.StringToInt(game_num) < 1 {
-							logger.Errorln("[processSingleTx]", e.TXID, "No game number")
+							logger.Errorf("[processSingleTx] %s No game number\n", e.TXID)
 							ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No game number", e.TXID)
 							storeTx("BET", "done", db, e)
 							return
@@ -1154,14 +1155,14 @@ func processSingleTx(txid string) {
 					case "s":
 						_, amt = gnomon.GetSCIDValuesByKey(scid, "s_amount_"+game_num)
 					default:
-						logger.Errorln("[processSingleTx]", e.TXID, "No prefix")
+						logger.Errorf("[processSingleTx] %s No prefix\n", e.TXID)
 						ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No prefix", e.TXID)
 						storeTx("BET", "done", db, e)
 						return
 					}
 
 					if amt == nil || amt[0] == 0 {
-						logger.Errorln("[processSingleTx]", e.TXID, "amount is nil")
+						logger.Errorf("[processSingleTx] %s amount is nil\n", e.TXID)
 						ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "Void", e.TXID)
 						storeTx("BET", "done", db, e)
 						return
@@ -1169,7 +1170,7 @@ func processSingleTx(txid string) {
 
 					value_expected := amt[0]
 					if e.Amount != value_expected {
-						logger.Errorf("[processSingleTx] User transferred %d, we were expecting %d. so we will refund", e.Amount, value_expected) // this is an unexpected situation
+						logger.Errorf("[processSingleTx] User transferred %d, we were expecting %d. so we will refund\n", e.Amount, value_expected) // this is an unexpected situation
 						ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "Wrong Amount", e.TXID)
 						storeTx("BET", "done", db, e)
 						return
@@ -1177,29 +1178,29 @@ func processSingleTx(txid string) {
 
 					for _, arg := range all_args {
 						if arg.Value(dero.RPC_COMMENT, dero.DataString).(string) == payload {
-							logger.Println("[processSingleTx] Hit payload")
+							logger.Printf("[processSingleTx] Hit payload\n")
 
 							var sent bool
 							switch prefix {
 							case "p":
-								logger.Println("[processSingleTx] Payload is prediction")
+								logger.Printf("[processSingleTx] Payload is prediction\n")
 								switch split[3] {
 								case "Higher":
-									logger.Println("[processSingleTx] Higher arg")
+									logger.Printf("[processSingleTx] Higher arg\n")
 									sent = sendToPrediction(1, scid, destination_expected, e)
 
 								case "Lower":
-									logger.Println("[processSingleTx] Lower arg")
+									logger.Printf("[processSingleTx] Lower arg\n")
 									sent = sendToPrediction(0, scid, destination_expected, e)
 
 								default:
 									sent = true
-									logger.Println("[processSingleTx]", e.TXID, "No prediction")
+									logger.Printf("[processSingleTx] %s No prediction\n", e.TXID)
 									ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No prediction", e.TXID)
 								}
 
 							case "s":
-								logger.Println("[processSingleTx] Payload is sports")
+								logger.Printf("[processSingleTx] Payload is sports\n")
 								var team string
 								team_a := TrimTeamA(split[2])
 								team_b := TrimTeamB(split[2])
@@ -1208,26 +1209,26 @@ func processSingleTx(txid string) {
 								} else if split[3] == team_b {
 									team = "b"
 								} else {
-									logger.Errorln("[processSingleTx] Could not get team from payload")
+									logger.Errorf("[processSingleTx] Could not get team from payload\n")
 								}
 
 								switch team {
 								case "a":
-									logger.Println("[processSingleTx] Team A arg")
+									logger.Printf("[processSingleTx] Team A arg\n")
 									sent = sendToSports(game_num, team_a, "team_a", scid, destination_expected, e)
 								case "b":
-									logger.Println("[processSingleTx] Team B arg")
+									logger.Printf("[processSingleTx] Team B arg\n")
 									sent = sendToSports(game_num, team_b, "team_b", scid, destination_expected, e)
 								default:
 									sent = true
-									logger.Errorln("[processSingleTx]", e.TXID, "No team")
+									logger.Errorf("[processSingleTx] %s No team\n", e.TXID)
 									ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No team", e.TXID)
 
 								}
 
 							default:
 								sent = true
-								logger.Errorln("[processSingleTx]", e.TXID, "No prefix")
+								logger.Errorf("[processSingleTx] %s No prefix\n", e.TXID)
 								ServiceRefund(e.Amount, e.SourcePort, scid, destination_expected, "No prefix", e.TXID)
 
 							}
@@ -1236,17 +1237,17 @@ func processSingleTx(txid string) {
 								break
 							}
 						} else {
-							logger.Errorln("[processSingleTx]", e.TXID, "comment != payload")
+							logger.Errorf("[processSingleTx] %s comment != payload\n", e.TXID)
 						}
 					}
 				} else {
-					logger.Errorln("[processSingleTx]", e.TXID, "scid not found")
+					logger.Errorf("[processSingleTx] %s scid not found\n", e.TXID)
 				}
 			} else {
-				logger.Errorln("[processSingleTx]", e.TXID, "Payload format wrong")
+				logger.Errorf("[processSingleTx] %s Payload format wrong\n", e.TXID)
 			}
 		} else {
-			logger.Errorln("[processSingleTx]", e.TXID, "No comment or reply address")
+			logger.Errorf("[processSingleTx] %s No comment or reply address\n", e.TXID)
 		}
 		storeTx("BET", "done", db, e)
 
@@ -1279,7 +1280,7 @@ func viewProcessedTx(start uint64) {
 		var outgoing dero.Get_Transfers_Result
 		err = rpc.Wallet.CallFor(&outgoing, "GetTransfers", out_params)
 		if err != nil {
-			logger.Errorln("[viewProcessedTx]", err)
+			logger.Errorf("[viewProcessedTx] %s\n", err)
 			return
 		}
 
@@ -1296,15 +1297,15 @@ func viewProcessedTx(start uint64) {
 		var transfers dero.Get_Transfers_Result
 		err = rpc.Wallet.CallFor(&transfers, "GetTransfers", in_params)
 		if err != nil {
-			logger.Errorln("[ViewProcessedTx] Could not obtain GetTransfers from wallet", err)
+			logger.Errorf("[ViewProcessedTx] Could not obtain GetTransfers from wallet: %s\n", err)
 			return
 		}
 
-		logger.Println("[ViewProcessedTx] Viewing", len(transfers.Entries), "Entries from Height", strconv.Itoa(int(start)))
+		logger.Printf("[ViewProcessedTx] Viewing %d Entries from Height %s\n", len(transfers.Entries), strconv.Itoa(int(start)))
 
 		for _, e := range transfers.Entries {
 			if e.Coinbase || !e.Incoming {
-				logger.Println("[ViewProcessedTx]", e.TXID, "coinbase or outgoing")
+				logger.Printf("[ViewProcessedTx] %s coinbase or outgoing\n", e.TXID)
 				continue
 			}
 
@@ -1329,15 +1330,15 @@ func viewProcessedTx(start uint64) {
 
 			when := e.Height
 			if already_processed {
-				logger.Println("[ViewProcessedTx]", fmt.Sprintf(PrintColor.Green+"%s Received: %d Already processed"+PrintColor.Reset, e.TXID, when))
+				logger.Printf("[ViewProcessedTx] %s%s Received: %d Already processed%s\n", PrintColor.Green, e.TXID, when, PrintColor.Reset)
 				if replied {
-					logger.Println("[ViewProcessedTx]", fmt.Sprintf(PrintColor.Yellow+"Replied: %s"+PrintColor.Reset, reply_txid))
+					logger.Printf("[ViewProcessedTx] %sReplied: %s%s\n", PrintColor.Yellow, reply_txid, PrintColor.Reset)
 				}
 			} else {
-				logger.Println("[ViewProcessedTx]", fmt.Sprintf(PrintColor.Red+"%s Received: %d Not processed"+PrintColor.Reset, e.TXID, when))
+				logger.Printf("[ViewProcessedTx] %s%s Received: %d Not processed%s\n", PrintColor.Red, e.TXID, when, PrintColor.Reset)
 			}
 		}
-		logger.Println("[ViewProcessedTx] Done")
+		logger.Printf("[ViewProcessedTx] Done\n")
 	}
 }
 
@@ -1382,9 +1383,9 @@ func storeTx(bucket, value string, db *bbolt.DB, e dero.Entry) {
 	})
 
 	if err != nil {
-		logger.Errorln("[storeTx]", bucket, err)
+		logger.Errorf("[storeTx] %s: %s\n", bucket, err)
 	} else {
-		logger.Println("[storeTx]", e.TXID, bucket, "Stored")
+		logger.Printf("[storeTx] %s %s Stored\n", e.TXID, bucket)
 	}
 }
 
@@ -1396,9 +1397,9 @@ func deleteTx(bucket string, db *bbolt.DB, e dero.Entry) {
 	})
 
 	if err != nil {
-		logger.Errorln("[deleteTx]", bucket, err)
+		logger.Errorf("[deleteTx] %s: %s\n", bucket, err)
 	} else {
-		logger.Println("[deleteTx]", e.TXID, bucket, "Deleted")
+		logger.Printf("[deleteTx] %s %s Deleted\n", e.TXID, bucket)
 	}
 }
 
@@ -1493,7 +1494,7 @@ func sendRefund(scid, addr, msg string, e dero.Entry) {
 func waitForBlock() {
 	i := 0
 	if Service.Debug && rpc.Wallet.Height() < Service.Last_block+3 {
-		logger.Println("[waitForBlock] Waiting for block")
+		logger.Printf("[waitForBlock] Waiting for block\n")
 	}
 
 	for rpc.Wallet.Height() < Service.Last_block+3 && i < 20 {

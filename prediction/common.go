@@ -9,15 +9,12 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/civilware/Gnomon/structures"
+	"github.com/civilware/tela/logger"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
-	"github.com/sirupsen/logrus"
 )
-
-var logger = structures.Logger.WithFields(logrus.Fields{})
 
 func DreamsMenuIntro() (entries map[string][]string) {
 	entries = map[string][]string{
@@ -135,7 +132,7 @@ func fetch(d *dreams.AppObject) {
 			}
 
 			if !owner.synced && gnomes.Scan() {
-				logger.Println("[dPrediction] Syncing")
+				logger.Printf("[dPrediction] Syncing\n")
 				syncScreen()
 			}
 
@@ -174,7 +171,7 @@ func fetch(d *dreams.AppObject) {
 			d.WorkDone()
 		case <-d.CloseDapp():
 			Service.IsStopped()
-			logger.Println("[dPrediction] Done")
+			logger.Printf("[dPrediction] Done\n")
 			return
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/civilware/tela/logger"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
@@ -247,7 +248,7 @@ func sportsOpts(window fyne.Window) fyne.CanvasObject {
 	owner.sports.game = widget.NewSelect(options, func(s string) {
 		game := strings.Split(s, "   ")
 		if len(s) < 11 {
-			logger.Errorln("[sportsOpts] wrong date len")
+			logger.Errorf("[sportsOpts] wrong date len\n")
 			return
 		}
 
@@ -386,7 +387,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				processSingleTx(txid.Text)
 			}
 		} else {
-			logger.Warnln("[dService] Stop service to manually process Tx")
+			logger.Warnf("[dService] Stop service to manually process Tx\n")
 		}
 	})
 
@@ -402,7 +403,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				}
 			}
 		} else {
-			logger.Warnln("[dService] Stop service to delete Tx")
+			logger.Warnf("[dService] Stop service to delete Tx\n")
 		}
 	})
 
@@ -418,7 +419,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 				}
 			}
 		} else {
-			logger.Warnln("[dService] Stop service to store Tx")
+			logger.Warnf("[dService] Stop service to store Tx\n")
 		}
 	})
 
@@ -456,7 +457,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 			}
 			viewProcessedTx(start)
 		} else {
-			logger.Warnln("[dService] Stop service to view Tx history")
+			logger.Warnf("[dService] Stop service to view Tx history\n")
 		}
 	})
 
@@ -506,13 +507,13 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 						window.Content().(*fyne.Container).Objects[2].Refresh()
 					}()
 				} else {
-					logger.Warnln("[dService] Select which services to run")
+					logger.Warnf("[dService] Select which services to run\n")
 				}
 			} else {
-				logger.Warnln("[dService] Enter service starting height")
+				logger.Warnf("[dService] Enter service starting height\n")
 			}
 		} else {
-			logger.Warnln("[dService] Service already running")
+			logger.Warnf("[dService] Service already running\n")
 		}
 	})
 
@@ -522,7 +523,7 @@ func serviceOpts(window fyne.Window) fyne.CanvasObject {
 
 	stop := widget.NewButton("Stop Service", func() {
 		if Service.IsRunning() {
-			logger.Println("[dService] Stopping service")
+			logger.Printf("[dService] Stopping service\n")
 		}
 		Service.Stop()
 
@@ -615,7 +616,7 @@ func updateOpts() fyne.CanvasObject {
 			case "Sports":
 				AddOwner(Sports.Contract.SCID, new_owner.Text)
 			default:
-				logger.Warnln("[dService] Select contract")
+				logger.Warnf("[dService] Select contract\n")
 			}
 		}
 	})
@@ -633,7 +634,7 @@ func updateOpts() fyne.CanvasObject {
 		case "Sports":
 			RemoveOwner(Sports.Contract.SCID, rpc.StringToInt(owner_num.Text))
 		default:
-			logger.Warnln("[dService] Select contract")
+			logger.Warnf("[dService] Select contract\n")
 		}
 	})
 
@@ -647,7 +648,7 @@ func updateOpts() fyne.CanvasObject {
 					VarUpdate(Sports.Contract.SCID, rpc.StringToInt(a.Text), rpc.StringToInt(b.Text), rpc.StringToInt(c.Text), 30, rpc.StringToInt(hl.Text))
 				}
 			default:
-				logger.Warnln("[dService] Select contract")
+				logger.Warnf("[dService] Select contract\n")
 			}
 		}
 	})
@@ -717,7 +718,7 @@ func ConfirmAction(i int, teamA, teamB string, d *dreams.AppObject) {
 
 		text = fmt.Sprintf("SCID:\n\n%s\n\nBetting on Game # %s\n\n%s for %s Dero", s_scid, game, teamB, x)
 	default:
-		logger.Errorln("[dService] No Confirm Input")
+		logger.Errorf("[dService] No Confirm Input\n")
 		text = "Error"
 	}
 
@@ -1112,7 +1113,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 				payout_str = fmt.Sprintf("SCID:\n\n%s\n\nGame: %s\n\n%s: %s\n%s: %s\n\nWinner: %s", s_scid, owner.sports.payout.Text, TrimTeamA(n_split[2]), a_score, TrimTeamB(n_split[2]), b_score, team)
 			}
 		} else {
-			logger.Errorln("[dService] Could not format game string")
+			logger.Errorf("[dService] Could not format game string\n")
 			i = 100
 			if owner.sports.payout.Text == "" {
 				err_string = "Select game for payout"
@@ -1187,7 +1188,7 @@ func ownerConfirmAction(i int, p float64, window fyne.Window, reset fyne.CanvasO
 	case 9:
 		confirm_display.SetText("SCID:\n\n" + s_scid + "\n\nThis will Cancel the last initiated bet on this contract")
 	default:
-		logger.Errorln("[dService] No Confirm Input")
+		logger.Errorf("[dService] No Confirm Input\n")
 		confirm_display.SetText("Error\n\n" + err_string)
 	}
 

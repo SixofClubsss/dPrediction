@@ -11,18 +11,17 @@ import (
 	"github.com/SixofClubsss/dPrediction/prediction"
 	"github.com/civilware/Gnomon/indexer"
 	"github.com/civilware/Gnomon/structures"
+	"github.com/civilware/tela/logger"
 	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
 	"github.com/docopt/docopt-go"
-	"github.com/sirupsen/logrus"
 )
 
 // Run dReamsService process from dReams prediction package
 
 var gnomon = gnomes.NewGnomes()
 var enable_transfers bool
-var logger = structures.Logger.WithFields(logrus.Fields{})
 var command_line string = `dService
 App to run dService as a single process, powered by Gnomon and dReams.
 
@@ -166,10 +165,10 @@ func main() {
 		prediction.Service.Stop()
 		menu.SetClose(true)
 		for prediction.Service.IsProcessing() {
-			logger.Println("[dService] Waiting for service to close")
+			logger.Printf("[dService] Waiting for service to close\n")
 			time.Sleep(3 * time.Second)
 		}
-		logger.Println("[dService] Closing")
+		logger.Printf("[dService] Closing\n")
 		os.Exit(0)
 	}()
 
@@ -182,7 +181,7 @@ func main() {
 			time.Sleep(time.Second)
 		}
 
-		logger.Println("[dService] Starting when Gnomon is synced")
+		logger.Printf("[dService] Starting when Gnomon is synced\n")
 		height = uint64(gnomon.GetChainHeight())
 		for !menu.IsClosing() && gnomon.IsRunning() && rpc.IsReady() {
 			rpc.Daemon.Ping()

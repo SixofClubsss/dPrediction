@@ -14,13 +14,13 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/SixofClubsss/Holdero/holdero"
 	"github.com/blang/semver/v4"
+	"github.com/civilware/tela/logger"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/bundle"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/gnomes"
 	"github.com/dReam-dApps/dReams/menu"
 	"github.com/dReam-dApps/dReams/rpc"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -28,7 +28,7 @@ const (
 	appID   = "dreamdapps.io.dprediction"
 )
 
-var version = semver.MustParse("0.3.1-dev.12")
+var version = semver.MustParse("0.3.1-dev.13")
 var gnomon = gnomes.NewGnomes()
 
 // Check prediction package version
@@ -40,9 +40,6 @@ func Version() semver.Version {
 func StartApp() {
 	n := runtime.NumCPU()
 	runtime.GOMAXPROCS(n)
-
-	// Initialize logrus logger to stdout
-	gnomes.InitLogrusLog(logrus.InfoLevel)
 
 	// Read config.json file
 	config := menu.GetSettings(appName)
@@ -198,7 +195,7 @@ func StartApp() {
 				d.SignalChannel()
 
 			case <-d.Closing(): // exit
-				logger.Printf("[%s] Closing...", appName)
+				logger.Printf("[%s] Closing...\n", appName)
 				if gnomes.Indicator.Icon != nil {
 					gnomes.Indicator.Icon.Stop()
 				}
@@ -218,5 +215,5 @@ func StartApp() {
 	}()
 	d.Window.ShowAndRun()
 	<-done
-	logger.Printf("[%s] Closed", appName)
+	logger.Printf("[%s] Closed\n", appName)
 }

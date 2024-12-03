@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/SixofClubsss/Holdero/holdero"
+	"github.com/civilware/tela/logger"
 	"github.com/dReam-dApps/dReams/rpc"
 	dero "github.com/deroproject/derohe/rpc"
 	"github.com/deroproject/derohe/walletapi"
@@ -686,7 +687,7 @@ func ValidBetContract(scid string) bool {
 	}
 
 	if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
-		logger.Errorln("[ValidBetContract]", err)
+		logger.Errorf("[ValidBetContract] %s\n", err)
 		return false
 	}
 
@@ -709,7 +710,7 @@ func FetchPredictionFinal(scid string) (txid string) {
 
 		var result *dero.GetSC_Result
 		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
-			logger.Errorln("[FetchPredictionFinal]", err)
+			logger.Errorf("[FetchPredictionFinal] %s\n", err)
 			return ""
 		}
 
@@ -747,7 +748,7 @@ func GetPredictCode(pub int) string {
 		}
 
 		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
-			logger.Errorln("[GetPredictCode]", err)
+			logger.Errorf("[GetPredictCode] %s\n", err)
 			return ""
 		}
 
@@ -780,7 +781,7 @@ func GetSportsCode(pub int) string {
 		}
 
 		if err := client.CallFor(ctx, &result, "DERO.GetSC", params); err != nil {
-			logger.Errorln("[GetSportsCode]", err)
+			logger.Errorf("[GetSportsCode] %s\n", err)
 			return ""
 		}
 

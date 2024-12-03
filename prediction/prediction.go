@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/civilware/tela/logger"
 	dreams "github.com/dReam-dApps/dReams"
 	"github.com/dReam-dApps/dReams/dwidget"
 	"github.com/dReam-dApps/dReams/gnomes"
@@ -213,7 +214,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 			Predict.Favorites.SCIDs = append(Predict.Favorites.SCIDs, item)
 			sort.Strings(Predict.Favorites.SCIDs)
 			if err := dreams.StoreAccount(saveAccount()); err != nil {
-				logger.Errorln("[Predictions] storing account", err)
+				logger.Errorf("[Predictions] storing account: %s\n", err)
 			}
 		}
 	})
@@ -225,7 +226,7 @@ func PredictionListings(d *dreams.AppObject) fyne.CanvasObject {
 				menu.RateConfirm(Predict.Contract.SCID, d)
 			} else {
 				dialog.NewInformation("Can't rate", "You are the owner of this SCID", d.Window).Show()
-				logger.Warnln("[Predictions] Can't rate, you own this contract")
+				logger.Warnf("[Predictions] Can't rate, you own this contract\n")
 			}
 		}
 	})
@@ -281,7 +282,7 @@ func PredictionFavorites() fyne.CanvasObject {
 			Predict.Favorites.List.Refresh()
 			sort.Strings(Predict.Favorites.SCIDs)
 			if err := dreams.StoreAccount(saveAccount()); err != nil {
-				logger.Errorln("[Predictions] storing account", err)
+				logger.Errorf("[Predictions] storing account: %s\n", err)
 			}
 		}
 	})
@@ -342,9 +343,9 @@ func P_initResults(p, amt, eA, c, to, u, d, r, f, m string, ta, tb, tc int) (inf
 	rf := strconv.Itoa(tb / 60)
 
 	result, err := strconv.ParseFloat(to, 32)
-
 	if err != nil {
-		logger.Errorln("[Predictions]", err)
+		logger.Errorf("[Predictions] %s\n", err)
+		return
 	}
 
 	s := fmt.Sprintf("%.5f", result/100000)
